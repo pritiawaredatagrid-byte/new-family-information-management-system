@@ -35,7 +35,7 @@ form div input{
     padding: 0.4rem 0.3rem;
     border-radius: 5px;
     margin-top: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.7rem;
     border:0.1rem solid #757575;
 }
 
@@ -51,4 +51,9 @@ form .admin-login{
     color:white;
     border: none;
     font-size: 1rem;
+}
+
+.main p{
+    color:red;
+     margin-bottom: 1rem;
 }
