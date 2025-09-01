@@ -10,4 +10,8 @@ Route::get('/', function () {
 });
 
 Route::view('admin-login','admin-login');
+Route::view('user-registration','user-registration');
+Route::view('family-member-form','family-member-form');
+
 Route::post('admin-login',[AdminController::class,'login']);
+Route::get('dashboard', [AdminController::class, 'dashboard']);

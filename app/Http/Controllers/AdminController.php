@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
-use Session;
-
 use App\Models\Admin;
+
+use Illuminate\Support\Facades\Session;
+
 
 class AdminController extends Controller
 {
@@ -29,6 +30,16 @@ class AdminController extends Controller
         }
         Session::put('admin',$admin);
         return redirect('dashboard');
+    }
+
+    function dashboard(){
+        $admin =  Session::get('admin');
+        if($admin){
+            return view('admin',["name"=>$admin->name]);
+        }else{
+           return redirect('/admin-login'); 
+        }
+        return view('admin',$admin);
     }
 
 }

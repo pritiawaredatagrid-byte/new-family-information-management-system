@@ -29,6 +29,7 @@
                 @enderror
             </div>
             <button type="submit" class="admin-login">Login</button>
+            <a href="">Forget Your Password?</a>
         </form>
     </div>
 </body>
