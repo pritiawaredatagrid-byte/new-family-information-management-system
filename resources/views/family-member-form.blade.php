@@ -12,7 +12,7 @@
         @error('user')
             <p class="text-red-500 text-sm mt-1 py-2">{{ $message }}</p>
         @enderror
-        <form action="/admin-login" method="post" class="space-y-4">
+        <form action="/family-member-form" method="post" class="space-y-4">
             @csrf
             <div>
                 <label for="">Member Name</label>
@@ -31,27 +31,21 @@
             
              <div class="marital-status">
                 <label for="">Marital Status </label>
-                <input type="radio" name="marital-status" id="">Married</input>&nbsp &nbsp
-                <input type="radio" name="marital-status" id="">Unmarried</input>
-                @error('pincode')
+                <input type="radio" name="marital-status" value="Married" id="">Married</input>&nbsp &nbsp
+                <input type="radio" name="marital-status" value="unarried" id="">Unmarried</input>
+                @error('marital-status')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
             <div>
-                <label for="">Education</label>
-                <input type="text" name="name" id="" placeholder="Enter Education">
-                @error('name')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
+                <label for="">Education </label>&nbsp<span style="color:red"> (optional)</span>
+                <input type="text" name="education" id="" placeholder="Enter Education">
             </div>
 
             <div>
-                <label for="">Profile Photo</label>
+                <label for="">Profile Photo</label>&nbsp<span style="color:red">(optional)</span>
                 <input type="file" name="photo" id=""></input>
-                @error('photo')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
             </div>
 
             <button type="submit" class="admin-login">Add Family Member</button>

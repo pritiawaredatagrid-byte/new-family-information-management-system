@@ -19,7 +19,10 @@ Route::get('dashboard', [AdminController::class, 'dashboard']);
 
 
 Route::view('user-registration','user-registration');
-Route::view('family-member-form','family-member-form');
-
-
 Route::post('user-registration',[UserController::class,'userRegistration']);
+
+
+Route::view('family-member-form','family-member-form');
+Route::post('family-member-form',[UserController::class,'familyMember']);
+
+
