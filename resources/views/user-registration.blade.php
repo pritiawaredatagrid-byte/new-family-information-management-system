@@ -12,7 +12,7 @@
         @error('user')
             <p class="text-red-500 text-sm mt-1 py-2">{{ $message }}</p>
         @enderror
-        <form action="/admin-login" method="post" class="space-y-4">
+        <form action="/user-registration" method="post" class="space-y-4">
             @csrf
             <div>
                 <label for="">Family Head Name</label>
@@ -52,7 +52,7 @@
             <div>
                 <label for="" class="text-gray-600 space-y-2">State</label>
                 <select name="state" id="">
-                    <option value="">Maharashtra</option>
+                    <!-- <option value="Maharashtra">Maharashtra</option> -->
                 </select>
                 @error('state')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -61,7 +61,7 @@
             <div>
                 <label for="" class="text-gray-600 space-y-2">City</label>
                 <select name="city" id="">
-                    <option value="">Nashik</option>
+                    <!-- <option value="Nashik">Nashik</option> -->
                 </select>
                 @error('city')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -76,16 +76,17 @@
             </div>
             <div class="marital-status">
                 <label for="">Marital Status </label>
-                <input type="radio" name="marital-status" id="">Married</input>&nbsp &nbsp
-                <input type="radio" name="marital-status" id="">Unmarried</input>
-                @error('pincode')
+                <input type="radio" name="marital-status" value="married" id="">Married</input>&nbsp &nbsp
+                <input type="radio" name="marital-status" value="unmarried" id="">Unmarried</input>
+                @error('marital-status')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
             <div class="hobbies">
                 <label for="">Hobbies</label>&nbsp &nbsp
-                <button name="" id="">Add Hobby</input>
-                @error('pincode')
+                <button name="" id="">Add Hobby</button>
+                <input type="text" name="hobby" id=""></input>
+                @error('hobby')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
