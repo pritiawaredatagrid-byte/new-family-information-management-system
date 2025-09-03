@@ -22,12 +22,14 @@ class UserController extends Controller
      'city'=>'required',
      'pincode'=>'required|digits:6',
      'status'=>'required',
-     'hobby'=>'required',
+     'hobbies.*'=>'required',
      'photo'=>'required|image|mimes:jpg,png|max:2048'
     ],[
       'birthdate.before_or_equal'=>'Family head must be 21 years or older',
+      'hobbies.*.required'=>'At least 1 hobby required',
     ]);
 
+    
    $user->name = $request->name;
    $user->surname = $request->surname;
    $user->birthdate = $request->birthdate;
@@ -37,7 +39,7 @@ class UserController extends Controller
    $user->city = $request->city;
    $user->pincode = $request->pincode;
    $user->status = $request->status;
-   $user->hobby = $request->hobby;
+   $user->hobby = json_encode($request->hobbies);
 
    $imagePath=null;
    if($request->hasFile('photo')){

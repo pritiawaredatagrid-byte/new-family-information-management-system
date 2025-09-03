@@ -122,25 +122,26 @@ background-color: #F5F5F5;
     margin-bottom: 0.5rem;
 }
 
-.Registration-body .hobbies{
+.Registration-body form .hobbies{
     display:flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.Registration-body .hobbies label{
+.Registration-body form .hobbies label{
     margin-right: 0.5rem;
 }
 
-.Registration-body .hobbies button{
-    width: 60%;
+.Registration-body form .hobbies button{
+    width: 100%;
     background-color: #2196F3;
     border-radius: 5px;
-    padding: 0.5rem 0.1rem;
+    padding: 0.5rem 0.5rem;
     color:white;
     border: none;
     font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.7rem;
+    margin-left:0.4rem;
 }
 
 .Registration-body .main button{
