@@ -22,7 +22,7 @@ Route::view('user-registration','user-registration');
 Route::post('user-registration',[UserController::class,'userRegistration']);
 
 
-Route::view('family-member-form','family-member-form');
-Route::post('family-member-form',[UserController::class,'familyMember']);
+Route::view('add-family-member','add-family-member');
+Route::post('add-family-member',[UserController::class,'addFamilyMember']);
 
 

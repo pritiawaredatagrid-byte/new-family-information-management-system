@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Registration</title>
+    <title>Add Family Member</title>
     <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
 </head>
 <body class="Family-Member-body">
@@ -12,7 +12,7 @@
         @error('user')
             <p class="text-red-500 text-sm mt-1 py-2">{{ $message }}</p>
         @enderror
-        <form action="/family-member-form" method="post" class="space-y-4">
+        <form action="/add-family-member" method="post" class="space-y-4" enctype="multipart/form-data">
             @csrf
             <div>
                 <label for="">Member Name</label>
@@ -31,9 +31,9 @@
             
              <div class="marital-status">
                 <label for="">Marital Status </label>
-                <input type="radio" name="marital-status" value="Married" id="">Married</input>&nbsp &nbsp
-                <input type="radio" name="marital-status" value="unarried" id="">Unmarried</input>
-                @error('marital-status')
+                <input type="radio" name="status" value="Married" id="">Married</input>&nbsp &nbsp
+                <input type="radio" name="status" value="unarried" id="">Unmarried</input>
+                @error('status')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
@@ -48,7 +48,7 @@
                 <input type="file" name="photo" id=""></input>
             </div>
 
-            <button type="submit" class="admin-login">Add Family Member</button>
+            <button type="submit" name="submit" class="admin-login">Add Family Member</button>
         </form>
     </div>
 </body>

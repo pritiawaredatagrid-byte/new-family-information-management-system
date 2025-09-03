@@ -12,7 +12,7 @@
         @error('user')
             <p class="text-red-500 text-sm mt-1 py-2">{{ $message }}</p>
         @enderror
-        <form action="/user-registration" method="post" class="space-y-4">
+        <form action="/user-registration" method="post" class="space-y-4" enctype="multipart/form-data">
             @csrf
             <div>
                 <label for="">Family Head Name</label>
@@ -52,7 +52,7 @@
             <div>
                 <label for="" class="text-gray-600 space-y-2">State</label>
                 <select name="state" id="">
-                    <!-- <option value="Maharashtra">Maharashtra</option> -->
+                    <option value="Maharashtra">Maharashtra</option>
                 </select>
                 @error('state')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -61,7 +61,7 @@
             <div>
                 <label for="" class="text-gray-600 space-y-2">City</label>
                 <select name="city" id="">
-                    <!-- <option value="Nashik">Nashik</option> -->
+                    <option value="Nashik">Nashik</option>
                 </select>
                 @error('city')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -76,30 +76,36 @@
             </div>
             <div class="marital-status">
                 <label for="">Marital Status </label>
-                <input type="radio" name="marital-status" value="married" id="">Married</input>&nbsp &nbsp
-                <input type="radio" name="marital-status" value="unmarried" id="">Unmarried</input>
-                @error('marital-status')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
+                <input type="radio" name="status" value="married" id="">Married</input>&nbsp &nbsp
+                <input type="radio" name="status" value="unmarried" id="">Unmarried</input>
             </div>
-            <div class="hobbies">
-                <label for="">Hobbies</label>&nbsp &nbsp
-                <button name="" id="">Add Hobby</button>
-                <input type="text" name="hobby" id=""></input>
-                @error('hobby')
+            <div>
+                @error('status')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
+                 <label for="">Wedding Date</label>
+                 <input type="date" id=""></input>
             </div>
 
+            <div class="hobbies">
+                <label for="">Hobbies</label>&nbsp &nbsp
+                <input type="text" name="hobby" id=""></input>
+                <!-- <button name="" id="">Add Hobby</button> -->
+            </div>
+            <div >
+                 @error('hobby')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
             <div>
                 <label for="">Profile Photo</label>
-                <input type="file" name="photo" id=""></input>
+                <input type="file" name="photo" accept="image/*" id=""></input>
                 @error('photo')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
-            <button type="submit" class="admin-login">Add Family Head</button>
+            <button type="submit" name="submit" class="admin-login">Add Family Head</button>
         </form>
     </div>
 </body>
