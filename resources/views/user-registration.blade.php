@@ -52,8 +52,11 @@
             </div>
             <div>
                 <label for="" class="text-gray-600 space-y-2">State</label>
-                <select name="state" id="">
-                    <option value="Maharashtra">Maharashtra</option>
+                <select name="state" id="state" class="state">
+                       <option value="">Select State</option>
+                       @foreach($states as $data)
+                        <option value="{{ $data->state_id }}">{{ $data->state_name }}</option>
+                       @endforeach
                 </select>
                 @error('state')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -61,8 +64,8 @@
             </div>
             <div>
                 <label for="" class="text-gray-600 space-y-2">City</label>
-                <select name="city" id="">
-                    <option value="Nashik">Nashik</option>
+                <select name="city" id="city" class="city">
+                    <option value="">Select City</option>
                 </select>
                 @error('city')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -84,8 +87,10 @@
                 @error('status')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
+            </div>
+            <div class="WeddingDate">
                  <label for="">Wedding Date</label>
-                 <input type="date" id=""></input>
+                 <input type="date" name="wedding_date" id=""></input>
             </div>
 
             <div class="hobbies">
@@ -143,6 +148,42 @@
         $(document).on('click','.remove-table-row',function(){
             $(this).parents('tr').remove();
         });
+
+       $(document).ready(function(){
+             $('.WeddingDate').hide();
+             $('input[name="status"]').on('change', function() {
+               if ($(this).val() === "married") {
+                     $('.WeddingDate').show();
+                } else {
+                  $('.WeddingDate').hide();
+            }
+       });
+     });
+
+    $(document).ready(function(){
+    $('.state').on('change', function(){
+        var idState = this.value;
+        $('.city').html('<option value="">Select City</option>');
+        
+        if (idState) {
+            $.ajax({
+                 url: "{{ route('get.cities') }}", 
+                 type: "POST",
+                 data: {
+                   state_id: idState,
+                   _token: '{{ csrf_token() }}'
+                 },
+                 dataType: 'json',
+                 success: function(cities){
+                     $.each(cities, function(key, value){
+                        $('.city').append('<option value="' + value.city_name + '">' + value.city_name + '</option>');
+                     });
+                 }
+            });
+        }
+    });
+});
+
     </script>
 </body>
 </html>

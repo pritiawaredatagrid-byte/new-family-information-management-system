@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('name');
             $table->date('birthdate');
             $table->string('status');
-            $table->string('education');
-            $table->string('photo');
+            $table->date('wedding_date')->nullable();
+            $table->string('education')->nullable();
+            $table->string('photo')->nullable();
             $table->timestamps();
         });
     }

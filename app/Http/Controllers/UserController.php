@@ -5,6 +5,9 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\UserRegistration;
 use App\Models\Member;
+use App\Models\State;
+use App\Models\City;
+
 use Illuminate\Support\Facades\Session;
 class UserController extends Controller
 {
@@ -35,10 +38,22 @@ class UserController extends Controller
    $user->birthdate = $request->birthdate;
    $user->mobile_number = $request->mobile_number;
    $user->address = $request->address;
-   $user->state = $request->state;
+
+   
+   $stateId = $request->state;
+   $state = State::find($stateId); 
+
+   if ($state) {
+        $user->state = $state->state_name;
+    } else {
+        $user->state = null;
+    }
+
+
    $user->city = $request->city;
    $user->pincode = $request->pincode;
    $user->status = $request->status;
+   $user->wedding_date = $request->wedding_date;
    $user->hobby = json_encode($request->hobbies);
 
    $imagePath=null;
@@ -55,6 +70,19 @@ class UserController extends Controller
         }
       }
    }
+
+  public function addStates()
+   { 
+    $states = State::select('state_id', 'state_name')->get();
+    return view('user-registration', compact('states'));
+   }
+
+   public function getCities(Request $request)
+   { 
+    $cities = City::where('state_id','=',$request->state_id)->get(['city_id','city_name']);
+    return response()->json($cities);
+   }
+
 
    function addFamilyMember(Request $request){
     $member = new Member();

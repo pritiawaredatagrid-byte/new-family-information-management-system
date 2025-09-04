@@ -20,9 +20,9 @@ Route::get('dashboard', [AdminController::class, 'dashboard']);
 
 Route::view('user-registration','user-registration');
 Route::post('user-registration',[UserController::class,'userRegistration']);
-
+Route::get('user-registration',[UserController::class,'addStates']);
+Route::post('get-cities',[UserController::class,'getCities'])->name('get.cities');;
 
 Route::view('add-family-member','add-family-member');
 Route::post('add-family-member',[UserController::class,'addFamilyMember']);
-
 

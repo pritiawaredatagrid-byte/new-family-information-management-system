@@ -16,12 +16,13 @@ return new class extends Migration
             $table->string('name');
             $table->string('surname');
             $table->date('birthdate');
-            $table->integer('mobile_number');
+            $table->bigInteger('mobile_number');
             $table->string('address');
             $table->string('state');
             $table->string('city');
             $table->integer('pincode');
             $table->string('status');
+            $table->date('wedding_date')->nullable();
             $table->string('hobby');
             $table->string('photo');
             $table->timestamps();
