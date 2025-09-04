@@ -6,9 +6,14 @@
     <title>User Registration</title>
     <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    </head>
+     </head>
 <body class="Registration-body">
-    <div class="main">
+       @if(Session('users'))
+        <div class="" role="alert">
+            <span class="" style="color:green">{{ Session('users') }}</span>
+        </div>
+      @endif
+     <div class="main">
         <h2>Registration Form</h2>
         @error('user')
             <p class="text-red-500 text-sm mt-1 py-2">{{ $message }}</p>
@@ -121,8 +126,9 @@
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
-
             <button type="submit" name="submit" class="admin-login">Add Family Head</button>
+            <button type="button" name="add" class="admin-login"><a href="/add-family-member" style="color:white">Add Family Member</a>
+            </button>
         </form>
     </div>
 

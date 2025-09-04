@@ -16,7 +16,7 @@ Route::post('admin-set-forget-password',[AdminController::class,'AdminSetForgetP
 
 Route::post('admin-login',[AdminController::class,'login']);
 Route::get('dashboard', [AdminController::class, 'dashboard']);
-
+Route::get('admin-logout',[AdminController::class, 'logout']);
 
 Route::view('user-registration','user-registration');
 Route::post('user-registration',[UserController::class,'userRegistration']);

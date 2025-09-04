@@ -6,6 +6,8 @@ use App\Models\Admin;
 use \Crypt;
 use Mail;
 use App\Mail\AdminForgotPassword;
+use App\Models\UserRegistration;
+use App\Models\Member;
 
 use Illuminate\Support\Facades\Session;
 
@@ -63,15 +65,27 @@ class AdminController extends Controller
     }
     }
 
-
-    function dashboard(){
+       function dashboard(){
         $admin =  Session::get('admin');
+        $totalFamilies=  UserRegistration::count();
+        $totalMembers=  Member::count();
         if($admin){
-            return view('/Auth/Admin-login/admin',["name"=>$admin->name]);
+            return view('/Auth/Admin-login/admin',["name"=>$admin->name,"totalFamilies" => $totalFamilies,"totalMembers" => $totalMembers]);
         }else{
            return redirect('/admin-login'); 
         }
         return view('admin',$admin);
+    }
+
+    
+
+
+
+
+
+     function logout(){
+        Session::forget('admin');
+        return redirect('/admin-login');
     }
 
 }
