@@ -137,7 +137,7 @@
                 <input type="text" name="hobbies[`+i+`]" placeholder="Enter hobby here"  class="form-control" id=""></input>
                 </td>
                 <td>
-                <button type="button" name="add" id="add" class="btn btn-danger remove-table-row ">Remove</button>
+                <button type="button" name="add" id="add" class="remove-table-row" style="background-color:red">Remove</button>
                 </td>
                  </tr>
                
