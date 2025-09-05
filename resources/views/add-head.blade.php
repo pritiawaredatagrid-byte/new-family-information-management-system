@@ -143,11 +143,11 @@
         </div>
       @endif
      <div class="main">
-        <h2>Registration Form</h2>
+        <h2>Add Head</h2>
         @error('user')
             <p class="text-red-500 text-sm mt-1 py-2">{{ $message }}</p>
         @enderror
-        <form action="/user-registration" method="post" class="space-y-4" enctype="multipart/form-data">
+        <form action="/add-head" method="post" class="space-y-4" enctype="multipart/form-data">
             @csrf
             <div>
                 <label for="">Family Head Name</label>

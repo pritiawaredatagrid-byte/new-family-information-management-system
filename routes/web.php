@@ -16,6 +16,10 @@ Route::post('admin-set-forget-password',[AdminController::class,'AdminSetForgetP
 
 Route::post('admin-login',[AdminController::class,'login']);
 Route::get('dashboard', [AdminController::class, 'dashboard']);
+
+// Route::get('admin', [AdminController::class, 'displayHeads']);
+// Route::view('admin','/Auth/Admin-login/admin');
+
 Route::get('admin-logout',[AdminController::class, 'logout']);
 
 Route::view('user-registration','user-registration');
@@ -23,6 +27,11 @@ Route::post('user-registration',[UserController::class,'userRegistration']);
 Route::get('user-registration',[UserController::class,'addStates']);
 Route::post('get-cities',[UserController::class,'getCities'])->name('get.cities');;
 
+
+// Route::view('add-head','add-head');
+// Route::post('add-head',[UserController::class,'userRegistration']);
+
 Route::view('add-family-member','add-family-member');
 Route::post('add-family-member',[UserController::class,'addFamilyMember']);
+Route::view('head-list','head-list');
 
