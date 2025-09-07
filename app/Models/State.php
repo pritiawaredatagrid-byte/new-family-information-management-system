@@ -8,4 +8,8 @@ class State extends Model
 {
     protected $table = "states";
     protected $primaryKey = 'state_id';
+    public function cities()
+    {
+        return $this->hasMany(City::class, 'state_id');
+    }
 }
