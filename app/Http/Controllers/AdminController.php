@@ -115,12 +115,13 @@ class AdminController extends Controller
         return view('Auth.Admin-login.city-list', ['cities' => $cities]);
     }
 
-    function search(Request $request)
+    function searchData(Request $request)
     {
-        return $searchData = UserRegistration::where('name', 'like', '%' . $request->search . '%')
-    ->orWhere('mobile_number', 'like', '%' . $request->search . '%')
+    $searchData = UserRegistration::where('name', 'like', '%' . $request->search . '%')
+    ->orWhere('mobile_number', 'like', '%' . $request->search . '%')->orWhere('state', 'like', '%' . $request->search . '%')->orWhere('city', 'like', '%' . $request->search . '%')
     ->get();
-        return view('Auth.Admin-login.linkSent');
+    return $searchData;
+    return view('Auth.Admin-login.searchData');
     }
 
     function logout()
@@ -129,4 +130,50 @@ class AdminController extends Controller
         return redirect('/admin-login');
     }
 
+     function addState(Request $request){
+      $state = new State();
+      $validation = $request->validate([
+            'state_name' => 'required|unique:states,state_name',
+        ]);
+      $state->state_name = $request->state_name;
+      if ($state->save()) {
+      Session::flash('state', 'State added Successfully.');
+      return redirect('/add-city');
+      } else { 
+        return 'Something went wrong';
+      }
+     }
+
+      public function addStates()
+  {
+    $states = State::select('state_id', 'state_name')->get();
+    return view('add-city', compact('states'));
+  }
+
+      public function getCities(Request $request)
+  {
+    $cities = City::where('state_id', '=', $request->state_id)->get(['city_id', 'city_name']);
+    return response()->json($cities);
+  }
+
+     function addCity(Request $request){
+      $city = new City();
+      $state = Session::get('states');
+      $validation = $request->validate([
+            'state_name' => 'required',
+            'city_name' => 'required|unique:cities,city_name',
+        ],[
+           'state_name.required' => 'State should be selected ', 
+        ]);
+      $city->state_id=1;
+      $city->city_name = $request->city_name;
+      if ($city->save()) {
+      Session::flash('city', 'City added Successfully.');
+      return redirect('/city-list');
+      } else { 
+        return 'Something went wrong';
+      }
+
+     return redirect('/city-list');
+    }
 }

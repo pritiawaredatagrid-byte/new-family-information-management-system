@@ -41,58 +41,9 @@
             color: #007bff;
         }
 
-        .search {
-            position: relative;
-            display: flex;
-            align-items: center;
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid #e0e0e0;
-            border-radius: 25px;
-            padding: 8px 15px;
-            background-color: #f8f9fa;
-            transition: all 0.3s ease;
-        }
-
-        .search:hover {
-            border-color: #ccc;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .search:focus-within {
-            border-color: #2196f3;
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.25);
-        }
-
-        .search input[type="text"] {
-            flex-grow: 1;
-            border: none;
-            background: transparent;
-            padding: 2px 5px;
-            font-size: 1rem;
-            color: #333;
-            outline: none;
-        }
-
-        .search input[type="text"]::placeholder {
-            color: #999;
-        }
-
-        .search svg {
-            cursor: pointer;
-            height: 20px;
-            width: 20px;
-            fill: #555;
-            transition: fill 0.3s ease;
-        }
-
-        .search svg:hover {
-            fill: #2196f3;
-        }
-
         .links {
             display: flex;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .links a {
@@ -174,10 +125,6 @@
             margin-top: 4px;
         }
 
-
-
-
-
         @media (max-width: 768px) {
             table {
                 display: block;
@@ -194,20 +141,10 @@
             FIMS
         </div>
         <div>
-            <form action="/linkSent" class="search" method="get">
-                <input type="text" name="search">
-                <button>
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                        fill="#1f1f1f">
-                        <path
-                            d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
-                    </svg>
-                </button>
-            </form>
         </div>
         <div class="links">
             <a href="/dashboard" class="">Overview</a>
-            <a href="/user-registration" class="">Add Families</a>
+            <a href="/user-registration" class="">{{$slot}}</a>
             <a href="/admin-logout" class="">Logout</a>
         </div>
     </nav>

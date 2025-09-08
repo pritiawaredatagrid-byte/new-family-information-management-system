@@ -9,11 +9,12 @@
 </head>
 
 <body class="bg-gray-100 font-sans">
-    <x-user-navbar></x-user-navbar>
-
+    <x-user-navbar>
+        <a href="/add-state" class="">Add States</a>
+    </x-user-navbar>
     <div class=" mx-auto p-6">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">States</h1>
+            <h1 class="text-2xl font-bold text-gray-600">States</h1>
             <!-- <a href="" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg shadow hover:bg-blue-700 transition">
                 + Add Family
             </a> -->
@@ -26,8 +27,6 @@
                     <tr>
                         <th class="px-4 py-3 text-center ">Sr.No</th>
                         <th class="px-4 py-3 text-left ">State Name</th>
-                        <th class="px-4 py-3 text-center ">Longitude</th>
-                        <th class="px-4 py-3  text-center ">Latitude</th>
                         <th class="px-4 py-3 text-center ">Action</th>
                     </tr>
                 </thead>
@@ -36,8 +35,7 @@
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-2 py-3 text-center">{{ $loop->iteration }}</td>
                             <td class="px-4 py-3 font-medium whitespace-nowrap ">{{$state->state_name}}</td>
-                            <td class="px-4 py-3 truncate max-w-[150px] text-center">{{ $state->longitude ?? '-' }}</td>
-                            <td class="px-4 py-3 text-center">{{$state->latitude ?? '-' }}</td>
+                        
                             <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center gap-2">
                                     <a href=""
