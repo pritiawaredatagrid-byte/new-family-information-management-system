@@ -31,6 +31,11 @@ Route::post('user-registration', [UserController::class, 'userRegistration']);
 Route::get('user-registration', [UserController::class, 'addStates']);
 Route::post('get-cities', [UserController::class, 'getCities'])->name('get.cities');
 
+//Edit family head
+Route::view('edit-family-head','/Auth/Admin-login/edit-family-head');
+Route::get('/edit-family-head/{id}', [AdminController::class, 'editFamilyHead']);
+
+
 //new state add
 Route::view('add-state','add-state');
 Route::post('add-state', [AdminController::class, 'addState']);

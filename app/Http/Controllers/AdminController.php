@@ -133,7 +133,7 @@ class AdminController extends Controller
       $state = new State();
       $validation = $request->validate([
             'state_name' => 'required|unique:states,state_name',
-        ]);
+      ]);
       $state->state_name = $request->state_name;
       if ($state->save()) {
       Session::flash('state', 'State added Successfully.');
@@ -177,5 +177,11 @@ class AdminController extends Controller
       }
 }
 
-
+function editFamilyHead(Request $request, $id) {
+    $heads = UserRegistration::findOrFail($id);
+    $state = $heads->state;
+    $city = $heads->city;
+    $states = State::select('state_id', 'state_name')->get();
+    return view('/Auth/Admin-login/edit-family-head',['heads'=>$heads,'state'=>$state,'city'=>$city,'states'=>$states]);
+}
 }

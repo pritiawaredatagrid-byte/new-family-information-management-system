@@ -198,10 +198,10 @@
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center gap-2">
-                                    <a href="/user-registration"
-                                        class="p-2 rounded-full bg-yellow-100 hover:bg-yellow-200 text-yellow-600 transition">
-                                        ✏️
-                                    </a>
+                                     <a href="/edit-family-head/{{$head->id}}" 
+   class="p-2 rounded-full bg-yellow-100 hover:bg-yellow-200 text-yellow-600 transition">
+   ✏️
+</a>
                                     <form method="POST" action="" onsubmit="return confirm('Are you sure?')" class="inline">
                                         @csrf @method('DELETE')
                                         <button type="submit"
