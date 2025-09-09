@@ -21,7 +21,8 @@ Route::get('family-list', [AdminController::class, 'familyList']);
 Route::get('member-list', [AdminController::class, 'memberList']);
 Route::get('state-list', [AdminController::class, 'stateList']);
 Route::get('city-list', [AdminController::class, 'cityList']);
-Route::get('searchData', [AdminController::class, 'searchData']);
+
+Route::get('search-head', [AdminController::class, 'searchHead'])->name('search-head');
 
 Route::get('admin-logout', [AdminController::class, 'logout']);
 
@@ -36,8 +37,9 @@ Route::post('add-state', [AdminController::class, 'addState']);
 
 // //new city addition
 Route::view('add-city','add-city');
-Route::post('add-city',[AdminController::class, 'addCity'])->name('add-city');;
+Route::post('add-city',[AdminController::class, 'addCity'])->name('add-city');
 Route::get('add-city', [AdminController::class, 'addStates']);
+// Route::post('/store-city', [YourController::class, 'storeCity'])->name('store-city');
 
 
 Route::view('add-family-member', 'add-family-member');

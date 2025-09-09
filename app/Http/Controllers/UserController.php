@@ -94,7 +94,7 @@ class UserController extends Controller
       'birthdate.before_or_equal' => 'Family head must be 21 years or older',
     ]);
 
-    $member->head_id = 1;
+    $member->head_id = $user->id;
     $member->name = $request->name;
     $member->birthdate = $request->birthdate;
     $member->status = $request->status;

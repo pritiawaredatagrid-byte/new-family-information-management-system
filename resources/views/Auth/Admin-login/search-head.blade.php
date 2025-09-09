@@ -112,21 +112,9 @@
         <div class="logo">
             FIMS
         </div>
-        <div>
-            <form action="/search-head" class="search" method="get">
-                <input type="text" name="search">
-                <button>
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                        fill="#1f1f1f">
-                        <path
-                            d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
-                    </svg>
-                </button>
-            </form>
-        </div>
+        
         <div class="links">
             <a href="/dashboard" class="">Overview</a>
-            <a href="/user-registration" class="">Add Families</a>
             <a href="/admin-logout" class="">Logout</a>
         </div>
     </nav>
@@ -134,53 +122,52 @@
     <div class=" mx-auto p-6">
 
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-600">Family Heads</h1>
+            <h1 class="text-2xl font-bold text-gray-600">Searched Data</h1>
         </div>
 
-    
+        <!-- Table Wrapper -->
         <div class="bg-white rounded-xl shadow">
             <table class=" w-full text-sm text-gray-700">
                 <thead class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider sticky top-0">
                     <tr>
                         <th class="px-2 py-2 text-center ">Sr.No</th>
                         <th class="text-center ">Photo</th>
-                        <th class="px-3 py-3 text-center ">Name</th>
+                        <th class="px-3 py-3 text-left ">Name</th>
                         <th class="px-3 py-3 text-center ">Birth Date</th>
                         <th class="px-3 py-3 text-center">Mobile</th>
-                        <th class="px-3 py-3 text-center ">Address</th>
-                        <th class="px-3 py-3 text-center ">State</th>
-                        <th class="px-3 py-3 text-center">City</th>
+                        <th class="px-3 py-3 text-left ">Address</th>
+                        <th class="px-3 py-3 text-left ">State</th>
+                        <th class="px-3 py-3 text-left">City</th>
                         <th class="px-3 py-3 text-center">Pincode</th>
                         <th class="px-3 py-3 text-center ">Marital Status</th>
                         <th class="px-5 py-5 text-center">Wedding Date</th>
-                        <th class="px-3 py-3 text-center">Hobbies</th>
-                        <th class="px-3 py-3 text-center ">Action</th>
+                        <th class="px-3 py-3 text-left">Hobbies</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    @foreach($heads as $head)
+                    @foreach($searchData as $sd)
                         <tr class="hover:bg-gray-50 transition">
                             <td class="text-center">{{ $loop->iteration }}</td>
                             <td class="text-center">
-                                @if ($head->photo)
-                                    <img src="{{ asset('storage/' . $head->photo) }}"
+                                @if ($sd->photo)
+                                    <img src="{{ asset('storage/' . $sd->photo) }}"
                                         class="w-10 h-10 rounded-full object-cover border border-gray-300 mx-auto">
                                 @else
                                     <span class="text-gray-400 text-xs">No photo</span>
                                 @endif
                             </td>
-                            <td class="px-3 py-3 font-medium whitespace-nowrap">{{ $head->name }} {{ $head->surname }}</td>
-                            <td class="px-3 py-3 text-center whitespace-nowrap">{{ $head->birthdate ?? '-' }}</td>
-                            <td class="px-3 py-3 text-center whitespace-nowrap">{{ $head->mobile_number ?? '-' }}</td>
-                            <td class="px-3 py-3 truncate max-w-[150px]">{{ $head->address ?? '-' }}</td>
-                            <td class="px-3 py-3">{{ $head->state ?? '-' }}</td>
-                            <td class="px-3 py-3">{{ $head->city ?? '-' }}</td>
-                            <td class="px-3 py-3 text-center">{{ $head->pincode ?? '-' }}</td>
-                            <td class="px-3 py-3 text-center">{{ $head->status ?? '-' }}</td>
-                            <td class="px-3 py-3 text-center">{{ $head->wedding_date ?? '-' }}</td>
+                            <td class="px-3 py-3 font-medium whitespace-nowrap">{{ $sd->name }} {{ $sd->surname }}</td>
+                            <td class="px-3 py-3 text-center whitespace-nowrap">{{ $sd->birthdate ?? '-' }}</td>
+                            <td class="px-3 py-3 text-center whitespace-nowrap">{{ $sd->mobile_number ?? '-' }}</td>
+                            <td class="px-3 py-3 truncate max-w-[150px]">{{ $sd->address ?? '-' }}</td>
+                            <td class="px-3 py-3">{{ $sd->state ?? '-' }}</td>
+                            <td class="px-3 py-3">{{ $sd->city ?? '-' }}</td>
+                            <td class="px-3 py-3 text-center">{{ $sd->pincode ?? '-' }}</td>
+                            <td class="px-3 py-3 text-center">{{ $sd->status ?? '-' }}</td>
+                            <td class="px-3 py-3 text-center">{{ $sd->wedding_date ?? '-' }}</td>
                             <td class="px-3 py-3">
                                 @php
-                                    $string = $head->hobby;
+                                    $string = $sd->hobby;
                                     $hobbies = [];
                                     preg_match_all('/"(.*?)"/', $string, $matches);
                                     if (!empty($matches[1]))
@@ -196,37 +183,14 @@
                                     <span class="text-gray-400">-</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-center">
-                                <div class="flex justify-center gap-2">
-                                    <a href="/user-registration"
-                                        class="p-2 rounded-full bg-yellow-100 hover:bg-yellow-200 text-yellow-600 transition">
-                                        ✏️
-                                    </a>
-                                    <form method="POST" action="" onsubmit="return confirm('Are you sure?')" class="inline">
-                                        @csrf @method('DELETE')
-                                        <button type="submit"
-                                            class="p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600 transition">
-                                            🗑️
-                                        </button>
-                                    </form>
-                                    <a href=""
-                                        class="p-2 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600 transition inline-flex items-center justify-center">
-                                        👁️
-                                    </a>
-                                </div>
-                            </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
-
-
-        <!-- Pagination -->
         <div class="mt-6">
-            {{ $heads->links('pagination::tailwind') }}
+            {{ $searchData->links('pagination::tailwind') }}
         </div>
-
     </div>
 </body>
 

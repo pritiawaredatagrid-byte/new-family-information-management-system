@@ -115,13 +115,12 @@ class AdminController extends Controller
         return view('Auth.Admin-login.city-list', ['cities' => $cities]);
     }
 
-    function searchData(Request $request)
+    function searchHead(Request $request)
     {
     $searchData = UserRegistration::where('name', 'like', '%' . $request->search . '%')
     ->orWhere('mobile_number', 'like', '%' . $request->search . '%')->orWhere('state', 'like', '%' . $request->search . '%')->orWhere('city', 'like', '%' . $request->search . '%')
-    ->get();
-    return $searchData;
-    return view('Auth.Admin-login.searchData');
+   ->paginate(5);
+    return view('Auth.Admin-login.search-head',['searchData'=>$searchData]);
     }
 
     function logout()
@@ -156,24 +155,27 @@ class AdminController extends Controller
     return response()->json($cities);
   }
 
-     function addCity(Request $request){
-      $city = new City();
-      $state = Session::get('states');
-      $validation = $request->validate([
-            'state_name' => 'required',
-            'city_name' => 'required|unique:cities,city_name',
-        ],[
-           'state_name.required' => 'State should be selected ', 
-        ]);
-      $city->state_id=1;
-      $city->city_name = $request->city_name;
-      if ($city->save()) {
+ function addCity(Request $request)
+{
+    $city = new City();
+    $validator = $request->validate([
+        'state_id' => 'required|exists:states,state_id',
+        'city_name' => 'required|unique:cities,city_name',
+    ], [
+        'state_id.required' => 'State should be selected.',
+        'city_name.required' => 'City name is required.',
+        'city_name.unique' => 'This city name already exists.',
+    ]);
+  
+    $city->state_id = $request->state_id;
+    $city->city_name = $request->city_name;
+     if ($city->save()) {
       Session::flash('city', 'City added Successfully.');
       return redirect('/city-list');
       } else { 
         return 'Something went wrong';
       }
+}
 
-     return redirect('/city-list');
-    }
+
 }
