@@ -134,7 +134,6 @@
                         <th class="px-4 py-3 text-left ">Family Head Name</th>
                         <th class="px-4 py-3 text-left ">Name</th>
                         <th class="px-4 py-3 text-center ">Birth Date</th>
-                        <th class="px-4 py-3 text-left ">Address</th>
                         <th class="px-4 py-3 text-center ">Marital Status</th>
                         <th class="px-4 py-3 text-center">Wedding Date</th>
                         <th class="px-4 py-3 text-center">Education</th>
@@ -156,22 +155,19 @@
                             <td class="px-4 py-3 font-medium whitespace-nowrap">{{ $member->name }}</td>
                             <td class="px-4 py-3 font-medium whitespace-nowrap">{{ $member->name }}</td>
                             <td class="px-4 py-3 text-center">{{ $member->birthdate ?? '-' }}</td>
-
-                            <td class="px-4 py-3 truncate max-w-[150px]">{{ $member->address ?? '-' }}</td>
                             <td class="px-4 py-3 text-center">{{$member->status ?? '-' }}</td>
                             <td class="px-4 py-3 text-center">{{ $member->wedding_date ?? '-' }}</td>
                             <td class="px-4 py-3 text-center">{{ $member->education ?? '-' }}</td>
                             <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center gap-2">
-                                    <a href=""
-                                        class="p-2 rounded-full bg-yellow-100 hover:bg-yellow-200 text-yellow-600 transition">
-                                        ✏️
+                                    <a href="">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h357l-80 80H200v560h560v-278l80-80v358q0 33-23.5 56.5T760-120H200Zm280-360ZM360-360v-170l367-367q12-12 27-18t30-6q16 0 30.5 6t26.5 18l56 57q11 12 17 26.5t6 29.5q0 15-5.5 29.5T897-728L530-360H360Zm481-424-56-56 56 56ZM440-440h56l232-232-28-28-29-28-231 231v57Zm260-260-29-28 29 28 28 28-28-28Z"/></svg>
                                     </a>
                                     <form method="POST" action="" onsubmit="return confirm('Are you sure?')" class="inline">
                                         @csrf @method('DELETE')
                                         <button type="submit"
-                                            class="p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600 transition">
-                                            🗑️
+                                           >
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
                                         </button>
                                     </form>
                                 </div>

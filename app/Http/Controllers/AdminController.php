@@ -177,11 +177,75 @@ class AdminController extends Controller
       }
 }
 
-function editFamilyHead(Request $request, $id) {
+function editFamilyHead($id) {
     $heads = UserRegistration::findOrFail($id);
-    $state = $heads->state;
-    $city = $heads->city;
     $states = State::select('state_id', 'state_name')->get();
-    return view('/Auth/Admin-login/edit-family-head',['heads'=>$heads,'state'=>$state,'city'=>$city,'states'=>$states]);
+    return view('/Auth/Admin-login/edit-family-head',['heads'=>$heads,'states'=>$states]);
+}
+
+function editFamilyHeadData(Request $request, $id){
+$heads = UserRegistration::findOrFail($id);
+$heads->name = $request->name;
+    $heads->surname = $request->surname;
+    $heads->birthdate = $request->birthdate;
+    $heads->mobile_number = $request->mobile_number;
+    $heads->address = $request->address;
+    $stateId = $request->state;
+    $state = State::find($stateId);
+    if ($state) {
+      $heads->state = $state->state_name;
+    }
+    $heads->city = $request->city;
+    $heads->pincode = $request->pincode;
+    $heads->status = $request->status;
+    $heads->wedding_date = $request->wedding_date;
+    $heads->hobby = json_encode($request->hobbies);
+
+    $photoPath = $heads->photo; 
+    $imagePath = null;
+    if ($request->hasFile('photo')) {
+      $photoPath = $request->file('photo')->store('photos', 'public');
+    }
+    $heads->photo = $photoPath;
+
+    if ($heads->save()) {
+      Session::flash('heads', 'Head updated Successfully.');
+    } else {
+      return 'Something went wrong';
+    }
+    return redirect()->route('view-family-details', ['id' => $id]);
+}
+
+function editFamilyMember($head_id, $id) {
+    $member = Member::where('head_id', $head_id)->findOrFail($id);
+    return view('/Auth/Admin-login/edit-family-member', ['member' => $member]);
+}
+
+function editFamilyMemberData(Request $request,$head_id, $id){
+    $member = Member::where('head_id', $head_id)->findOrFail($id);
+    $member->name = $request->name;
+    $member->birthdate = $request->birthdate;
+    $member->status = $request->status;
+    $member->wedding_date = $request->wedding_date;
+    $member->education = $request->education;
+
+    $photoPath = $member->photo; 
+    $imagePath = null;
+    if ($request->hasFile('photo')) {
+      $photoPath = $request->file('photo')->store('photos', 'public');
+    }
+    $member->photo = $photoPath;
+
+    if ($member->save()) {
+      Session::flash('member', 'Member updated Successfully.');
+    } else {
+      return 'Something went wrong';
+    }
+    return redirect()->route('view-family-details', ['id' => $head_id]);
+}
+
+function viewFamilyDetails($id) {
+    $head = UserRegistration::with('members')->findOrFail($id);
+    return view('/Auth/Admin-login/view-family-details', ['head' => $head]);
 }
 }

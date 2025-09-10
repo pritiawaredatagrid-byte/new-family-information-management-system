@@ -134,21 +134,88 @@
      margin-bottom: 1rem;
 }
 
+
+ .hobbies-section { 
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    .hobbies-section label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #757575;
+    }
+    #hobbiesTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+    }
+
+    #hobbiesTable td {
+        display:flex;
+    
+    }
+
+    #hobbiesTable th {
+        background-color: #f2f2f2;
+    }
+    .form-control-hobby {
+        width: calc(100% - 16px); 
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .btn-remove-hobby {
+        background-color: #ffc107; 
+        color: #333;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+    .hobby-controls {
+        text-align: center;
+        margin-top: 0.1rem;
+        display:flex;
+        justify-content:space-between;
+    }
+    .btn-add-hobby, .btn-remove-all-hobbies { 
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    .btn-add-hobby {
+        background-color: #2196F3;
+    }
+    .btn-remove-all-hobbies {
+        background-color: #f44336; 
+        margin-left: 10px;
+    }
+
+    .buttons{
+        display:flex;
+        justify-content:space-between;
+        gap:1rem;
+    }
   </style>
 </head>
 <body class="Registration-body">
-       @if(Session('users'))
+       @if(Session('heads'))
         <div class="" role="alert">
-            <span class="" style="color:green">{{ Session('users') }}</span>
+            <span class="" style="color:green">{{ Session('heads') }}</span>
         </div>
       @endif
      <div class="main">
         <h2>Edit Family Head</h2>
-        @error('user')
+        @error('heads')
             <p class="text-red-500 text-sm mt-1 py-2">{{ $message }}</p>
         @enderror
-        <form action="/edit-family-head" method="get" class="space-y-4" enctype="multipart/form-data">
+        <form action="/edit-family-head-data/{{$heads->id}}" method="post" class="space-y-4" enctype="multipart/form-data">
             @csrf
+            <input type="hidden" name="_method" value="put">
             <div>
         <label for="">Family Head Name</label>
         <input type="text" name="name" id="" placeholder="Family Head Name" value="{{ old('name', $heads->name) }}">
@@ -188,11 +255,11 @@
 <div>
     <label for="state" class="text-gray-600 space-y-2">State</label>
     <select name="state" id="state" class="state">
-         <option value="">{{$heads->state}}</option>
-        @foreach($states as $data)
-            <option value="{{ $data->state_id }}">{{ $data->state_name }}</option>
-        @endforeach
-    </select>
+     <option value="{{ $heads->state_id ?? '' }}">{{ $heads->state ?? 'Select State' }}</option>
+    @foreach($states as $data)
+        <option value="{{ $data->state_id }}">{{ $data->state_name }}</option>
+    @endforeach
+</select>
     @error('state')
         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
     @enderror
@@ -200,7 +267,7 @@
             <div>
                 <label for="" class="text-gray-600 space-y-2">City</label>
                 <select name="city" id="city" class="city" value="">
-                    <option value="">{{$city}}</option>
+                    <option value="{{$heads->city}}">{{$heads->city}}</option>
                 </select>
                 @error('city')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -246,10 +313,10 @@
             <div class="hobbies">
                 <label for="">Hobbies</label>
             </div>
-            <div class="hobbies">
-                <table id="table">
-                    <tr>
-                             <td>
+            <div class="hobbies-section"> 
+                <table id="hobbiesTable">
+                    <tbody>
+                        <td>
                                 @php
                                     $string = $heads->hobby;
                                     $hobbies = [];
@@ -267,12 +334,26 @@
                                     <span class="text-gray-400">-</span>
                                 @endif
                             </td>
-                        <td>
-                           <button type="button" name="add" id="add" class="btn btn-success">Add Hobby</button>
-                        </td>
-                    </tr>
-                </table>
+                   
+                    </tbody>
+                     <div>
             </div>
+            
+                </table>
+                 @error('hobbies.*')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror 
+                <div class="hobby-controls">
+                    <button type="button" id="addHobbyBtn" class="btn-add-hobby">Add Hobby</button>
+                    <button type="button" id="removeAllHobbiesBtn" class="btn-remove-all-hobbies">Remove All Hobbies</button>
+                </div>
+            </div>
+            <div>
+                 @error('hobbies.*')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+                            
             <div>
                  @error('hobbies.*')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -290,7 +371,10 @@
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
+            <div class="buttons">
             <button type="submit" name="submit" class="admin-login">Update Family Head</button>
+            <button type="button" name="cancel" class="admin-login"><a style="color:white" href="/family-list">Cancel</a></button>
+            </div>
         </form>
     </div>
 
@@ -356,6 +440,46 @@
         }
     });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+            const hobbiesTableBody = document.querySelector('#hobbiesTable tbody');
+            const addHobbyBtn = document.getElementById('addHobbyBtn');
+            const removeAllHobbiesBtn = document.getElementById('removeAllHobbiesBtn');
+
+            let hobbyCount = 0;
+            function addHobbyRow() {
+                hobbyCount++;
+                const newRow = hobbiesTableBody.insertRow();
+                newRow.id = `hobbyRow-${hobbyCount}`;
+
+                const hobbyCell = newRow.insertCell(0);
+                hobbyCell.innerHTML = `<input type="text" name="hobbies[]" placeholder="Enter hobby here" class="form-control-hobby" id="hobby-${hobbyCount}">`;
+
+                const actionCell = newRow.insertCell(1);
+                actionCell.innerHTML = `<button type="button" class="btn-remove-hobby" data-row-id="hobbyRow-${hobbyCount}">Remove</button>`;
+            }
+
+            addHobbyRow();
+
+            addHobbyBtn.addEventListener('click', addHobbyRow);
+
+            hobbiesTableBody.addEventListener('click', (event) => {
+                if (event.target.classList.contains('btn-remove-hobby')) {
+                    const rowIdToRemove = event.target.dataset.rowId;
+                    const rowToRemove = document.getElementById(rowIdToRemove);
+                    if (rowToRemove) {
+                        rowToRemove.remove();
+                    }
+                }
+            });
+            
+            removeAllHobbiesBtn.addEventListener('click', () => {
+                hobbiesTableBody.innerHTML = ''; 
+                hobbyCount = 0; 
+                addHobbyRow(); 
+            });
+        });
+
 
     </script>
 </body>

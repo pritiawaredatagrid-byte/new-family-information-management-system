@@ -17,6 +17,7 @@ Route::post('admin-set-forget-password', [AdminController::class, 'AdminSetForge
 Route::post('admin-login', [AdminController::class, 'login']);
 Route::get('dashboard', [AdminController::class, 'dashboard']);
 
+Route::view('family-list', '/Auth/Admin-login/family-list');
 Route::get('family-list', [AdminController::class, 'familyList']);
 Route::get('member-list', [AdminController::class, 'memberList']);
 Route::get('state-list', [AdminController::class, 'stateList']);
@@ -33,7 +34,18 @@ Route::post('get-cities', [UserController::class, 'getCities'])->name('get.citie
 
 //Edit family head
 Route::view('edit-family-head','/Auth/Admin-login/edit-family-head');
-Route::get('/edit-family-head/{id}', [AdminController::class, 'editFamilyHead']);
+Route::get('edit-family-head/{id}', [AdminController::class, 'editFamilyHead']);
+Route::put('edit-family-head-data/{id}', [AdminController::class, 'editFamilyHeadData']);
+
+//Edit family member
+Route::view('edit-family-member','/Auth/Admin-login/edit-family-member');
+Route::get('edit-family-member/{head_id}/{id}', [AdminController::class, 'editFamilyMember']);
+Route::put('edit-family-member-data/{head_id}/{id}', [AdminController::class, 'editFamilyMemberData']);
+
+
+//View family Details
+Route::view('view-family-details','/Auth/Admin-login/view-family-details');
+Route::get('view-family-details/{id}', [AdminController::class, 'viewFamilyDetails'])->name('view-family-details');
 
 
 //new state add
