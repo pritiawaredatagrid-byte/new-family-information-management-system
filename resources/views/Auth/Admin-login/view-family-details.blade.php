@@ -116,6 +116,7 @@
         </div>
         <div class="links">
             <a href="/dashboard" class="">Overview</a>
+            <a href="/add-family-member" class="">Add Family Member</a>
             <a href="/admin-logout" class="">Logout</a>
         </div>
     </nav>

@@ -126,7 +126,7 @@
         </div>
         <div class="links">
             <a href="/dashboard" class="">Overview</a>
-            <a href="/user-registration" class="">Add Families</a>
+            <a href="/user-registration" class="">Add Family</a>
             <a href="/admin-logout" class="">Logout</a>
         </div>
     </nav>
