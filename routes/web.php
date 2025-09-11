@@ -19,6 +19,9 @@ Route::get('dashboard', [AdminController::class, 'dashboard']);
 
 Route::view('family-list', '/Auth/Admin-login/family-list');
 Route::get('family-list', [AdminController::class, 'familyList']);
+
+
+
 Route::get('member-list', [AdminController::class, 'memberList']);
 Route::get('state-list', [AdminController::class, 'stateList']);
 Route::get('city-list', [AdminController::class, 'cityList']);
@@ -47,6 +50,24 @@ Route::put('edit-family-member-data/{head_id}/{id}', [AdminController::class, 'e
 Route::view('view-family-details','/Auth/Admin-login/view-family-details');
 Route::get('view-family-details/{id}', [AdminController::class, 'viewFamilyDetails'])->name('view-family-details');
 
+Route::get('view-family-details-pdf/{id}', [AdminController::class, 'viewFamilyDetailsPdf'])->name('view-family-details-pdf');
+Route::get('export-pdf/{id}', [AdminController::class, 'exportPDF'])->name('export-pdf');
+Route::get('export-excel/{id}', [AdminController::class, 'exportExcel'])->name('export-excel');
+Route::get('view-family-details-excel/{id}', [AdminController::class, 'viewFamilyDetailsExcel'])->name('view-family-details-excel');
+
+//View state Details
+Route::view('view-state-details','/Auth/Admin-login/view-state-details');
+Route::get('view-state-details/{state_id}', [AdminController::class, 'viewStateDetails'])->name('view-state-details');
+
+//Edit state
+Route::view('edit-state','/Auth/Admin-login/edit-state');
+Route::get('edit-state/{state_id}', [AdminController::class, 'editState']);
+Route::put('edit-state-data/{state_id}', [AdminController::class, 'editStateData']);
+
+// Edit City
+Route::view('edit-city','/Auth/Admin-login/edit-city');
+Route::get('edit-city/{state_id}/{city_id}', [AdminController::class, 'editCity']);
+Route::put('edit-city-data/{state_id}/{city_id}', [AdminController::class, 'editCityData']);
 
 //new state add
 Route::view('add-state','add-state');

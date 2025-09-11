@@ -10,8 +10,9 @@ use App\Models\UserRegistration;
 use App\Models\Member;
 use App\Models\State;
 use App\Models\City;
-
-
+use Barryvdh\DomPDF\Facade\Pdf; 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\FamilyDetailsExcel; 
 use Illuminate\Support\Facades\Session;
 
 
@@ -97,11 +98,21 @@ class AdminController extends Controller
         return view('Auth.Admin-login.family-list', ['heads' => $heads]);
     }
 
-    function MemberList()
-    {
-        $members = Member::paginate(7);
-        return view('Auth.Admin-login.member-list', ['members' => $members]);
-    }
+function exportPDF($id)
+{  
+  
+    $head = UserRegistration::with('members')->findOrFail($id);
+    $pdf = PDF::loadView('Auth.Admin-login.view-family-details-pdf', ['head' => $head]);
+    return $pdf->stream('Family Details.pdf');
+    return $pdf->download('Family Details.pdf'); 
+}
+
+function exportExcel($id)
+{  
+  
+    $head = UserRegistration::with('members')->findOrFail($id);
+    return Excel::download(new FamilyDetailsExcel($head), 'family_details.xlsx');
+}
 
     function StateList()
     {
@@ -248,4 +259,45 @@ function viewFamilyDetails($id) {
     $head = UserRegistration::with('members')->findOrFail($id);
     return view('/Auth/Admin-login/view-family-details', ['head' => $head]);
 }
+
+function viewStateDetails($state_id) {
+    $state = State::with('cities')->findOrFail($state_id);
+    return view('/Auth/Admin-login/view-state-details', ['state' => $state]);
+}
+
+function editState($state_id) {
+    $stateDetails = State::findOrFail($state_id);
+    return view('/Auth/Admin-login/edit-state',['stateDetails'=>$stateDetails]);
+}
+
+function editStateData(Request $request, $state_id){
+$stateDetails = State::findOrFail($state_id);
+$stateDetails->state_name = $request->state_name;
+if ($stateDetails->save()) {
+      Session::flash('$stateDetails', 'State updated Successfully.');
+    } else {
+      return 'Something went wrong';
+    }
+    return redirect()->route('view-state-details', ['state_id' => $state_id]);
+}
+
+function editCity($state_id, $city_id) {
+    $city = City::where('state_id', $state_id)->findOrFail($city_id);
+     $state = State::findOrFail($state_id);
+    return view('/Auth/Admin-login/edit-city', ['city' => $city,'state'=>$state]);
+}
+
+
+function editCityData(Request $request,$state_id,$city_id){
+    $city = City::where('state_id', $state_id)->findOrFail($city_id);
+
+    $city->city_name = $request->city_name;
+    if ($city->save()) {
+      Session::flash('city', 'City updated Successfully.');
+    } else {
+      return 'Something went wrong';
+    }
+    return redirect()->route('view-state-details', ['state_id' => $state_id]);
+}
+
 }

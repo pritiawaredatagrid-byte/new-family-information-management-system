@@ -125,6 +125,14 @@
 
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-600">Family Head Details</h1>
+       <div class="flex justify-between items-center">
+         <a href="{{ '/export-pdf/' . $head->id }}" class="mr-5 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg shadow hover:bg-blue-700 transition">
+        Download PDF
+        </a>
+        <a class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg shadow hover:bg-blue-700 transition" href="{{ route('export-excel', ['id' => $head->id]) }}">
+    Export to Excel
+</a>
+       </div>
     </div>
 
     <div class="bg-white rounded-xl shadow mb-8">

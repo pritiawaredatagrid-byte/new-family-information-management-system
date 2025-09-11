@@ -135,6 +135,10 @@
 
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-600">Family Heads</h1>
+            <div class="flex justify-between items-center mb-6">
+            
+            </div>
+            
         </div>
 
     
@@ -208,8 +212,6 @@
                 </tbody>
             </table>
         </div>
-
-
         <!-- Pagination -->
         <div class="mt-6">
             {{ $heads->links('pagination::tailwind') }}
