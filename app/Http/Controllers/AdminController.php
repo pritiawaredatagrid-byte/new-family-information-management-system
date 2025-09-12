@@ -260,9 +260,36 @@ function viewFamilyDetails($id) {
     return view('/Auth/Admin-login/view-family-details', ['head' => $head]);
 }
 
+function deleteFamilyDetails($id){
+    $head = UserRegistration::with('members')->findOrFail($id);
+    $head->update(['op_status' => 9]);
+    $head->delete();
+  
+    return redirect('/family-list')
+           ->with('success', $head->name . "'s Family details successfully deleted.");
+}
+public function deleteFamilyMember($id)
+{
+    $member = Member::findOrFail($id);
+    $head_id = $member->head_id; 
+    $member->update(['op_status' => 9]);
+    $member->delete();
+    
+    return redirect()->route('view-family-details', ['id' => $head_id])
+           ->with('success', $member->name . " successfully deleted.");
+}
+
 function viewStateDetails($state_id) {
     $state = State::with('cities')->findOrFail($state_id);
     return view('/Auth/Admin-login/view-state-details', ['state' => $state]);
+}
+
+function deleteStateDetails($state_id){
+    $state = State::with('cities')->findOrFail($state_id);
+    $state->update(['op_status' => 9]);
+    $state->delete();
+    return redirect('/state-list')
+           ->with('success', $state->state_name . "'s details successfully deleted.");
 }
 
 function editState($state_id) {

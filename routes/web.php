@@ -50,6 +50,12 @@ Route::put('edit-family-member-data/{head_id}/{id}', [AdminController::class, 'e
 Route::view('view-family-details','/Auth/Admin-login/view-family-details');
 Route::get('view-family-details/{id}', [AdminController::class, 'viewFamilyDetails'])->name('view-family-details');
 
+// delete family details
+Route::delete('delete-family-details/{id}', [AdminController::class, 'deleteFamilyDetails'])->name('delete-family-details');
+
+// delete family member
+Route::delete('delete-family-member/{id}', [AdminController::class, 'deleteFamilyMember'])->name('delete-family-member');
+
 Route::get('view-family-details-pdf/{id}', [AdminController::class, 'viewFamilyDetailsPdf'])->name('view-family-details-pdf');
 Route::get('export-pdf/{id}', [AdminController::class, 'exportPDF'])->name('export-pdf');
 Route::get('export-excel/{id}', [AdminController::class, 'exportExcel'])->name('export-excel');
@@ -58,6 +64,12 @@ Route::get('view-family-details-excel/{id}', [AdminController::class, 'viewFamil
 //View state Details
 Route::view('view-state-details','/Auth/Admin-login/view-state-details');
 Route::get('view-state-details/{state_id}', [AdminController::class, 'viewStateDetails'])->name('view-state-details');
+
+// delete family details
+Route::delete('delete-state-details/{state_id}', [AdminController::class, 'deleteStateDetails'])->name('delete-state-details');
+
+// delete family member
+// Route::delete('delete-family-member/{id}', [AdminController::class, 'deleteFamilyMember'])->name('delete-family-member');
 
 //Edit state
 Route::view('edit-state','/Auth/Admin-login/edit-state');
