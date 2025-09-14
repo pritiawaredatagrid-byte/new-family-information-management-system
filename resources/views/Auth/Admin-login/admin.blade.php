@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -272,4 +272,207 @@
 
 </body>
 
-</html>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #e5e7eb;
+    }
+
+    .sidebar {
+      width: 280px;
+      background-color: #1f2937;
+      color: #d1d5db;
+      padding: 1.5rem 1rem;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s, color 0.2s;
+      text-decoration: none;
+      color: #d1d5db;
+    }
+
+    .sidebar-link:hover {
+      background-color: #374151;
+      color: #ffffff;
+    }
+
+    .sidebar-link.active {
+      background-color: #2563eb;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .stats-card {
+      background-color: #ffffff;
+      border-radius: 0.75rem;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stats-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body class="flex">
+  <!-- Sidebar -->
+  <aside class="sidebar h-screen flex flex-col">
+    <div class="flex items-center space-x-3 mb-8">
+      <svg class="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM6 9a4 4 0 014-4 4 4 0 014 4 4 4 0 01-4 4 4 4 0 01-4-4z" />
+      </svg>
+      <h1 class="text-2xl font-bold text-gray-200">FIMS Admin</h1>
+    </div>
+    <nav class="flex-1 space-y-2">
+      <a href="/dashboard" class="sidebar-link active">
+        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+        </svg>
+        Dashboard
+      </a>
+      <a href="/family-list" class="sidebar-link">
+        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM10 10a5 5 0 00-5 5v2a1 1 0 102 0v-2a3 3 0 013-3h4a3 3 0 013 3v2a1 1 0 102 0v-2a5 5 0 00-5-5H10z" />
+        </svg>
+        Family Management
+      </a>
+      <a href="/state-list" class="sidebar-link">
+        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7z" />
+          <path fill-rule="evenodd"
+            d="M19 19a1 1 0 01-1 1H2a1 1 0 01-1-1V5a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1V5a1 1 0 011-1h4a1 1 0 011 1v14zm-1-1v-3H4v3h14zm-4-7h-4a1 1 0 000 2h4a1 1 0 000-2z"
+            clip-rule="evenodd" />
+        </svg>
+        State Management
+      </a>
+      <a href="#" class="sidebar-link">
+        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 14V6h12v12H4z" />
+          <path fill-rule="evenodd"
+            d="M10 11a1 1 0 00-1-1H7a1 1 0 100 2h2a1 1 0 001-1zm0-4a1 1 0 00-1-1H7a1 1 0 100 2h2a1 1 0 001-1zm3 8a1 1 0 100-2h2a1 1 0 100 2h-2z"
+            clip-rule="evenodd" />
+        </svg>
+        Reports
+      </a>
+    </nav>
+    <div class="mt-auto">
+      <a href="/admin-logout" class="sidebar-link mt-4">
+        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd"
+            d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+            clip-rule="evenodd" />
+        </svg>
+        Logout
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <!-- Top Nav -->
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+      <div class="flex items-center space-x-4">
+
+        <div class="flex items-center space-x-2">
+          <span class="text-gray-600">Hi, {{$name}}</span>
+          <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-500">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="stats-card flex items-center justify-between">
+        <div>
+          <div class="text-sm font-semibold text-gray-500">Total Families</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1">{{ $totalFamilies }}</div>
+        </div>
+        <div class="p-3 rounded-full bg-blue-100 text-blue-500">
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM10 10a5 5 0 00-5 5v2a1 1 0 102 0v-2a3 3 0 013-3h4a3 3 0 013 3v2a1 1 0 102 0v-2a5 5 0 00-5-5H10z" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="stats-card flex items-center justify-between">
+        <div>
+          <div class="text-sm font-semibold text-gray-500">Total Members</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1">{{ $totalMembers }}</div>
+        </div>
+        <div class="p-3 rounded-full bg-green-100 text-green-500">
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="stats-card flex items-center justify-between">
+        <div>
+          <div class="text-sm font-semibold text-gray-500">Total States</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1">{{ $totalStates }}</div>
+        </div>
+        <div class="p-3 rounded-full bg-purple-100 text-purple-500">
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd"
+              d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm4.848 6.551a1 1 0 001.304 1.5l3-3a1 1 0 00-1.304-1.5l-2.28 2.279a1 1 0 01-1.414 0l-1.293-1.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="stats-card flex items-center justify-between">
+        <div>
+          <div class="text-sm font-semibold text-gray-500">Total Cities</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1">{{ $totalCities }}</div>
+        </div>
+        <div class="p-3 rounded-full bg-yellow-100 text-yellow-500">
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M10 2a6 6 0 00-6 6c0 4.418 5.768 11.238 5.975 11.45L10 20l.025-.555C10.232 19.238 16 12.418 16 8a6 6 0 00-6-6zM8 8a2 2 0 114 0 2 2 0 01-4 0z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="bg-white p-6 rounded-lg shadow-md mt-8">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Family Management</h2>
+      <p class="text-gray-600">This is where the table for viewing and managing families will go.</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md mt-8">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Member Management</h2>
+      <p class="text-gray-600">This is where the table for viewing and managing members will go.</p>
+    </div> -->
+  </main>
+
+</body>
+
+</html

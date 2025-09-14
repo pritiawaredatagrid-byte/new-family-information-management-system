@@ -103,7 +103,6 @@
         .links a span:hover {
             color: #555;
         }
-
     </style>
 </head>
 
@@ -130,22 +129,22 @@
             <a href="/admin-logout" class="">Logout</a>
         </div>
     </nav>
-@if (session('success'))
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-        <span class="block sm:inline">{{ session('success') }}</span>
-    </div>
-@endif
+    @if (session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
     <div class=" mx-auto p-6">
 
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-600">Family Heads</h1>
             <div class="flex justify-between items-center mb-6">
-            
+
             </div>
-            
+
         </div>
 
-    
+
         <div class="bg-white rounded-xl shadow">
             <table class=" w-full text-sm text-gray-700">
                 <thead class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider sticky top-0">
@@ -206,8 +205,12 @@
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center gap-2">
-                                    <a href="{{'view-family-details/'.$head->id}}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"/></svg>
+                                    <a href="{{'view-family-details/' . $head->id}}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                            width="24px" fill="#1f1f1f">
+                                            <path
+                                                d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
+                                        </svg>
                                     </a>
                                 </div>
                             </td>

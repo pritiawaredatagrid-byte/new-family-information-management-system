@@ -70,27 +70,26 @@
 
 <body>
     <div class="main">
-         
+
         <h2>Add State</h2>
         <form action="/add-state" method="post">
-           
-           @csrf
+
+            @csrf
             <div>
                 <div>
-                @if(Session('state'))
-                  <p style="color:green" class="text-green-500 text-sm mt-1 py-2">{{ Session('state') }}</p>
-                @endif  
-                <label for="" class="text-gray-600 space-y-2">State</label>
-                <input type="text" value="" name="state_name" placeholder="Enter State Here"></input>
-                @error('state_name')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+                    @if(Session('state'))
+                        <p style="color:green" class="text-green-500 text-sm mt-1 py-2">{{ Session('state') }}</p>
+                    @endif
+                    <label for="" class="text-gray-600 space-y-2">State</label>
+                    <input type="text" value="" name="state_name" placeholder="Enter State Here"></input>
+                    @error('state_name')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
             <button type="submit" class="admin-login">Add State</button>
         </form>
     </div>
 </body>
 
-</script>
 </html>

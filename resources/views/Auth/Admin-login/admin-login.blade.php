@@ -1,100 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
-    <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
-    <style>
-  body{
-    background-color: #F5F5F5;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100vh;
-    padding-top: 5rem;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
+  <style>
+    :root {
+      --primary-color: #007bff;
+      --secondary-color: #6c757d;
+      --background-color: #f4f7f6;
+      --card-background: #ffffff;
+      --text-color: #333;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --border-color: #d1d5db;
+    }
 
-.main{
-    background-color: white;
-    padding: 2rem 3rem;
-    border-radius: 5%;
-}
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
 
-.main h2{
-    font-size: 2rem;
-    text-align: center;
-    margin-bottom: 2rem;
-    color:#424242;
-}
+    .login-card {
+      background-color: var(--card-background);
+      padding: 3rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px var(--shadow-color);
+      max-width: 450px;
+      width: 90%;
+      text-align: center;
+    }
 
-form div label{
-    color:#757575;
-}
+    .login-card h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-color);
+      margin-bottom: 2rem;
+    }
 
-form div input{
-    width: 100%;
-    padding: 0.4rem 0.3rem;
-    border-radius: 5px;
-    margin-top: 0.5rem;
-    margin-bottom: 0.7rem;
-    border:0.1rem solid #757575;
-}
+    .form-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
 
-form div input:focus{
-   outline: none;
-}
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--secondary-color);
+    }
 
-form .admin-login{
-    width: 100%;
-    background-color: #2196F3;
-    border-radius: 5px;
-    padding: 0.5rem 0.3rem;
-    color:white;
-    border: none;
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-}
+    .form-group input {
+      width: 100%;
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      color: var(--text-color);
+      transition: border-color 0.3s ease;
+    }
 
-form a{
-    text-decoration: none;
-}
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
 
-.main p{
-    color:red;
-     margin-bottom: 1rem;
-}
+    .form-group input::placeholder {
+      color: var(--secondary-color);
+      opacity: 0.6;
+    }
 
-</style>
+    .error-message {
+      color: #ef4444;
+      background-color: #fee2e2;
+      border: 1px solid #fca5a5;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .login-button {
+      width: 100%;
+      background-color: var(--primary-color);
+      border: none;
+      border-radius: 0.5rem;
+      color: var(--white-color);
+      font-size: 1.1rem;
+      font-weight: bold;
+      padding: 0.75rem 2rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .login-button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    .link-text {
+      display: block;
+      text-align: center;
+      font-size: 0.9rem;
+      margin-top: 1.5rem;
+    }
+
+    .link-text a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .link-text a:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
+  </style>
 </head>
 
+
+
 <body>
-    <div class="main">
-        <h2>Admin Login</h2>
-        @error('user')
-            <p class="text-red-500 text-sm mt-1 py-2">{{ $message }}</p>
+  <div class="login-card">
+    <h2>Admin Login</h2>
+    @error('user')
+      <p class="error-message-style">{{ $message }}</p>
+    @enderror
+    <form action="/admin-login" method="post">
+      @csrf
+      <div class="form-group">
+        <label for="email">Admin Email</label>
+        <input type="email" id="email" name="email" placeholder="Enter Admin Email" />
+        @error('email')
+          <p class="error-message-style">{{ $message }}</p>
         @enderror
-        <form action="/admin-login" method="post" class="space-y-4">
-            @csrf
-            <div>
-                <label for="">Admin Email</label>
-                <input type="email" name="email" id="" placeholder="Enter Admin Email">
-                @error('email')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-            <div>
-                <label for="" class="text-gray-600 space-y-2">Password</label>
-                <input type="password" name="password" id="" placeholder="Enter Admin Password">
-                @error('password')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-            <button type="submit" class="admin-login">Login</button>
-            <a href="/admin-forget-password">Forget Your Password?</a>
-        </form>
-    </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter Admin Password" />
+        @error('password')
+          <p class="error-message-style">{{ $message }}</p>
+        @enderror
+      </div>
+
+      <button type="submit" class="login-button">Login</button>
+
+      <p class="link-text">
+        <a href="/admin-forget-password">Forgot Your Password?</a>
+      </p>
+    </form>
+  </div>
 </body>
+
 </html>
 
 

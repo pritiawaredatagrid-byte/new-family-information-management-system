@@ -58,12 +58,22 @@ class UserController extends Controller
     $users->photo = $photoPath;
 
     if ($users->save()) {
-      Session::flash('users', 'Head added Successfully.');
-    } else {
-      return 'Something went wrong';
+      $headId = $users->id;
+      return redirect()->back()
+        ->with('users', 'Family Head Added Successfully!')
+        ->with('family_head_added', true)
+        ->with('headId', $headId)
+        ->withErrors([]);
     }
-    return redirect()->back();
+
+    return redirect()->back()->with('users', 'Error: Family Head could not be added.');
   }
+
+  public function addFamilyMemberForm($head_id)
+  {
+    return view('add-family-member', compact('head_id'));
+  }
+
 
   public function addStates()
   {
@@ -80,10 +90,9 @@ class UserController extends Controller
 
   function addFamilyMember(Request $request)
   {
-    $member = new Member();
-    $user = Session::get('users');
-    $cutDate = Carbon::now()->subYears(21);
+    $head_id = $request->head_id;
 
+    $cutDate = Carbon::now()->subYears(21);
     $validation = $request->validate([
       'name' => 'required|max:50',
       'birthdate' => 'required|before_or_equal:' . $cutDate,
@@ -91,26 +100,28 @@ class UserController extends Controller
       'education' => 'nullable',
       'photo' => 'nullable|image|mimes:jpg,png|max:2048'
     ], [
-      'birthdate.before_or_equal' => 'Family head must be 21 years or older',
+      'birthdate.before_or_equal' => 'Family member must be 21 years or older',
     ]);
+    $member = new Member();
 
-    $member->head_id = 30;
+    $member->head_id = $head_id;
     $member->name = $request->name;
     $member->birthdate = $request->birthdate;
     $member->status = $request->status;
     $member->wedding_date = $request->wedding_date;
     $member->education = $request->education;
-    $imagePath = null;
+
+    $photoPath = null;
     if ($request->hasFile('photo')) {
       $photoPath = $request->file('photo')->store('photos', 'public');
     }
     $member->photo = $photoPath;
 
     if ($member->save()) {
-      if ($request->submit == "submit") {
-        return redirect('/member-list');
-      }
+      return redirect()->route('view-family-details', ['id' => $head_id]);
     }
+
+    return redirect()->back()->with('error', 'Error: Family member could not be added.');
   }
 
 }

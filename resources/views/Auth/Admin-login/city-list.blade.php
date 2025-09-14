@@ -116,7 +116,7 @@
         </div>
         <div class="links">
             <a href="/dashboard" class="">Overview</a>
-            <a href="/add-family-member" class="">Add Family Member</a>
+            <a href="/add-family-member" class="">Add City</a>
             <a href="/admin-logout" class="">Logout</a>
         </div>
     </nav>
@@ -124,7 +124,7 @@
     <div class="mx-auto p-6">
 
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-600">Family Head Details</h1>
+        <h1 class="text-2xl font-bold text-gray-600">State</h1>
     </div>
 
     <div class="bg-white rounded-xl shadow mb-8">
