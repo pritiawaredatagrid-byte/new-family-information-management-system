@@ -12,6 +12,8 @@ class Member extends Model
     use SoftDeletes;
     protected $table = "members";
     protected $guarded = []; 
+    
+    protected $primaryKey = 'id';
     public function user()
     {
         return $this->belongsTo(UserRegistration::class, 'head_id');

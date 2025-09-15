@@ -101,7 +101,8 @@
     <div class="welcome-container">
         <header class="welcome-header">
             <div class="logo">
-                <img src="{{ asset('storage/photos/fims_logo.png') }}" alt="FIMS Logo">
+                <!-- <img src="{{ asset('storage/photos/fims_logo.png') }}" alt="FIMS Logo"> -->
+                 <h1>FIMS</h1>
             </div>
             <h1>Family Information Management System</h1>
         </header>

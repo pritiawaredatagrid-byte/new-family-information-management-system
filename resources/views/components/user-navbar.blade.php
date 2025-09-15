@@ -143,7 +143,7 @@
         <div>
         </div>
         <div class="links">
-            <a href="/dashboard" class="">Overview</a>
+            <a href="/dashboard" class="">Dashboard</a>
             <a href="/user-registration" class="">{{$slot}}</a>
             <a href="/admin-logout" class="">Logout</a>
         </div>

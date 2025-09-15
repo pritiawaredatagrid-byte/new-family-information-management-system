@@ -2,6 +2,7 @@
     <thead>
         <tr>
             <th>Sr. No</th>
+            <th>Photo</th>
             <th>Name</th>
             <th>Birth Date</th>
             <th>Mobile</th>
@@ -17,6 +18,7 @@
     <tbody>
         <tr>
             <td>1</td>
+            <td></td>
             <td>{{ $head->name }} {{ $head->surname }}</td>
             <td>{{ $head->birthdate ?? '-' }}</td>
             <td>{{ $head->mobile_number ?? '-' }}</td>
@@ -43,6 +45,7 @@
     <thead>
         <tr>
             <th>Sr. No</th>
+            <th>Photo</th>
             <th>Name</th>
             <th>Birth Date</th>
             <th>Marital Status</th>
@@ -54,6 +57,7 @@
         @foreach ($head->members as $member)
             <tr>
                 <td>{{ $loop->iteration }}</td>
+                <td></td>
                 <td>{{ $member->name }}</td>
                 <td>{{ $member->birthdate ?? '-' }}</td>
                 <td>{{ $member->status ?? '-' }}</td>

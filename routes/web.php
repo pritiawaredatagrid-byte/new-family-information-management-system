@@ -66,11 +66,10 @@ Route::get('view-family-details-excel/{id}', [AdminController::class, 'viewFamil
 Route::view('view-state-details', '/Auth/Admin-login/view-state-details');
 Route::get('view-state-details/{state_id}', [AdminController::class, 'viewStateDetails'])->name('view-state-details');
 
-// delete family details
+// delete state details
 Route::delete('delete-state-details/{state_id}', [AdminController::class, 'deleteStateDetails'])->name('delete-state-details');
-
-// delete family member
-// Route::delete('delete-family-member/{id}', [AdminController::class, 'deleteFamilyMember'])->name('delete-family-member');
+// delete city
+Route::delete('delete-city/{city_id}', [AdminController::class, 'deleteCity'])->name('delete-city');
 
 //Edit state
 Route::view('edit-state', '/Auth/Admin-login/edit-state');

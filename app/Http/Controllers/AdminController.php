@@ -97,7 +97,7 @@ class AdminController extends Controller
 
     function familyList()
     {
-        $heads = UserRegistration::paginate(6);
+        $heads = UserRegistration::paginate(4);
         return view('Auth.Admin-login.family-list', ['heads' => $heads]);
     }
 
@@ -112,9 +112,9 @@ class AdminController extends Controller
 
     function exportExcel($id)
     {
-
         $head = UserRegistration::with('members')->findOrFail($id);
-        return Excel::download(new FamilyDetailsExcel($head), 'family_details.xlsx');
+        $excel = Excel::download(new FamilyDetailsExcel($head), 'family_details.xlsx');
+        return $excel;
     }
 
     function StateList()
@@ -186,7 +186,8 @@ class AdminController extends Controller
         $city->city_name = $request->city_name;
         if ($city->save()) {
             Session::flash('city', 'City added Successfully.');
-            return redirect()->route('state-list');
+            $state_id = $request->state_id; 
+            return redirect()->route('view-state-details', ['state_id' => $state_id]);
         } else {
             return 'Something went wrong';
         }
@@ -295,15 +296,7 @@ class AdminController extends Controller
         return view('/Auth/Admin-login/view-state-details', ['state' => $state]);
     }
 
-    function deleteStateDetails($state_id)
-    {
-        $state = State::with('cities')->findOrFail($state_id);
-        $state->update(['op_status' => 9]);
-        $state->delete();
-        return redirect('/state-list')
-            ->with('success', $state->state_name . "'s details successfully deleted.");
-    }
-
+  
     function editState($state_id)
     {
         $stateDetails = State::findOrFail($state_id);
@@ -329,6 +322,26 @@ class AdminController extends Controller
         return view('/Auth/Admin-login/edit-city', ['city' => $city, 'state' => $state]);
     }
 
+   public function deleteStateDetails($state_id)
+{
+    $state = State::findOrFail($state_id);
+    $state->update(['op_status' => 9]);
+    $state->delete(); 
+
+    return redirect('/state-list')
+        ->with('success', $state->state_name . " successfully deleted.");
+}
+
+  public function deleteCity($city_id)
+{
+    $city = City::findOrFail($city_id);
+    $state_id = $city->state_id;
+    $city->update(['op_status' => 9]);
+    $city->delete();
+
+    return redirect()->route('view-state-details', ['state' => $state_id])
+        ->with('success', $city->city_name . " successfully deleted.");
+}
 
     function editCityData(Request $request, $state_id, $city_id)
     {
