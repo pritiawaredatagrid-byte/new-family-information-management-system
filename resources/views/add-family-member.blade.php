@@ -295,6 +295,8 @@
             margin-top: 0.5rem;
             margin-bottom: 0.7rem;
             border: 0.1rem solid #757575;
+            font-size: 0.95rem;
+            /* fixed size for inputs */
         }
 
         .Family-Member-body form div input:focus {
@@ -321,14 +323,21 @@
             margin-bottom: 1rem;
         }
 
-      .error {
+        /* ✅ Error text fixed */
+        .error {
             color: red;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
+            /* same as input font size */
             margin-top: 0.4rem;
             margin-bottom: 0.4rem;
             display: block;
         }
-        
+
+        /* ✅ Placeholder fixed */
+        ::placeholder {
+            font-size: 0.95rem;
+            color: #999;
+        }
     </style>
 
 </head>
@@ -357,7 +366,7 @@
             </div>
             <div class="marital-status">
                 <label>Marital Status </label>
-                <input type="radio" name="status" value="married" id="married-radio">Married &nbsp &nbsp
+                <input type="radio" name="status" value="married" id="married-radio">Married &nbsp;&nbsp;
                 <input type="radio" name="status" value="unmarried" id="unmarried-radio">Unmarried
             </div>
             <div>
@@ -370,11 +379,11 @@
                 <input type="date" name="wedding_date" id="wedding_date">
             </div>
             <div>
-                <label for="education">Education </label>&nbsp<span style="color:red"> (optional)</span>
+                <label for="education">Education </label>&nbsp;<span style="color:red"> (optional)</span>
                 <input type="text" name="education" id="education" placeholder="Enter Education">
             </div>
             <div>
-                <label for="photo">Profile Photo</label>&nbsp<span style="color:red">(optional)</span>
+                <label for="photo">Profile Photo</label>&nbsp;<span style="color:red">(optional)</span>
                 <input type="file" name="photo" id="photo">
             </div>
             <input type="hidden" name="head_id" value="{{ $head_id }}">
@@ -385,7 +394,7 @@
     <script>
         $(document).ready(function () {
 
-            $.validator.addMethod('filesize', function(value, element, param) {
+            $.validator.addMethod('filesize', function (value, element, param) {
                 return this.optional(element) || (element.files[0].size <= param * 1024);
             }, 'File size must be less than {0} KB.');
 
@@ -404,7 +413,7 @@
                     },
                     wedding_date: {
                         required: {
-                            depends: function(element) {
+                            depends: function (element) {
                                 return $('input[name="status"]:checked').val() === 'married';
                             }
                         }
