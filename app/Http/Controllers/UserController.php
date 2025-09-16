@@ -15,6 +15,10 @@ class UserController extends Controller
   {
     $cutDate = Carbon::now()->subYears(21);
     $users = new UserRegistration();
+    activity()
+        ->causedBy(auth()->user()) 
+        ->performedOn( $users)     
+        ->log('Family head added'); 
 
     $validation = $request->validate([
       'name' => 'required|max:50',
@@ -90,9 +94,14 @@ class UserController extends Controller
 
   function addFamilyMember(Request $request)
   {
+    $member = new Member();
     $head_id = $request->head_id;
-
     $cutDate = Carbon::now()->subYears(21);
+     activity()
+        ->causedBy(auth()->user()) 
+        ->performedOn( $member)     
+        ->log('Member added'); 
+
     $validation = $request->validate([
       'name' => 'required|max:50',
       'birthdate' => 'required|before_or_equal:' . $cutDate,
@@ -102,7 +111,7 @@ class UserController extends Controller
     ], [
       'birthdate.before_or_equal' => 'Family member must be 21 years or older',
     ]);
-    $member = new Member();
+
 
     $member->head_id = $head_id;
     $member->name = $request->name;

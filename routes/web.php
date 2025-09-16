@@ -8,6 +8,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
+
+Route::get('/logs', [AdminController::class, 'index'])->name('index');
+
 Route::view('home-page', 'home-page');
 Route::view('admin-login', '/Auth/Admin-login/admin-login');
 Route::view('admin-forget-password', '/Auth/Admin-login/admin-forget-password');

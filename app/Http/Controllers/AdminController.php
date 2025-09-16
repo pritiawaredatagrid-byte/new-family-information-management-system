@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\Admin;
 use \Crypt;
 use Mail;
+use Carbon\Carbon;
 use App\Mail\AdminForgotPassword;
 use App\Models\UserRegistration;
 use App\Models\Member;
@@ -14,6 +15,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\FamilyDetailsExcel;
 use Illuminate\Support\Facades\Session;
+
+
+use Spatie\Activitylog\Models\Activity;
 
 
 class AdminController extends Controller
@@ -146,6 +150,12 @@ class AdminController extends Controller
     function addState(Request $request)
     {
         $state = new State();
+
+        activity()
+        ->causedBy(auth()->user()) 
+        ->performedOn( $state )     
+        ->log('State added'); 
+
         $validation = $request->validate([
             'state_name' => 'required|unique:states,state_name',
         ]);
@@ -173,6 +183,11 @@ class AdminController extends Controller
     function addCity(Request $request)
     {
         $city = new City();
+        activity()
+        ->causedBy(auth()->user()) 
+        ->performedOn( $city )     
+        ->log('City added'); 
+
         $validator = $request->validate([
             'state_id' => 'required|exists:states,state_id',
             'city_name' => 'required|unique:cities,city_name',
@@ -203,6 +218,13 @@ class AdminController extends Controller
     function editFamilyHeadData(Request $request, $id)
     {
         $heads = UserRegistration::findOrFail($id);
+        $cutDate = Carbon::now()->subYears(21);
+
+        activity()
+        ->causedBy(auth()->user()) 
+        ->performedOn( $heads)     
+        ->log('Head edited'); 
+
         $heads->name = $request->name;
         $heads->surname = $request->surname;
         $heads->birthdate = $request->birthdate;
@@ -243,6 +265,11 @@ class AdminController extends Controller
     function editFamilyMemberData(Request $request, $head_id, $id)
     {
         $member = Member::where('head_id', $head_id)->findOrFail($id);
+         activity()
+        ->causedBy(auth()->user()) 
+        ->performedOn( $member)     
+        ->log('Member edited'); 
+
         $member->name = $request->name;
         $member->birthdate = $request->birthdate;
         $member->status = $request->status;
@@ -273,6 +300,11 @@ class AdminController extends Controller
     function deleteFamilyDetails($id)
     {
         $head = UserRegistration::with('members')->findOrFail($id);
+        activity()
+        ->causedBy(auth()->user()) 
+        ->performedOn( $head )     
+        ->log('Head Deleted'); 
+
         $head->update(['op_status' => 9]);
         $head->delete();
 
@@ -282,6 +314,12 @@ class AdminController extends Controller
     public function deleteFamilyMember($id)
     {
         $member = Member::findOrFail($id);
+
+        activity()
+        ->causedBy(auth()->user()) 
+        ->performedOn( $member)     
+        ->log('Member Deleted'); 
+
         $head_id = $member->head_id;
         $member->update(['op_status' => 9]);
         $member->delete();
@@ -307,6 +345,12 @@ class AdminController extends Controller
     {
         $stateDetails = State::findOrFail($state_id);
         $stateDetails->state_name = $request->state_name;
+        
+        activity()
+        ->causedBy(auth()->user()) 
+        ->performedOn( $stateDetails)     
+        ->log('State edited'); 
+
         if ($stateDetails->save()) {
             Session::flash('$stateDetails', 'State updated Successfully.');
         } else {
@@ -325,6 +369,11 @@ class AdminController extends Controller
    public function deleteStateDetails($state_id)
 {
     $state = State::findOrFail($state_id);
+    activity()
+        ->causedBy(auth()->user()) 
+        ->performedOn( $state)     
+        ->log('State Deleted'); 
+
     $state->update(['op_status' => 9]);
     $state->delete(); 
 
@@ -335,17 +384,27 @@ class AdminController extends Controller
   public function deleteCity($city_id)
 {
     $city = City::findOrFail($city_id);
+    activity()
+        ->causedBy(auth()->user()) 
+        ->performedOn( $city)     
+        ->log('City Deleted'); 
+
     $state_id = $city->state_id;
     $city->update(['op_status' => 9]);
     $city->delete();
 
-    return redirect()->route('view-state-details', ['state' => $state_id])
+    return redirect()->route('view-state-details', ['state_id' => $state_id])
         ->with('success', $city->city_name . " successfully deleted.");
 }
 
     function editCityData(Request $request, $state_id, $city_id)
     {
         $city = City::where('state_id', $state_id)->findOrFail($city_id);
+
+        activity()
+        ->causedBy(auth()->user()) 
+        ->performedOn( $city)     
+        ->log('City edited'); 
 
         $city->city_name = $request->city_name;
         if ($city->save()) {
@@ -355,5 +414,13 @@ class AdminController extends Controller
         }
         return redirect()->route('view-state-details', ['state_id' => $state_id]);
     }
+
+
+    public function index()
+    {
+        $logs = Activity::with('causer')->latest()->get();
+        return view('Auth/Admin-login/index', compact('logs'));
+    }
+
 
 }

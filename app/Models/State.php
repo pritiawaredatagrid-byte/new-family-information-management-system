@@ -5,12 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 
 class State extends Model
 {
 
     use HasFactory;
     use SoftDeletes;
+    use LogsActivity;
+
     protected $table = "states";
     protected $primaryKey = 'state_id';
     protected $guarded = [];
@@ -18,6 +23,14 @@ class State extends Model
         'state_name',
     ];
 
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable() 
+            ->logOnlyDirty(); 
+    }
+    
     public function cities()
     {
         return $this->hasMany(City::class, 'state_id');

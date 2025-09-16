@@ -367,15 +367,6 @@
         </svg>
         State Management
       </a>
-      <a href="#" class="sidebar-link">
-        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 14V6h12v12H4z" />
-          <path fill-rule="evenodd"
-            d="M10 11a1 1 0 00-1-1H7a1 1 0 100 2h2a1 1 0 001-1zm0-4a1 1 0 00-1-1H7a1 1 0 100 2h2a1 1 0 001-1zm3 8a1 1 0 100-2h2a1 1 0 100 2h-2z"
-            clip-rule="evenodd" />
-        </svg>
-        Reports
-      </a>
     </nav>
     <div class="mt-auto">
       <a href="/admin-logout" class="sidebar-link mt-4">
