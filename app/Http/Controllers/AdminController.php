@@ -260,48 +260,69 @@ class AdminController extends Controller
         return view('/Auth/Admin-login/edit-family-head', ['heads' => $heads, 'states' => $states]);
     }
 
-    function editFamilyHeadData(Request $request, $id)
-    {
-        $heads = UserRegistration::findOrFail($id);
-        $cutDate = Carbon::now()->subYears(21);
+  
 
-        $heads->name = $request->name;
-        $heads->surname = $request->surname;
-        $heads->birthdate = $request->birthdate;
-        $heads->mobile_number = $request->mobile_number;
-        $heads->address = $request->address;
-        $stateId = $request->state;
-        $state = State::find($stateId);
-        if ($state) {
-            $heads->state = $state->state_name;
-        }
-        $heads->city = $request->city;
-        $heads->pincode = $request->pincode;
-        $heads->status = $request->status;
-        $heads->wedding_date = $request->wedding_date;
-        $heads->hobby = json_encode($request->hobbies);
+function editFamilyHeadData(Request $request, $id)
+{
+    $heads = UserRegistration::findOrFail($id);
+    $cutDate = Carbon::now()->subYears(21);
 
-        $photoPath = $heads->photo;
-        $imagePath = null;
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('photos', 'public');
-        }
-        $heads->photo = $photoPath;
-
-        if ($heads->save()) {
-            Session::flash('heads', 'Head updated Successfully.');
-        AdminAction::create([
-        'admin_id' => auth()->id(),
-        'action' => 'Head edited',
-        'resource_type' => 'head',
-        'resource_id' => $heads->id,
-        'details' => json_encode(['ip_address' => $request->ip()]),
+    
+    $validation = $request->validate([
+        'name' => 'required|max:50',
+        'surname' => 'required|max:50',
+        'birthdate' => 'required|before_or_equal:' . $cutDate,
+      
+        'mobile_number' => 'required|numeric|digits:10|unique:UserRegistration,mobile_number,' . $id,
+        'address' => 'required',
+        'state' => 'required',
+        'city' => 'required',
+        'pincode' => 'required|digits:6',
+        'status' => 'required',
+        'hobbies.*' => 'required',
+        'photo' => 'sometimes|image|mimes:jpg,png|max:2048' 
+    ], [
+        'birthdate.before_or_equal' => 'Family head must be 21 years or older',
+        'hobbies.*.required' => 'At least 1 hobby required',
     ]);
-        } else {
-            return 'Something went wrong';
-        }
-        return redirect()->route('view-family-details', ['id' => $id]);
+
+    $heads->name = $request->name;
+    $heads->surname = $request->surname;
+    $heads->birthdate = $request->birthdate;
+    $heads->mobile_number = $request->mobile_number;
+    $heads->address = $request->address;
+    $stateId = $request->state;
+    $state = State::find($stateId);
+    if ($state) {
+        $heads->state = $state->state_name;
     }
+    $heads->city = $request->city;
+    $heads->pincode = $request->pincode;
+    $heads->status = $request->status;
+    $heads->wedding_date = $request->wedding_date;
+    $heads->hobby = json_encode($request->hobbies);
+
+    $photoPath = $heads->photo;
+    $imagePath = null;
+    if ($request->hasFile('photo')) {
+        $photoPath = $request->file('photo')->store('photos', 'public');
+    }
+    $heads->photo = $photoPath;
+
+    if ($heads->save()) {
+        Session::flash('heads', 'Head updated Successfully.');
+        AdminAction::create([
+            'admin_id' => auth()->id(),
+            'action' => 'Head edited',
+            'resource_type' => 'head',
+            'resource_id' => $heads->id,
+            'details' => json_encode(['ip_address' => $request->ip()]),
+        ]);
+    } else {
+        return 'Something went wrong';
+    }
+    return redirect()->route('view-family-details', ['id' => $id]);
+}
 
     function editFamilyMember($head_id, $id)
     {

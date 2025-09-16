@@ -255,7 +255,7 @@
 <div>
     <label for="state" class="text-gray-600 space-y-2">State</label>
     <select name="state" id="state" class="state">
-     <option value="{{ $heads->state_id ?? '' }}">{{ $heads->state ?? 'Select State' }}</option>
+     <option value="{{ $heads->state_id ?? '' }}">{{ $heads->state }}</option>
     @foreach($states as $data)
         <option value="{{ $data->state_id }}">{{ $data->state_name }}</option>
     @endforeach
@@ -273,6 +273,7 @@
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
+
               <div>
                 <label for="">Pincode</label>
                 <input type="number" name="pincode" id="" placeholder="Enter Pincode" value="{{ old('pincode', $heads->pincode) }}">
