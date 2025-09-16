@@ -710,7 +710,7 @@
 
 <body class="registration-body">
     <div class="card">
-        <a href="/home-page" class="back-btn" aria-label="Go back to the previous page">&#8592; Back</a>
+        <!-- <a href="/home-page" class="back-btn" aria-label="Go back to the previous page">&#8592; Back</a> -->
         <div style="display:flex justify-content:space-between">
             @if(Session('users'))
                 <div class="alert success" role="alert">

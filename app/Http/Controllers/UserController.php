@@ -7,6 +7,7 @@ use App\Models\UserRegistration;
 use App\Models\Member;
 use App\Models\State;
 use App\Models\City;
+use App\Models\AdminAction;
 
 use Illuminate\Support\Facades\Session;
 class UserController extends Controller
@@ -15,10 +16,6 @@ class UserController extends Controller
   {
     $cutDate = Carbon::now()->subYears(21);
     $users = new UserRegistration();
-    activity()
-        ->causedBy(auth()->user()) 
-        ->performedOn( $users)     
-        ->log('Family head added'); 
 
     $validation = $request->validate([
       'name' => 'required|max:50',
@@ -63,6 +60,13 @@ class UserController extends Controller
 
     if ($users->save()) {
       $headId = $users->id;
+       AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'Head Added',
+        'resource_type' => 'family',
+        'resource_id' => $users->id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
       return redirect()->back()
         ->with('users', 'Family Head Added Successfully!')
         ->with('family_head_added', true)
@@ -97,10 +101,6 @@ class UserController extends Controller
     $member = new Member();
     $head_id = $request->head_id;
     $cutDate = Carbon::now()->subYears(21);
-     activity()
-        ->causedBy(auth()->user()) 
-        ->performedOn( $member)     
-        ->log('Member added'); 
 
     $validation = $request->validate([
       'name' => 'required|max:50',
@@ -127,6 +127,13 @@ class UserController extends Controller
     $member->photo = $photoPath;
 
     if ($member->save()) {
+       AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'Member Added',
+        'resource_type' => 'member',
+        'resource_id' => $member->id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
       return redirect()->route('view-family-details', ['id' => $head_id]);
     }
 

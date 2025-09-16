@@ -8,26 +8,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
-
-Route::get('/logs', [AdminController::class, 'index'])->name('index');
-
-Route::view('home-page', 'home-page');
-Route::view('admin-login', '/Auth/Admin-login/admin-login');
-Route::view('admin-forget-password', '/Auth/Admin-login/admin-forget-password');
-Route::post('admin-forget-password', [AdminController::class, 'AdminForgetPassword']);
-Route::get('admin-forget-password/{email}', [AdminController::class, 'AdminResetForgetPassword']);
-Route::post('admin-set-forget-password', [AdminController::class, 'AdminSetForgetPassword']);
-
-Route::post('admin-login', [AdminController::class, 'login']);
+Route::middleware('CheckAdminAuth')->group(function(){
+Route::get('/admin/logs', [AdminController::class, 'index'])->name('admin.logs');
 Route::get('dashboard', [AdminController::class, 'dashboard']);
-
 Route::view('family-list', '/Auth/Admin-login/family-list');
+
 Route::get('family-list', [AdminController::class, 'familyList']);
 
-
-
-Route::get('member-list', [AdminController::class, 'memberList']);
 Route::get('state-list', [AdminController::class, 'stateList']);
 Route::get('city-list', [AdminController::class, 'cityList']);
 
@@ -35,10 +22,6 @@ Route::get('search-head', [AdminController::class, 'searchHead'])->name('search-
 
 Route::get('admin-logout', [AdminController::class, 'logout']);
 
-Route::view('user-registration', 'user-registration');
-Route::post('user-registration', [UserController::class, 'userRegistration']);
-Route::get('user-registration', [UserController::class, 'addStates']);
-Route::post('get-cities', [UserController::class, 'getCities'])->name('get.cities');
 
 //Edit family head
 Route::view('edit-family-head', '/Auth/Admin-login/edit-family-head');
@@ -93,13 +76,29 @@ Route::post('add-state', [AdminController::class, 'addState']);
 Route::view('add-city', 'add-city');
 Route::post('add-city', [AdminController::class, 'addCity'])->name('add-city');
 Route::get('add-city', [AdminController::class, 'addStates']);
+});
 
 
+// Route::view('home-page', 'home-page');
+Route::view('admin-login', '/Auth/Admin-login/admin-login');
+Route::view('admin-forget-password', '/Auth/Admin-login/admin-forget-password');
+Route::post('admin-forget-password', [AdminController::class, 'AdminForgetPassword']);
+Route::get('admin-forget-password/{email}', [AdminController::class, 'AdminResetForgetPassword']);
+Route::post('admin-set-forget-password', [AdminController::class, 'AdminSetForgetPassword']);
+Route::post('admin-login', [AdminController::class, 'login']);
+
+// Route::get('member-list', [AdminController::class, 'memberList']);
+
+//User Registration
+Route::view('user-registration', 'user-registration');
+Route::post('user-registration', [UserController::class, 'userRegistration']);
+Route::get('user-registration', [UserController::class, 'addStates']);
+Route::post('get-cities', [UserController::class, 'getCities'])->name('get.cities');
 
 // Route::view('add-family-member', 'add-family-member');
 Route::get('add-family-member/{head_id}', [UserController::class, 'addFamilyMemberForm'])->name('add-member-form');
 Route::post('add-family-member', [UserController::class, 'addFamilyMember'])->name('add-member-submit');
-Route::view('head-list', 'head-list');
+// Route::view('head-list', 'head-list');
 
 use App\Http\Controllers\PowerBIController;
 

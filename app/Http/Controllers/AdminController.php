@@ -15,7 +15,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\FamilyDetailsExcel;
 use Illuminate\Support\Facades\Session;
-
+use App\Models\AdminAction;
+use Illuminate\Support\Facades\DB;
 
 use Spatie\Activitylog\Models\Activity;
 
@@ -89,10 +90,48 @@ class AdminController extends Controller
         $totalMembers = Member::count();
         $totalStates = State::count();
         $totalCities = City::count();
+        $marriedHeads = UserRegistration::where('status', 'married')->count();
+        $unmarriedHeads = UserRegistration::where('status', 'unmarried')->count();
+        $marriedMembers = Member::where('status', 'married')->count();
+        $unmarriedMembers = Member::where('status', 'unmarried')->count();
 
+        $familiesPerState = UserRegistration::select('state', \DB::raw('count(*) as total'))
+                                        ->groupBy('state')
+                                        ->get()
+                                        ->pluck('total', 'state')
+                                        ->toArray();
 
+    $registrationsByMonth = UserRegistration::select(
+        DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
+        DB::raw('count(*) as count')
+    )
+    ->groupBy('month')
+    ->orderBy('month')
+    ->get();
+         $cumulativeData = [];
+    $labels = [];
+    $cumulativeCount = 0;
+
+    foreach ($registrationsByMonth as $registration) {
+        $cumulativeCount += $registration->count;
+        $cumulativeData[] = $cumulativeCount;
+        $labels[] = Carbon::parse($registration->month)->format('M Y');
+    }
+        
         if ($admin) {
-            return view('Auth.Admin-login.admin', ["name" => $admin->name, "totalFamilies" => $totalFamilies, "totalMembers" => $totalMembers, "totalStates" => $totalStates, "totalCities" => $totalCities]);
+            return view('Auth.Admin-login.admin', ["name" => $admin->name, "totalFamilies" => $totalFamilies,
+             "totalMembers" => $totalMembers,
+              "totalStates" => $totalStates,
+               "totalCities" => $totalCities,
+            "marriedHeads" => $marriedHeads,
+            "unmarriedHeads" => $unmarriedHeads,
+            "familiesPerState"=>$familiesPerState,
+            "marriedMembers" => $marriedMembers,
+            "unmarriedMembers" => $unmarriedMembers,
+            "cumulativeData" => $cumulativeData,
+            "labels" => $labels
+        ]);
+
         } else {
             return redirect('/admin-login');
         }
@@ -150,19 +189,23 @@ class AdminController extends Controller
     function addState(Request $request)
     {
         $state = new State();
-
-        activity()
-        ->causedBy(auth()->user()) 
-        ->performedOn( $state )     
-        ->log('State added'); 
-
+        $admin = new Admin();
+    
         $validation = $request->validate([
             'state_name' => 'required|unique:states,state_name',
         ]);
         $state->state_name = $request->state_name;
         if ($state->save()) {
+       AdminAction::create([
+        'admin_id' =>auth()->id(),
+        'action' => 'State Added',
+        'resource_type' => 'State',
+        'resource_id' => $state->state_id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+       ]);
             Session::flash('state', 'State added Successfully.');
             return redirect('/add-city');
+            
         } else {
             return 'Something went wrong';
         }
@@ -183,11 +226,6 @@ class AdminController extends Controller
     function addCity(Request $request)
     {
         $city = new City();
-        activity()
-        ->causedBy(auth()->user()) 
-        ->performedOn( $city )     
-        ->log('City added'); 
-
         $validator = $request->validate([
             'state_id' => 'required|exists:states,state_id',
             'city_name' => 'required|unique:cities,city_name',
@@ -201,6 +239,13 @@ class AdminController extends Controller
         $city->city_name = $request->city_name;
         if ($city->save()) {
             Session::flash('city', 'City added Successfully.');
+            AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'City Added',
+        'resource_type' => 'City',
+        'resource_id' => $city->city_id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
             $state_id = $request->state_id; 
             return redirect()->route('view-state-details', ['state_id' => $state_id]);
         } else {
@@ -219,11 +264,6 @@ class AdminController extends Controller
     {
         $heads = UserRegistration::findOrFail($id);
         $cutDate = Carbon::now()->subYears(21);
-
-        activity()
-        ->causedBy(auth()->user()) 
-        ->performedOn( $heads)     
-        ->log('Head edited'); 
 
         $heads->name = $request->name;
         $heads->surname = $request->surname;
@@ -250,6 +290,13 @@ class AdminController extends Controller
 
         if ($heads->save()) {
             Session::flash('heads', 'Head updated Successfully.');
+        AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'Head edited',
+        'resource_type' => 'head',
+        'resource_id' => $heads->id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
         } else {
             return 'Something went wrong';
         }
@@ -285,6 +332,13 @@ class AdminController extends Controller
 
         if ($member->save()) {
             Session::flash('member', 'Member updated Successfully.');
+             AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'Member edited',
+        'resource_type' => 'member',
+        'resource_id' => $member->id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
         } else {
             return 'Something went wrong';
         }
@@ -297,32 +351,35 @@ class AdminController extends Controller
         return view('/Auth/Admin-login/view-family-details', ['head' => $head]);
     }
 
-    function deleteFamilyDetails($id)
+    function deleteFamilyDetails($id,Request $request)
     {
         $head = UserRegistration::with('members')->findOrFail($id);
-        activity()
-        ->causedBy(auth()->user()) 
-        ->performedOn( $head )     
-        ->log('Head Deleted'); 
-
         $head->update(['op_status' => 9]);
         $head->delete();
-
+        AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'Head deleted',
+        'resource_type' => 'head',
+        'resource_id' => $head->id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
         return redirect('/family-list')
             ->with('success', $head->name . "'s Family details successfully deleted.");
     }
-    public function deleteFamilyMember($id)
+    public function deleteFamilyMember($id, Request $request)
     {
         $member = Member::findOrFail($id);
-
-        activity()
-        ->causedBy(auth()->user()) 
-        ->performedOn( $member)     
-        ->log('Member Deleted'); 
 
         $head_id = $member->head_id;
         $member->update(['op_status' => 9]);
         $member->delete();
+        AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'Member deleted',
+        'resource_type' => 'member',
+        'resource_id' => $member->id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
 
         return redirect()->route('view-family-details', ['id' => $head_id])
             ->with('success', $member->name . " successfully deleted.");
@@ -345,14 +402,17 @@ class AdminController extends Controller
     {
         $stateDetails = State::findOrFail($state_id);
         $stateDetails->state_name = $request->state_name;
-        
-        activity()
-        ->causedBy(auth()->user()) 
-        ->performedOn( $stateDetails)     
-        ->log('State edited'); 
+
 
         if ($stateDetails->save()) {
-            Session::flash('$stateDetails', 'State updated Successfully.');
+        Session::flash('$stateDetails', 'State updated Successfully.');
+         AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'State edited',
+        'resource_type' => 'state',
+        'resource_id' => $stateDetails->state_id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
         } else {
             return 'Something went wrong';
         }
@@ -366,13 +426,16 @@ class AdminController extends Controller
         return view('/Auth/Admin-login/edit-city', ['city' => $city, 'state' => $state]);
     }
 
-   public function deleteStateDetails($state_id)
+   public function deleteStateDetails($state_id,Request $request)
 {
     $state = State::findOrFail($state_id);
-    activity()
-        ->causedBy(auth()->user()) 
-        ->performedOn( $state)     
-        ->log('State Deleted'); 
+    AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'State deleted',
+        'resource_type' => 'state',
+        'resource_id' => $state->state_id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
 
     $state->update(['op_status' => 9]);
     $state->delete(); 
@@ -381,17 +444,21 @@ class AdminController extends Controller
         ->with('success', $state->state_name . " successfully deleted.");
 }
 
-  public function deleteCity($city_id)
+  public function deleteCity($city_id,Request $request)
 {
     $city = City::findOrFail($city_id);
-    activity()
-        ->causedBy(auth()->user()) 
-        ->performedOn( $city)     
-        ->log('City Deleted'); 
 
     $state_id = $city->state_id;
     $city->update(['op_status' => 9]);
     $city->delete();
+
+    AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'City deleted',
+        'resource_type' => 'city',
+        'resource_id' => $city->city_id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
 
     return redirect()->route('view-state-details', ['state_id' => $state_id])
         ->with('success', $city->city_name . " successfully deleted.");
@@ -401,14 +468,16 @@ class AdminController extends Controller
     {
         $city = City::where('state_id', $state_id)->findOrFail($city_id);
 
-        activity()
-        ->causedBy(auth()->user()) 
-        ->performedOn( $city)     
-        ->log('City edited'); 
-
         $city->city_name = $request->city_name;
         if ($city->save()) {
-            Session::flash('city', 'City updated Successfully.');
+        Session::flash('city', 'City updated Successfully.');
+        AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'City edited',
+        'resource_type' => 'city',
+        'resource_id' => $city->city_id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
         } else {
             return 'Something went wrong';
         }
@@ -418,9 +487,8 @@ class AdminController extends Controller
 
     public function index()
     {
-        $logs = Activity::with('causer')->latest()->get();
-        return view('Auth/Admin-login/index', compact('logs'));
+        $logs = AdminAction::with('admin')->latest()->paginate(20);
+        return $logs;
     }
-
 
 }

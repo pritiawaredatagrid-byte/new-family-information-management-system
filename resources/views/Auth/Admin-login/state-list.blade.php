@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Families</title>
+    <title>States</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
