@@ -7,19 +7,9 @@
   <title>Admin Login</title>
   <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
   <style>
-    :root {
-      --primary-color: #007bff;
-      --secondary-color: #6c757d;
-      --background-color: #f4f7f6;
-      --card-background: #ffffff;
-      --text-color: #333;
-      --shadow-color: rgba(0, 0, 0, 0.1);
-      --border-color: #d1d5db;
-    }
-
     body {
       font-family: 'Poppins', sans-serif;
-      background-color: var(--background-color);
+      background-color: #1F2937;
       color: var(--text-color);
       margin: 0;
       padding: 0;
@@ -31,7 +21,7 @@
     }
 
     .login-card {
-      background-color: var(--card-background);
+      background-color: #E5E7EB;
       padding: 3rem;
       border-radius: 1rem;
       box-shadow: 0 4px 12px var(--shadow-color);
@@ -44,7 +34,7 @@
       font-size: 2rem;
       font-weight: 700;
       text-transform: uppercase;
-      color: var(--text-color);
+      color: #1F2937;
       margin-bottom: 2rem;
     }
 
@@ -93,15 +83,18 @@
 
     .login-button {
       width: 100%;
-      background-color: var(--primary-color);
+      background-color: #0ea5e9;
+      color: #fff;
       border: none;
       border-radius: 0.5rem;
-      color: var(--white-color);
-      font-size: 1.1rem;
       font-weight: bold;
+      font-size: 1.1rem;
       padding: 0.75rem 2rem;
       cursor: pointer;
       transition: background-color 0.3s ease, transform 0.2s ease;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.1rem;
     }
 
     .login-button:hover {

@@ -21,7 +21,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: var(--background-color);
+            background-color: #1F2937;
             color: var(--text-color);
             line-height: 1.6;
             margin: 0;
@@ -34,7 +34,7 @@
         }
 
         .welcome-container {
-            background-color: var(--card-background);
+            background-color: #E5E7EB;
             padding: 3rem;
             border-radius: 10px;
             box-shadow: 0 4px 12px var(--shadow-color);
@@ -53,15 +53,15 @@
         }
 
         h1 {
-            color: var(--primary-color);
-            font-size: 2rem;
+            color: #1F2937;
+
             margin: 0;
         }
 
         .tagline {
             font-size: 1.2rem;
             font-weight: 600;
-            color: var(--secondary-color);
+            color: #3e516d;
             margin-bottom: 1rem;
         }
 
@@ -73,7 +73,7 @@
 
         .cta-button {
             display: inline-block;
-            background-color: var(--primary-color);
+            background-color: #0ea5e9;
             color: #fff;
             padding: 1rem 2.5rem;
             border-radius: 5px;
@@ -102,7 +102,7 @@
         <header class="welcome-header">
             <div class="logo">
                 <!-- <img src="{{ asset('storage/photos/fims_logo.png') }}" alt="FIMS Logo"> -->
-                 <h1>FIMS</h1>
+                <h1>FIMS</h1>
             </div>
             <h1>Family Information Management System</h1>
         </header>
