@@ -148,39 +148,46 @@
         <header class="main-header">
             <h1 class="text-2xl font-bold text-gray-600">States</h1>
             <div class="flex items-center space-x-4">
-                <a href="/add-state" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                <a href="/add-state"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
                     Add State
                 </a>
-                
+
             </div>
         </header>
 
         <div class="p-6">
             <div class="bg-white rounded-xl shadow">
-                <table class="w-full text-sm text-gray-700">
-                    <thead class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider sticky top-0">
-                        <tr>
-                            <th class="px-4 py-3 text-center">Sr.No</th>
-                            <th class="px-4 py-3 text-left">State Name</th>
-                            <th class="px-4 py-3 text-left">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        @foreach($states as $state)
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="px-4 py-3 text-center">{{ $loop->iteration }}</td>
-                            <td class="px-4 py-3 font-medium whitespace-nowrap">{{$state->state_name}}</td>
-                            <td class="px-4 py-3 text-center">
-                                <a href="{{'view-state-details/'.$state->state_id}}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f">
-                                        <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
-                                    </svg>
-                                </a>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                @if ($states->isEmpty())
+                    <p class="text-center text-gray-500 text-sm py-10">No state available.</p>
+                @else
+                    <table class="w-full text-sm text-gray-700">
+                        <thead class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider sticky top-0">
+                            <tr>
+                                <th class="px-4 py-3 text-center">Sr.No</th>
+                                <th class="px-4 py-3 text-left">State Name</th>
+                                <th class="px-4 py-3 text-left">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @foreach($states as $state)
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-4 py-3 text-center">{{ $loop->iteration }}</td>
+                                    <td class="px-4 py-3 font-medium whitespace-nowrap">{{$state->state_name}}</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <a href="{{'view-state-details/' . $state->state_id}}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                                width="24px" fill="#1f1f1f">
+                                                <path
+                                                    d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
+                                            </svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
             </div>
 
             <div class="mt-6">

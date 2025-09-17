@@ -7,9 +7,19 @@
   <title>Admin Login</title>
   <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
   <style>
+    :root {
+      --primary-color: #007bff;
+      --secondary-color: #6c757d;
+      --background-color: #f4f7f6;
+      --card-background: #ffffff;
+      --text-color: #333;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --border-color: #d1d5db;
+    }
+
     body {
       font-family: 'Poppins', sans-serif;
-      background-color: #1F2937;
+      background-color: #f4f7f6;
       color: var(--text-color);
       margin: 0;
       padding: 0;
@@ -21,7 +31,7 @@
     }
 
     .login-card {
-      background-color: #E5E7EB;
+      background-color: #ffff;
       padding: 3rem;
       border-radius: 1rem;
       box-shadow: 0 4px 12px var(--shadow-color);

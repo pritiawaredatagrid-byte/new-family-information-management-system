@@ -21,7 +21,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #1F2937;
+            background-color: #f4f7f6;
             color: var(--text-color);
             line-height: 1.6;
             margin: 0;
@@ -34,7 +34,7 @@
         }
 
         .welcome-container {
-            background-color: #E5E7EB;
+            background-color: #fff;
             padding: 3rem;
             border-radius: 10px;
             box-shadow: 0 4px 12px var(--shadow-color);
