@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
+use App\Models\UserRegistration;
 
 Route::get('/', function () {
     return view('welcome');
@@ -33,6 +34,16 @@ Route::view('edit-family-member', '/Auth/Admin-login/edit-family-member');
 Route::get('edit-family-member/{head_id}/{id}', [AdminController::class, 'editFamilyMember']);
 Route::put('edit-family-member-data/{head_id}/{id}', [AdminController::class, 'editFamilyMemberData']);
 
+Route::post('/check-mobile-number', function (Request $request) {
+    $mobileNumber = $request->input('mobile_number');
+    $currentId = $request->input('current_id');
+
+    $isUnique = !UserRegistration::where('mobile_number', $mobileNumber)
+                            ->where('id', '!=', $currentId)
+                            ->exists();
+
+    return response()->json(['valid' => $isUnique]);
+});
 
 //View family Details
 Route::view('view-family-details', '/Auth/Admin-login/view-family-details');

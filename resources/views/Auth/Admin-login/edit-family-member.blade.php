@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Family Member</title>
     <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.js"></script>
+
 <style>
 
 .Family-Member-body{
@@ -56,7 +61,7 @@ background-color: #F5F5F5;
 }
 
 .Family-Member-body form div label{
-    color:#757575;
+    /* color:#757575; */
 }
 
 .Family-Member-body form div input{
@@ -91,6 +96,17 @@ background-color: #F5F5F5;
     color:red;
      margin-bottom: 1rem;
 }
+.error {
+    color: red;
+    font-size: 1rem; 
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+    display: block; 
+}
+
+.Family-Member-body form div input.error {
+    border: 1px solid red;
+}
 
 </style>
 
@@ -101,7 +117,8 @@ background-color: #F5F5F5;
         @error('user')
             <p class="text-red-500 text-sm mt-1 py-2">{{ $message }}</p>
         @enderror
-        <form action="{{ '/edit-family-member-data/' . $member->head_id . '/' . $member->id }}" method="post" class="space-y-4" enctype="multipart/form-data">
+        {{-- ADDED 'form' CLASS HERE --}}
+        <form action="{{ '/edit-family-member-data/' . $member->head_id . '/' . $member->id }}" method="post" class="space-y-4 form" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="_method" value="put">
             <div>
@@ -119,29 +136,30 @@ background-color: #F5F5F5;
                 @enderror
             </div>
             
-              <div class="marital-status">
-    <label for="">Marital Status</label>
-    <label>
-        <input type="radio" name="status" value="married" id="status_married" 
-            {{ old('status', $member->status) == 'married' ? 'checked' : '' }}>
-        Married
-    </label>
-    &nbsp;&nbsp;
-    <label>
-        <input type="radio" name="status" value="unmarried" id="status_unmarried" 
-            {{ old('status', $member->status) == 'unmarried' ? 'checked' : '' }}>
-        unmarried
-    </label>
-    @error('status')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
+            {{-- ADDED 'id="marital-status-group"' HERE --}}
+            <div class="marital-status" id="marital-status-group">
+                <label for="">Marital Status</label>
+                <label>
+                    <input type="radio" name="status" value="married" id="status_married" 
+                        {{ old('status', $member->status) == 'married' ? 'checked' : '' }}>
+                    Married
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                    <input type="radio" name="status" value="unmarried" id="status_unmarried" 
+                        {{ old('status', $member->status) == 'unmarried' ? 'checked' : '' }}>
+                    unmarried
+                </label>
+            </div>
+            @error('status')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
 
-<div class="WeddingDate" id="wedding_date_field" 
-     style="{{ old('status', $member->status) == 'married' ? '' : 'display:none;' }}">
-    <label for="wedding_date">Wedding Date</label>
-    <input type="date" name="wedding_date" id="wedding_date" value="{{ old('wedding_date', $member->wedding_date) }}">
-</div>
+            <div class="WeddingDate" id="wedding_date_field" 
+                 style="{{ old('status', $member->status) == 'married' ? '' : 'display:none;' }}">
+                <label for="wedding_date">Wedding Date</label>
+                <input type="date" name="wedding_date" id="wedding_date" value="{{ old('wedding_date', $member->wedding_date) }}">
+            </div>
 
             <div>
                 <label for="">Education </label>&nbsp<span style="color:red"> (optional)</span>
@@ -165,23 +183,86 @@ background-color: #F5F5F5;
         </form>
     </div>
 
-
     <script>
     
+        $(document).ready(function () {
+            // The extra line of code has been removed
+            
+            $.validator.addMethod('filesize', function (value, element, param) {
+                return this.optional(element) || (element.files[0].size <= param * 1024);
+            }, 'File size must be less than {0} KB.');
 
-     const marriedStatus = document.getElementById('status_married');
-    const weddingDateField = document.getElementById('wedding_date_field');
-    function toggleWeddingDate() {
-        if (marriedStatus.checked) {
-            weddingDateField.style.display = 'block';
-        } else {
-            weddingDateField.style.display = 'none';
+            $('.form').validate({
+                rules: {
+                    name: {
+                        required: true,
+                        maxlength: 50
+                    },
+                    birthdate: {
+                        required: true,
+                        date: true
+                    },
+                    status: {
+                        required: true
+                    },
+                    wedding_date: {
+                        required: {
+                            depends: function (element) {
+                                return $('input[name="status"]:checked').val() === 'married';
+                            }
+                        }
+                    },
+                    photo: {
+                        extension: "jpg|png",
+                        filesize: 2048
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "Please enter a member name.",
+                        maxlength: "Name cannot exceed 50 characters."
+                    },
+                    birthdate: {
+                        required: "Please enter the birth date."
+                    },
+                    status: {
+                        required: "Please select a marital status."
+                    },
+                    wedding_date: {
+                        required: "Please enter a wedding date for married members."
+                    },
+                    photo: {
+                        extension: "Only JPG and PNG files are allowed.",
+                        filesize: "Photo size must be less than 2MB."
+                    }
+                },
+                errorPlacement: function(error, element) {
+             
+                    if (element.attr("name") == "status") {
+                        error.appendTo("#marital-status-group");
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            });
+        });
+
+        const marriedStatus = document.getElementById('status_married');
+        const weddingDateField = document.getElementById('wedding_date_field');
+
+        function toggleWeddingDate() {
+            if (marriedStatus.checked) {
+                weddingDateField.style.display = 'block';
+            } else {
+                weddingDateField.style.display = 'none';
+            }
         }
-    }
-    document.querySelectorAll('input[name="status"]').forEach(radio => {
-        radio.addEventListener('change', toggleWeddingDate);
-    });
-    window.addEventListener('load', toggleWeddingDate);
+        
+        document.querySelectorAll('input[name="status"]').forEach(radio => {
+            radio.addEventListener('change', toggleWeddingDate);
+        });
+
+        window.addEventListener('load', toggleWeddingDate);
 
     </script>
 </body>

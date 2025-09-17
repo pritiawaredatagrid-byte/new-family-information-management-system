@@ -48,7 +48,7 @@
 
         .links a {
             text-decoration: none;
-            color: #555;
+            color: #007BFF;
             font-size: 1rem;
             font-weight: 500;
             transition: color 0.3s ease;

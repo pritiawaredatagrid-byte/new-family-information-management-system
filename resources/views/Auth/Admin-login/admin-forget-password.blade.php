@@ -41,10 +41,9 @@
         }
 
         .login-card h2 {
-            font-size: 2rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-color);
+            color: #484E54;
+      font-size: 1.8rem;
+      font-weight: 700;
             margin-bottom: 2rem;
         }
 
@@ -85,7 +84,7 @@
             background-color: var(--primary-color);
             border: none;
             border-radius: 0.5rem;
-            color: var(--white-color);
+            color: white;
             font-size: 1.1rem;
             font-weight: bold;
             padding: 0.75rem 2rem;

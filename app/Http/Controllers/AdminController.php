@@ -267,12 +267,10 @@ function editFamilyHeadData(Request $request, $id)
     $heads = UserRegistration::findOrFail($id);
     $cutDate = Carbon::now()->subYears(21);
 
-    
     $validation = $request->validate([
         'name' => 'required|max:50',
         'surname' => 'required|max:50',
         'birthdate' => 'required|before_or_equal:' . $cutDate,
-      
         'mobile_number' => 'required|numeric|digits:10|unique:UserRegistration,mobile_number,' . $id,
         'address' => 'required',
         'state' => 'required',
@@ -333,10 +331,16 @@ function editFamilyHeadData(Request $request, $id)
     function editFamilyMemberData(Request $request, $head_id, $id)
     {
         $member = Member::where('head_id', $head_id)->findOrFail($id);
-         activity()
-        ->causedBy(auth()->user()) 
-        ->performedOn( $member)     
-        ->log('Member edited'); 
+        $cutDate = Carbon::now()->subYears(21);
+        $validation = $request->validate([
+      'name' => 'required|max:50',
+      'birthdate' => 'required|before_or_equal:' . $cutDate,
+      'status' => 'required',
+      'education' => 'nullable',
+      'photo' => 'nullable|image|mimes:jpg,png|max:2048'
+    ], [
+      'birthdate.before_or_equal' => 'Family member must be 21 years or older',
+    ]);
 
         $member->name = $request->name;
         $member->birthdate = $request->birthdate;

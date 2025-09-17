@@ -559,9 +559,15 @@
             min-height: 100px;
         }
 
-        .marital-status {
-            flex-direction: row;
-            align-items: center;
+        label {
+            font-weight: normal;
+            color: #616161;
+            margin-bottom: 0.5rem;
+        }
+
+
+        .radio-options {
+            display: flex;
             gap: 2rem;
         }
 
@@ -571,9 +577,14 @@
             gap: 1rem;
         }
 
-        .radio-group input[type="radio"] {
-            width: auto;
-            margin-right: 0.25rem;
+
+        .radio-group input[type="radio"]+label {
+            margin-left: 0.3rem;
+        }
+
+        .status-error-container label.error {
+            color: red;
+            font-size: 14px;
         }
 
         .hobbies-section {
@@ -710,6 +721,7 @@
 </head>
 
 <body class="registration-body">
+
     <div class="card">
         <!-- <a href="/home-page" class="back-btn" aria-label="Go back to the previous page">&#8592; Back</a> -->
         <div style="display:flex justify-content:space-between">
@@ -796,14 +808,20 @@
                         <p class="error-message">{{ $message }}</p>
                     @enderror
                 </div>
-                <div class="form-group marital-status">
+                <div class="form-group">
                     <label>Marital Status</label>
-                    <div class="radio-group">
-                        <input type="radio" name="status" value="married" id="married-radio">
-                        <label for="married-radio">Married</label>
-                        <input type="radio" name="status" value="unmarried" id="unmarried-radio">
-                        <label for="unmarried-radio">Unmarried</label>
+                    <div class="marital-status">
+                        <div class="radio-options">
+                            <div class="radio-group">
+                                <input type="radio" id="married" name="status" value="married">
+                                <label for="married">Married</label>
+                                <input type="radio" id="unmarried" name="status" value="unmarried">
+                                <label for="unmarried">Unmarried</label>
+                            </div>
+                        </div>
+
                     </div>
+                    <div class="status-error-container"></div>
                 </div>
                 <div class="form-group full-width hidden" id="wedding-date-group">
                     <label for="wedding_date">Wedding Date</label>
@@ -812,6 +830,7 @@
                 <div class="form-group hobbies-section full-width">
                     <label for="">Hobbies</label>
                     <div id="hobbies-container">
+
                     </div>
                     @error('hobbies.*')
                         <p class="error-message">{{ $message }}</p>
@@ -889,7 +908,18 @@
                 },
                 messages: {
                     'hobbies[]': { required: "At least 1 hobby is required." }
-                }
+                },
+                errorPlacement: function (error, element) {
+                    if (element.attr("name") === "status") {
+                        $(".status-error-container").html(error);
+                    } else if (element.attr("name").startsWith("hobbies")) {
+                        $("#hobbies-container .error-message").remove();
+                        error.addClass("error-message").appendTo("#hobbies-container");
+                    } else {
+                        error.insertAfter(element);
+                    }
+                },
+
             });
 
 
