@@ -79,15 +79,11 @@
       opacity: 0.6;
     }
 
-    .error-message {
-      color: #ef4444;
-      background-color: #fee2e2;
-      border: 1px solid #fca5a5;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
+    .error-message-style {
+      color: red;
       font-size: 0.875rem;
       margin-bottom: 1.5rem;
-      text-align: center;
+      margin-top: 1rem;
     }
 
     .login-button {
@@ -131,6 +127,15 @@
       color: #0056b3;
       text-decoration: underline;
     }
+
+    .error-message {
+      color: red;
+      font-size: 0.875rem;
+      margin-top: 0.3rem;
+      margin-bottom: 1rem;
+      display: block;
+      font-weight: 100;
+    }
   </style>
 </head>
 
@@ -140,8 +145,8 @@
   <div class="login-card">
     <h2>Admin Login</h2>
     @error('user')
-    <p class="error-message">{{ $message }}</p>
-@enderror
+      <p class="error-message">{{ $message }}</p>
+    @enderror
     <form action="/admin-login" method="post">
       @csrf
       <div class="form-group">

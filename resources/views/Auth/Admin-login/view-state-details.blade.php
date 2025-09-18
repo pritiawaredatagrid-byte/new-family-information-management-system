@@ -308,7 +308,7 @@
     <x-sidebar></x-sidebar>
 
     <div class="page-wrapper">
-        <header class="main-header">
+        <!-- <header class="main-header">
             <h1 class="text-2xl font-bold text-gray-600">State Details</h1>
             <div class="flex items-center space-x-4">
                 <a href="/add-city"
@@ -316,8 +316,16 @@
                     Add City
                 </a>
             </div>
+        </header> -->
+        <header class="main-header">
+            <h1 class="text-2xl font-bold text-gray-600">State Details</h1>
+            <div class="flex items-center space-x-4">
+                <a href="/add-city?state_id={{ $stateId ?? '' }}"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                    Add City
+                </a>
+            </div>
         </header>
-
         <div class="mx-auto p-6">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-bold text-gray-600">State</h1>
@@ -369,7 +377,7 @@
             </div>
 
             <div class="bg-white rounded-xl shadow">
-                @if ($state->cities->isEmpty())
+                @if ($cities->isEmpty())
                     <p class="text-center text-gray-500 text-sm py-10">No city available.</p>
                 @else
                     <table class="w-full text-sm text-gray-700">
@@ -381,9 +389,11 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            @foreach ($state->cities as $city)
+                            @foreach ($cities as $city)
                                 <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-3 py-3 font-medium text-center whitespace-nowrap">{{ $loop->iteration }}</td>
+                                    <td class="text-center">
+                                        {{ ($cities->currentPage() - 1) * $cities->perPage() + $loop->iteration }}
+                                    </td>
                                     <td class="px-3 py-3 font-medium text-left whitespace-nowrap">{{ $city->city_name }}</td>
                                     <td class="px-4 py-3 text-center">
                                         <div class="flex justify-center gap-2">
@@ -412,7 +422,11 @@
                             @endforeach
                         </tbody>
                     </table>
+
                 @endif
+            </div>
+            <div class="mt-6">
+                {{ $cities->links('pagination::tailwind') }}
             </div>
         </div>
     </div>

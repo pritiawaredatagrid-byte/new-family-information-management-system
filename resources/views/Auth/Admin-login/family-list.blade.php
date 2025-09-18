@@ -522,7 +522,8 @@
                         <tbody class="divide-y divide-gray-200">
                             @foreach($heads as $head)
                                 <tr class="hover:bg-gray-50 transition">
-                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td class="text-center">
+                                        {{ ($heads->currentPage() - 1) * $heads->perPage() + $loop->iteration }}</td>
                                     <td class="text-center">
                                         @if ($head->photo)
                                             <img src="{{ asset('storage/' . $head->photo) }}"
@@ -539,8 +540,8 @@
 
                                     <td class="px-3 py-3 text-center">{{ $head->status ?? '-' }}</td>
                                     <td class="px-3 py-3 text-center">
-                                {{ $head->status == 'married' ? ($head->wedding_date ?? '-') : '-' }}
-                            </td>
+                                        {{ $head->status == 'married' ? ($head->wedding_date ?? '-') : '-' }}
+                                    </td>
                                     <td class="px-3 py-3">
                                         @php
                                             $string = $head->hobby;

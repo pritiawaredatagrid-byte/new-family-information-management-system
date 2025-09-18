@@ -116,7 +116,7 @@
             font-weight: 600;
         }
 
-       
+
         .page-wrapper {
             margin-left: 280px;
             transition: margin-left 0.3s ease;
@@ -230,7 +230,10 @@
                         <tbody class="divide-y divide-gray-200">
                             @foreach($states as $state)
                                 <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-4 py-3 text-center">{{ $loop->iteration }}</td>
+                                    <td class="text-center">
+                                        {{ ($states->currentPage() - 1) * $states->perPage() + $loop->iteration }}
+                                    </td>
+
                                     <td class="px-4 py-3 font-medium whitespace-nowrap">{{$state->state_name}}</td>
                                     <td class="px-4 py-3 text-center">
                                         <a href="{{'view-state-details/' . $state->state_id}}">

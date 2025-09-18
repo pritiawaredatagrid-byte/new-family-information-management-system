@@ -20,7 +20,7 @@ class UserController extends Controller
     $validation = $request->validate([
       'name' => 'required|max:50',
       'surname' => 'required|max:50',
-      'birthdate' => 'required|before_or_equal:' . $cutDate,
+      'birthdate' => 'required|date|before:today|before_or_equal:' . $cutDate,
       'mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
       'address' => 'required',
       'state' => 'required',
@@ -60,13 +60,13 @@ class UserController extends Controller
 
     if ($users->save()) {
       $headId = $users->id;
-       AdminAction::create([
+      AdminAction::create([
         'admin_id' => auth()->id(),
         'action' => 'Head Added',
         'resource_type' => 'family',
         'resource_id' => $users->id,
         'details' => json_encode(['ip_address' => $request->ip()]),
-    ]);
+      ]);
       return redirect()->back()
         ->with('users', 'Family Head Added Successfully!')
         ->with('family_head_added', true)
@@ -103,7 +103,7 @@ class UserController extends Controller
 
     $validation = $request->validate([
       'name' => 'required|max:50',
-      'birthdate' => 'required',
+      'birthdate' => 'required|date|before:today',
       'status' => 'required',
       'education' => 'nullable',
       'photo' => 'nullable|image|mimes:jpg,png|max:2048'
@@ -126,14 +126,14 @@ class UserController extends Controller
     $member->photo = $photoPath;
 
     if ($member->save()) {
-       AdminAction::create([
+      AdminAction::create([
         'admin_id' => auth()->id(),
         'action' => 'Member Added',
         'resource_type' => 'member',
         'resource_id' => $member->id,
         'details' => json_encode(['ip_address' => $request->ip()]),
-    ]);
-      return redirect()->back()->with('success', 'Family member added successfully!'); 
+      ]);
+      return redirect()->back()->with('success', 'Family member added successfully!');
 
     }
 

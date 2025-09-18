@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Family Member</title>
+    <title>Edit Family Member</title>
     <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.js"></script>
 
 <style>
-
+/* 
 .Family-Member-body{
 background-color: #F5F5F5;
     display: flex;
@@ -61,7 +61,7 @@ background-color: #F5F5F5;
 }
 
 .Family-Member-body form div label{
-    /* color:#757575; */
+     color:#757575; 
 }
 
 .Family-Member-body form div input{
@@ -106,8 +106,159 @@ background-color: #F5F5F5;
 
 .Family-Member-body form div input.error {
     border: 1px solid red;
-}
+} */
 
+
+ :root {
+            --primary-color: #2196F3;
+            --secondary-color: #f44336;
+            --tertiary-color: #ffc107;
+            --text-color: #424242;
+            --border-color: #bdbdbd;
+            --bg-color: #F5F5F5;
+            --card-bg: #FFFFFF;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body.Family-Member-body {
+            font-family: sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 3rem 1rem;
+        }
+
+        .main {
+            background-color: var(--card-bg);
+            padding: 2.5rem 3rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .alert.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .alert.error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+
+        label {
+            font-weight: 300;
+            color: #616161;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            margin-bottom: 1rem;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+        }
+
+        .marital-status {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .marital-status label {
+            margin: 0;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .marital-status input[type="radio"] {
+            margin: 0;
+            accent-color: #e91e63;
+        }
+
+        .WeddingDate {
+            margin-bottom: 1rem;
+        }
+
+        .error {
+            color: red;
+            font-size: 0.875rem;
+            margin-top: 0.3rem;
+            margin-bottom: 1rem;
+            display: block;
+            font-weight: 100;
+        }
+
+
+        .admin-login {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .admin-login:hover {
+            background-color: #1976D2;
+        }
+
+        .btn.back {
+            display: inline-block;
+            background-color: #616161;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 1rem;
+            width: 100%;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .btn.back:hover {
+            background-color: #424242;
+        }
 </style>
 
 </head>
@@ -117,7 +268,7 @@ background-color: #F5F5F5;
         @error('user')
             <p class="text-red-500 text-sm mt-1 py-2">{{ $message }}</p>
         @enderror
-        {{-- ADDED 'form' CLASS HERE --}}
+   
         <form action="{{ '/edit-family-member-data/' . $member->head_id . '/' . $member->id }}" method="post" class="space-y-4 form" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="_method" value="put">
@@ -136,7 +287,7 @@ background-color: #F5F5F5;
                 @enderror
             </div>
             
-            {{-- ADDED 'id="marital-status-group"' HERE --}}
+         
             <div class="marital-status" id="marital-status-group">
                 <label for="">Marital Status</label>
                 <label>
@@ -162,31 +313,32 @@ background-color: #F5F5F5;
             </div>
 
             <div>
-                <label for="">Education </label>&nbsp<span style="color:red"> (optional)</span>
-                <input type="text" name="education" id="" placeholder="Enter Education" value="{{ old('education', $member->education) }}">
+                <label for="education">Education <span style="color:red">(optional)</span></label>
+                <input type="text" name="education" id="education" placeholder="Enter Education" value="{{ old('education', $member->education) }}">
             </div>
 
              <div>
-                <label for="">Profile Photo</label>
+                <label for="photo">Profile Photo <span style="color:red">(optional)</span></label>
                  @if($member->photo)
                    <input type="file" name="photo" accept="image/*" id="photo" value="">
                     <img src="{{ asset('storage/' . $member->photo) }}" style="height:50px; width:50px;">
                                          @else
-                                    <span class="text-gray-400 text-xs">No photo</span>
+                                         <input type="file" name="photo" accept="image/*" id="photo" value="">
+                                  
                     @endif
                 @error('photo')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
-            <button type="submit" name="submit" class="admin-login">Update Family Member</button>
+            <button type="submit" name="submit" class="admin-login">Edit Family Member</button>
         </form>
     </div>
 
     <script>
     
         $(document).ready(function () {
-            // The extra line of code has been removed
+   
             
             $.validator.addMethod('filesize', function (value, element, param) {
                 return this.optional(element) || (element.files[0].size <= param * 1024);
@@ -266,4 +418,4 @@ background-color: #F5F5F5;
 
     </script>
 </body>
-</html>
+</html> 

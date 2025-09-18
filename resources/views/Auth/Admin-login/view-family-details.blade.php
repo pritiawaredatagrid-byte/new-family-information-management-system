@@ -514,7 +514,7 @@
             </div>
 
             <div class="bg-white rounded-xl shadow p-6">
-                @if ($head->members->isEmpty())
+                @if ($members->isEmpty())
                     <p class="text-center text-gray-500 text-sm py-10">No family members available.</p>
                 @else
                     <table class="w-full text-sm text-gray-700">
@@ -531,9 +531,11 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            @foreach ($head->members as $member)
+                            @foreach ($members as $member)
                                 <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-3 py-3 text-center font-medium whitespace-nowrap">{{ $loop->iteration }}</td>
+                                     <td class="px-3 py-3 text-center font-medium whitespace-nowrap">
+                                        {{ ($members->currentPage() - 1) * $members->perPage() + $loop->iteration }}
+                                    </td>
                                     <td class="text-center">
                                         @if ($member->photo)
                                             <img src="{{ asset('storage/' . $member->photo) }}"
@@ -578,7 +580,9 @@
                     </table>
                 @endif
             </div>
-
+            <div class="mt-6">
+                {{ $members->links('pagination::tailwind') }}
+            </div>
         </div>
     </div>
 </body>

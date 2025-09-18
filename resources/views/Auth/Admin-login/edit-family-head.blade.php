@@ -79,7 +79,7 @@
         }
 
         label {
-            font-weight: 600;
+            font-weight: 300;
             color: #616161;
             margin-bottom: 0.5rem;
         }
