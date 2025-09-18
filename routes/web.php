@@ -22,6 +22,8 @@ Route::middleware('CheckAdminAuth')->group(function () {
 
     Route::get('search-head', [AdminController::class, 'searchHead'])->name('search-head');
 
+    Route::get('search-state', [AdminController::class, 'searchState'])->name('search-state');
+    
     Route::get('admin-logout', [AdminController::class, 'logout']);
 
 
@@ -87,11 +89,22 @@ Route::middleware('CheckAdminAuth')->group(function () {
     // //new city addition
     Route::view('add-city', 'add-city');
     Route::post('add-city', [AdminController::class, 'addCity'])->name('add-city');
-    Route::get('add-city', [AdminController::class, 'addStates']);
+    Route::get('add-city', [AdminController::class, 'addStates_state']);
+
+    //User Registration
+Route::view('user-registration-admin', '/Auth/Admin-login/user-registration-admin');
+Route::post('user-registration-admin', [AdminController::class, 'userRegistrationAdmin']);
+Route::get('user-registration-admin', [AdminController::class, 'addStates']);
+
+Route::post('get-cities', [AdminController::class, 'getCities'])->name('get.cities');
+
+Route::view('add-family-member-admin', '/Auth/Admin-login/add-family-member-admin');
+Route::get('add-family-member-admin/{head_id}', [AdminController::class, 'addFamilyMemberFormAdmin'])->name('add-member-form-admin');
+Route::post('add-family-member-admin', [AdminController::class, 'addFamilyMemberAdmin'])->name('add-member-submit-admin');
 });
 
 
-// Route::view('home-page', 'home-page');
+
 Route::view('admin-login', '/Auth/Admin-login/admin-login');
 Route::view('admin-forget-password', '/Auth/Admin-login/admin-forget-password');
 Route::post('admin-forget-password', [AdminController::class, 'AdminForgetPassword']);
@@ -107,7 +120,7 @@ Route::post('user-registration', [UserController::class, 'userRegistration']);
 Route::get('user-registration', [UserController::class, 'addStates']);
 Route::post('get-cities', [UserController::class, 'getCities'])->name('get.cities');
 
-// Route::view('add-family-member', 'add-family-member');
+Route::view('add-family-member', 'add-family-member');
 Route::get('add-family-member/{head_id}', [UserController::class, 'addFamilyMemberForm'])->name('add-member-form');
 Route::post('add-family-member', [UserController::class, 'addFamilyMember'])->name('add-member-submit');
 // Route::view('head-list', 'head-list');

@@ -73,7 +73,6 @@
 
         <h2>Add State</h2>
         <form action="/add-state" method="post">
-
             @csrf
             <div>
                 <div>

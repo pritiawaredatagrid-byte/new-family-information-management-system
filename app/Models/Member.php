@@ -21,4 +21,13 @@ class Member extends Model
         return $this->belongsTo(UserRegistration::class, 'head_id');
     }
 
+    protected static function booted()
+{
+    static::restoring(function(Member $member) {
+     
+        $member->op_status = 1;
+        $member->save();
+    });
+}
+
 }

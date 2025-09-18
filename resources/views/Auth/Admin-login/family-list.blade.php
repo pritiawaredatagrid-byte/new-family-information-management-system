@@ -479,7 +479,7 @@
                 </form>
             </div>
             <div class="flex items-center space-x-4">
-                <a href="/user-registration"
+                <a href="/user-registration-admin"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
                     Add Family
                 </a>
@@ -501,7 +501,7 @@
 
             <div class="bg-white rounded-xl shadow">
                 @if ($heads->isEmpty())
-                    <p class="text-center text-gray-500 text-sm py-10">No state available.</p>
+                    <p class="text-center text-gray-500 text-sm py-10">No Family available.</p>
                 @else
                     <table class="w-full text-sm text-gray-700">
                         <thead class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider sticky top-0">
@@ -538,7 +538,9 @@
                                     <td class="px-3 py-3 truncate max-w-[150px]">{{ $head->address ?? '-' }}</td>
 
                                     <td class="px-3 py-3 text-center">{{ $head->status ?? '-' }}</td>
-                                    <td class="px-3 py-3 text-center">{{ $head->wedding_date ?? '-' }}</td>
+                                    <td class="px-3 py-3 text-center">
+                                {{ $head->status == 'married' ? ($head->wedding_date ?? '-') : '-' }}
+                            </td>
                                     <td class="px-3 py-3">
                                         @php
                                             $string = $head->hobby;

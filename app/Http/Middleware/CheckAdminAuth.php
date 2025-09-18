@@ -20,4 +20,12 @@ class CheckAdminAuth
         }
         return $next($request);
     }
+
+    //  public function handle(Request $request, Closure $next): Response
+    // {
+    //     if (!auth()->check()) {
+    //       return redirect('admin-login')->with('error', 'Please login to access this page.');
+    //     }
+    //         return $next($request);
+    // }
 }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Family Member</title>
+    <title>Add Family Member in admin</title>
     <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
         integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
@@ -108,45 +108,12 @@
             font-size: 0.95rem;
             color: #999;
         }
-
-        .alert {
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    font-size: 16px;
-}
-
-.alert.success {
-    background-color: #dff0d8; 
-    color: #3c763d;            
-    border-color: #d6e9c6;     
-}
-
-.alert.error {
-    background-color: #f2dede; 
-    color: #a94442;            
-    border-color: #ebccd1;     
-}
-
     </style>
 
 </head>
 
 <body class="Family-Member-body">
     <div class="main">
-        @if(session('success'))
-        <div class="alert success" role="alert">
-            <span class="message">{{ session('success') }}</span>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert error" role="alert">
-            <span class="message">{{ session('error') }}</span>
-        </div>
-    @endif
-
         <h2>Add Family Member</h2>
         @if(Session::has('family_head_added'))
             <button type="button" class="btn btn-secondary">
@@ -157,7 +124,7 @@
         @error('user')
             <p class="text-red-500 text-sm mt-1 py-2">{{ $message }}</p>
         @enderror
-        <form action="{{ route('add-member-submit') }}" method="post" class="form" enctype="multipart/form-data">
+        <form action="{{ route('add-member-submit-admin') }}" method="post" class="form" enctype="multipart/form-data">
             @csrf
             <div>
                 <label for="name">Member Name</label>

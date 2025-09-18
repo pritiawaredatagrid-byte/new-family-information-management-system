@@ -140,8 +140,8 @@
   <div class="login-card">
     <h2>Admin Login</h2>
     @error('user')
-      <p class="error-message-style">{{ $message }}</p>
-    @enderror
+    <p class="error-message">{{ $message }}</p>
+@enderror
     <form action="/admin-login" method="post">
       @csrf
       <div class="form-group">

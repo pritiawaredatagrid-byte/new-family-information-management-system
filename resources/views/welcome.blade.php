@@ -55,7 +55,7 @@
         h1 {
             font-size: 3rem;
             margin: 0;
-            color: #007BFF;
+            color: #0DA1E6;
         }
 
         h2 {

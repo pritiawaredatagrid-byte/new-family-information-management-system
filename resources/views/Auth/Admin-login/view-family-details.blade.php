@@ -394,7 +394,7 @@
         <header class="main-header">
             <h1 class="text-2xl font-bold text-gray-600">Family Details</h1>
             <div class="flex items-center space-x-4">
-                <a href="{{ '/add-family-member/' . $head->id }}"
+                <a href="{{ '/add-family-member-admin/' . $head->id }}"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
                     Add Family Member
                 </a>

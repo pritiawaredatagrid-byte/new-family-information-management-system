@@ -23,6 +23,118 @@ use Spatie\Activitylog\Models\Activity;
 
 class AdminController extends Controller
 {
+    function userRegistrationAdmin(Request $request)
+  {
+    $cutDate = Carbon::now()->subYears(21);
+    $users = new UserRegistration();
+
+    $validation = $request->validate([
+      'name' => 'required|max:50',
+      'surname' => 'required|max:50',
+      'birthdate' => 'required|before_or_equal:' . $cutDate,
+      'mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
+      'address' => 'required',
+      'state' => 'required',
+      'city' => 'required',
+      'pincode' => 'required|digits:6',
+      'status' => 'required',
+      'hobbies.*' => 'required',
+      'photo' => 'required|image|mimes:jpg,png|max:2048'
+    ], [
+      'birthdate.before_or_equal' => 'Family head must be 21 years or older',
+      'hobbies.*.required' => 'At least 1 hobby required',
+    ]);
+
+    $users->name = $request->name;
+    $users->surname = $request->surname;
+    $users->birthdate = $request->birthdate;
+    $users->mobile_number = $request->mobile_number;
+    $users->address = $request->address;
+    $stateId = $request->state;
+    $state = State::find($stateId);
+    if ($state) {
+      $users->state = $state->state_name;
+    } else {
+      $users->state = null;
+    }
+    $users->city = $request->city;
+    $users->pincode = $request->pincode;
+    $users->status = $request->status;
+    $users->wedding_date = $request->wedding_date;
+    $users->hobby = json_encode($request->hobbies);
+
+    $imagePath = null;
+    if ($request->hasFile('photo')) {
+      $photoPath = $request->file('photo')->store('photos', 'public');
+    }
+    $users->photo = $photoPath;
+
+    if ($users->save()) {
+      $headId = $users->id;
+       AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'Head Added',
+        'resource_type' => 'family',
+        'resource_id' => $users->id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
+      return redirect()->back()
+        ->with('users', 'Family Head Added Successfully!')
+        ->with('family_head_added', true)
+        ->with('headId', $headId)
+        ->withErrors([]);
+    }
+
+    return redirect()->back()->with('users', 'Error: Family Head could not be added.');
+  }
+
+  public function addFamilyMemberFormAdmin($head_id)
+  {
+    return view('/Auth/Admin-login/add-family-member-admin', compact('head_id'));
+  }
+
+
+  function addFamilyMemberAdmin(Request $request)
+  {
+    $member = new Member();
+    $head_id = $request->head_id;
+
+    $validation = $request->validate([
+      'name' => 'required|max:50',
+      'birthdate' => 'required',
+      'status' => 'required',
+      'education' => 'nullable',
+      'photo' => 'nullable|image|mimes:jpg,png|max:2048'
+    ], [
+      'birthdate.before_or_equal' => 'Family member must be 21 years or older',
+    ]);
+    $member->head_id = $head_id;
+    $member->name = $request->name;
+    $member->birthdate = $request->birthdate;
+    $member->status = $request->status;
+    $member->wedding_date = $request->wedding_date;
+    $member->education = $request->education;
+
+    $photoPath = null;
+    if ($request->hasFile('photo')) {
+      $photoPath = $request->file('photo')->store('photos', 'public');
+    }
+    $member->photo = $photoPath;
+
+    if ($member->save()) {
+       AdminAction::create([
+        'admin_id' => auth()->id(),
+        'action' => 'Member Added',
+        'resource_type' => 'member',
+        'resource_id' => $member->id,
+        'details' => json_encode(['ip_address' => $request->ip()]),
+    ]);
+      return redirect()->route('view-family-details', ['id' => $head_id]);
+    }
+    return redirect()->back()->with('error', 'Error: Family member could not be added.');
+  }
+
+
     function login(Request $request)
     {
 
@@ -182,6 +294,13 @@ class AdminController extends Controller
         return view('Auth.Admin-login.search-head', ['searchData' => $searchData]);
     }
 
+     function searchState(Request $request)
+    {
+        $searchData = State::where('state_name', 'like', '%' . $request->search . '%')
+        ->paginate(5);
+        return view('Auth.Admin-login.search-state', ['searchData' => $searchData]);
+    }
+
     function logout()
     {
         Session::forget('admin');
@@ -206,7 +325,11 @@ class AdminController extends Controller
                 'details' => json_encode(['ip_address' => $request->ip()]),
             ]);
             Session::flash('state', 'State added Successfully.');
-            return redirect('/add-city');
+            // return redirect('/add-city');
+             return redirect('/add-city')->with([
+            'state_id_to_select' => $state->state_id,
+            'state_name_to_select' => $state->state_name,
+        ]);
 
         } else {
             return 'Something went wrong';
@@ -216,7 +339,18 @@ class AdminController extends Controller
     public function addStates()
     {
         $states = State::select('state_id', 'state_name')->get();
-        return view('add-city', compact('states'));
+        return view('/Auth/Admin-login/user-registration-admin', compact('states'));
+    }
+
+    public function addStates_state()
+    {
+        $states = State::select('state_id', 'state_name')->get();
+        // return view('add-city', compact('states'));
+
+    $stateIdToSelect = session('state_id_to_select');
+    $stateNameToSelect = session('state_name_to_select');
+
+    return view('add-city', compact('states', 'stateIdToSelect', 'stateNameToSelect'));
     }
 
     public function getCities(Request $request)
@@ -422,7 +556,7 @@ class AdminController extends Controller
 
     function viewStateDetails($state_id)
     {
-        $state = State::with('cities')->findOrFail($state_id);
+        $state = State::with('cities')->find($state_id);
         return view('/Auth/Admin-login/view-state-details', ['state' => $state]);
     }
 

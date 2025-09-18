@@ -100,11 +100,10 @@ class UserController extends Controller
   {
     $member = new Member();
     $head_id = $request->head_id;
-    $cutDate = Carbon::now()->subYears(21);
 
     $validation = $request->validate([
       'name' => 'required|max:50',
-      'birthdate' => 'required|before_or_equal:' . $cutDate,
+      'birthdate' => 'required',
       'status' => 'required',
       'education' => 'nullable',
       'photo' => 'nullable|image|mimes:jpg,png|max:2048'
@@ -134,7 +133,8 @@ class UserController extends Controller
         'resource_id' => $member->id,
         'details' => json_encode(['ip_address' => $request->ip()]),
     ]);
-      return redirect()->route('view-family-details', ['id' => $head_id]);
+      return redirect()->back()->with('success', 'Family member added successfully!'); 
+
     }
 
     return redirect()->back()->with('error', 'Error: Family member could not be added.');
