@@ -394,6 +394,9 @@ class AdminController extends Controller
         }
     }
 
+
+
+
     function editFamilyHead($id)
     {
         $heads = UserRegistration::findOrFail($id);
@@ -579,6 +582,22 @@ class AdminController extends Controller
 
     }
 
+
+    public function showAddCityForm(Request $request)
+    {
+        $stateId = $request->query('state_id');
+
+        if (!$stateId) {
+            return redirect()->back()->with('error', 'State ID is required.');
+        }
+
+        $state = State::findOrFail($stateId);
+
+        return view('add-city', [
+            'state' => $state,
+            'stateId' => $stateId
+        ]);
+    }
 
     function editState($state_id)
     {

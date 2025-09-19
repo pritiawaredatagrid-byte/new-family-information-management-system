@@ -612,12 +612,19 @@
         <h2>Add City</h2>
         <form action="/add-city" method="post">
             @csrf
+
             <div>
-                <label for="state" class="text-gray-600">State</label>
-                <input type="text" value="{{ $stateNameToSelect ?? '' }}" class="state_id" readonly>
-                <input type="hidden" name="state_id" value="{{ $stateIdToSelect ?? '' }}">
+                <label for="state" class="text-gray-600 space-y-2">State</label>
+                <select name="state_id" id="state" class="state_id">
+                    <option value="">Select State</option>
+                    @foreach($states as $data)
+                        <option value="{{ $data->state_id }}" {{ $data->state_id == $stateIdToSelect ? 'selected' : '' }}>
+                            {{ $data->state_name }}
+                        </option>
+                    @endforeach
+                </select>
                 @error('state_id')
-                    <p class="text-red-500">{{ $message }}</p>
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
             <div>
@@ -627,6 +634,8 @@
                     <p class="text-red-500">{{ $message }}</p>
                 @enderror
             </div>
+
+
             <button type="submit" class="admin-login">Add City</button>
         </form>
     </div>

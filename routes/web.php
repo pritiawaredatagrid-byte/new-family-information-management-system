@@ -87,9 +87,13 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::post('add-state', [AdminController::class, 'addState']);
 
     // //new city addition
+    Route::get('/add-city', [AdminController::class, 'showAddCityForm'])->name('add-city-form');
     Route::view('add-city', 'add-city');
     Route::post('add-city', [AdminController::class, 'addCity'])->name('add-city');
     Route::get('add-city', [AdminController::class, 'addStates_state']);
+
+
+    Route::get('/add-city/{state_id}', [AdminController::class, 'showAddCityForm'])->name('add-city-form');
 
     //User Registration
     Route::view('user-registration-admin', '/Auth/Admin-login/user-registration-admin');

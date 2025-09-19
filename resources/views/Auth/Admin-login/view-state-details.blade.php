@@ -320,7 +320,11 @@
         <header class="main-header">
             <h1 class="text-2xl font-bold text-gray-600">State Details</h1>
             <div class="flex items-center space-x-4">
-                <a href="/add-city?state_id={{ $stateId ?? '' }}"
+                <!-- <a href="/add-city?state_id={{ $stateId ?? '' }}"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                    Add City
+                </a> -->
+                <a href="/add-city"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
                     Add City
                 </a>
