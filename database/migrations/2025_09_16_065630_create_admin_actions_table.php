@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('admin_actions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_id')->nullable()->constrained('admin'); 
+            $table->foreignId('admin_id')->nullable()->constrained('admin');
             $table->string('action');
-            $table->string('resource_type')->nullable(); 
-            $table->unsignedBigInteger('resource_id')->nullable(); 
+            $table->string('resource_type')->nullable();
+            $table->unsignedBigInteger('resource_id')->nullable();
             $table->text('details')->nullable();
             $table->timestamps();
         });

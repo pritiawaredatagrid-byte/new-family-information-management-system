@@ -170,7 +170,7 @@
     <div class="main">
         @if(session('success'))
             <div class="alert success" role="alert">
-                <span class="message">{{ session('success') }}</span>
+     <span class="message">{{ session('success') }}</span>
             </div>
         @endif
 

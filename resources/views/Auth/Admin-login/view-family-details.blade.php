@@ -372,18 +372,29 @@
 
         .main-header {
             display: flex;
-            justify-content: space-between;
+            /* justify-content: space-between; */
+            text-align:left;
             align-items: center;
             padding: 1.5rem;
             background-color: #ffffff;
             border-bottom: 1px solid #e5e7eb;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            gap:2rem;
+        }
+
+        .header-text{
+            width:100%;
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
         }
     </style>
 </head>
 
 <body class="bg-gray-100 font-sans">
+    <aside>
     <x-sidebar></x-sidebar>
+    </aside>
 
     <div class="page-wrapper">
         @if (session('success'))
@@ -392,13 +403,24 @@
             </div>
         @endif
         <header class="main-header">
-            <h1 class="text-2xl font-bold text-gray-600">Family Details</h1>
+            
+      <button id="sidebarToggle" class="p-2 text-gray-400 hover:text-white focus:outline-none">
+    <!-- hamburger icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+</button>
+<div class="header-text">
+    <h1 class="text-2xl font-bold text-gray-600">Family Details</h1>
+            
             <div class="flex items-center space-x-4">
                 <a href="{{ '/add-family-member-admin/' . $head->id }}"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
                     Add Family Member
                 </a>
-            </div>
+            </div> 
+</div>
+            
         </header>
 
         <div class="mx-auto p-6">
@@ -585,6 +607,20 @@
             </div>
         </div>
     </div>
+     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.querySelector('.sidebar');
+            const pageWrapper = document.querySelector('.page-wrapper');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+
+            if (sidebar && pageWrapper && sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                    pageWrapper.classList.toggle('collapsed');
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

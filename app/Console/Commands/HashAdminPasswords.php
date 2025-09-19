@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Console\Command;
 use App\Models\Admin;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Hash;
 
 class HashAdminPasswords extends Command
 {

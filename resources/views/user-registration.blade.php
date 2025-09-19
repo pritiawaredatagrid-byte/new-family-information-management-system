@@ -1367,7 +1367,9 @@
                                 <label for="unmarried">Unmarried</label>
                             </div>
                         </div>
-
+                        @error('status')
+                        <p class="error-message">{{ $message }}</p>
+                    @enderror
                     </div>
                     <div class="status-error-container"></div>
                 </div>

@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Middleware\CheckAdminAuth;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Http\Middleware\CheckAdminAuth;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,9 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->appendToGroup('CheckAdminAuth',[
-    CheckAdminAuth::class
-]);
+        $middleware->appendToGroup('CheckAdminAuth', [
+            CheckAdminAuth::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

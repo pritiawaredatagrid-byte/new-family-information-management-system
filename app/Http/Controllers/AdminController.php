@@ -1,38 +1,37 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Http\Request;
-use App\Models\Admin;
-use \Crypt;
-use Mail;
-use Carbon\Carbon;
+
+use App\Exports\FamilyDetailsExcel;
 use App\Mail\AdminForgotPassword;
-use App\Models\UserRegistration;
+use App\Models\Admin;
+use App\Models\AdminAction;
+use App\Models\City;
 use App\Models\Member;
 use App\Models\State;
-use App\Models\City;
+use App\Models\UserRegistration;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\FamilyDetailsExcel;
-use Illuminate\Support\Facades\Session;
-use App\Models\AdminAction;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Activitylog\Models\Activity;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
+use Maatwebsite\Excel\Facades\Excel;
+use Mail;
 
 class AdminController extends Controller
 {
-    function userRegistrationAdmin(Request $request)
+    public function userRegistrationAdmin(Request $request)
     {
         $cutDate = Carbon::now()->subYears(21);
-        $users = new UserRegistration();
+        $users = new UserRegistration;
 
         $validation = $request->validate([
             'name' => 'required|max:50',
             'surname' => 'required|max:50',
-            'birthdate' => 'required|before_or_equal:' . $cutDate,
+            'birthdate' => 'required|before_or_equal:'.$cutDate,
             'mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
             'address' => 'required',
             'state' => 'required',
@@ -40,7 +39,7 @@ class AdminController extends Controller
             'pincode' => 'required|digits:6',
             'status' => 'required',
             'hobbies.*' => 'required',
-            'photo' => 'required|image|mimes:jpg,png|max:2048'
+            'photo' => 'required|image|mimes:jpg,png|max:2048',
         ], [
             'birthdate.before_or_equal' => 'Family head must be 21 years or older',
             'hobbies.*.required' => 'At least 1 hobby required',
@@ -79,6 +78,7 @@ class AdminController extends Controller
                 'resource_id' => $users->id,
                 'details' => json_encode(['ip_address' => $request->ip()]),
             ]);
+
             return redirect()->back()
                 ->with('users', 'Family Head Added Successfully!')
                 ->with('family_head_added', true)
@@ -94,10 +94,9 @@ class AdminController extends Controller
         return view('/Auth/Admin-login/add-family-member-admin', compact('head_id'));
     }
 
-
-    function addFamilyMemberAdmin(Request $request)
+    public function addFamilyMemberAdmin(Request $request)
     {
-        $member = new Member();
+        $member = new Member;
         $head_id = $request->head_id;
 
         $validation = $request->validate([
@@ -105,7 +104,7 @@ class AdminController extends Controller
             'birthdate' => 'required',
             'status' => 'required',
             'education' => 'nullable',
-            'photo' => 'nullable|image|mimes:jpg,png|max:2048'
+            'photo' => 'nullable|image|mimes:jpg,png|max:2048',
         ], [
             'birthdate.before_or_equal' => 'Family member must be 21 years or older',
         ]);
@@ -130,87 +129,86 @@ class AdminController extends Controller
                 'resource_id' => $member->id,
                 'details' => json_encode(['ip_address' => $request->ip()]),
             ]);
+
             return redirect()->route('view-family-details', ['id' => $head_id]);
         }
+
         return redirect()->back()->with('error', 'Error: Family member could not be added.');
     }
 
-
-    function login(Request $request)
+    public function login(Request $request)
     {
 
-       $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-    $admin = Admin::where('email', $request->email)->first();
+        $admin = Admin::where('email', $request->email)->first();
 
-    if (!$admin || !Hash::check($request->password, $admin->password)) {
-        return back()->withErrors(['email' => 'User does not exist or password is incorrect'])->withInput();
+        if (! $admin || ! Hash::check($request->password, $admin->password)) {
+            return back()->withErrors(['email' => 'User does not exist or password is incorrect'])->withInput();
+        }
+
+        Session::put('admin', $admin);
+
+        return redirect('dashboard');
     }
 
-    Session::put('admin', $admin);
-    return redirect('dashboard');
-    }
-
-    function AdminForgetPassword(Request $request)
+    public function AdminForgetPassword(Request $request)
     {
         $request->validate([
-        'email' => 'required|email',
-    ]);
+            'email' => 'required|email',
+        ]);
 
-    $admin = Admin::where('email', $request->email)->first();
+        $admin = Admin::where('email', $request->email)->first();
 
-    if (!$admin) {
-        return redirect()->back()->withErrors(['email' => 'Please enter valid email.'])->withInput();
+        if (! $admin) {
+            return redirect()->back()->withErrors(['email' => 'Please enter valid email.'])->withInput();
+        }
+
+        $link = URL::temporarySignedRoute(
+            'admin.reset-password',
+            now()->addMinutes(15),
+            ['email' => $request->email]
+        );
+
+        Mail::to($request->email)->send(new AdminForgotPassword($link));
+
+        return redirect('/')->with('status', 'Password reset link sent to your email.');
     }
 
-    
-    $link = URL::temporarySignedRoute(
-        'admin.reset-password',         
-        now()->addMinutes(15),      
-        ['email' => $request->email]
-    );
-
-    Mail::to($request->email)->send(new AdminForgotPassword($link));
-
-    return redirect('/')->with('status', 'Password reset link sent to your email.');
-    }
-
-    function AdminResetForgetPassword($email)
+    public function AdminResetForgetPassword($email)
     {
-            $admin = Admin::where('email', $email)->first();
+        $admin = Admin::where('email', $email)->first();
 
-    if (!$admin) {
-        abort(404);
+        if (! $admin) {
+            abort(404);
+        }
+
+        return view('admin-set-forget-password', ['email' => $email]);
     }
 
-    return view('admin-set-forget-password', ['email' => $email]);
+    public function AdminSetForgetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:3|confirmed',
+        ]);
+
+        $admin = Admin::where('email', $request->email)->first();
+
+        if ($admin) {
+            $admin->password = Hash::make($request->password);
+            $admin->save();
+
+            return redirect('admin-login')->with('success', 'Password reset successfully.');
+        }
+
+        return redirect()->back()->withErrors(['email' => 'Something went wrong.']);
     }
 
-    function AdminSetForgetPassword(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|min:3|confirmed',
-    ]);
-
-    $admin = Admin::where('email', $request->email)->first();
-
-    if ($admin) {
-        $admin->password = Hash::make($request->password);
-        $admin->save();
-
-        return redirect('admin-login')->with('success', 'Password reset successfully.');
-    }
-
-    return redirect()->back()->withErrors(['email' => 'Something went wrong.']);
-}
-
-
-
-    function dashboard()
+    public function dashboard()
     {
         $admin = Session::get('admin');
         $totalFamilies = UserRegistration::count();
@@ -247,85 +245,95 @@ class AdminController extends Controller
 
         if ($admin) {
             return view('Auth.Admin-login.admin', [
-                "name" => $admin->name,
-                "totalFamilies" => $totalFamilies,
-                "totalMembers" => $totalMembers,
-                "totalStates" => $totalStates,
-                "totalCities" => $totalCities,
-                "marriedHeads" => $marriedHeads,
-                "unmarriedHeads" => $unmarriedHeads,
-                "familiesPerState" => $familiesPerState,
-                "marriedMembers" => $marriedMembers,
-                "unmarriedMembers" => $unmarriedMembers,
-                "cumulativeData" => $cumulativeData,
-                "labels" => $labels
+                'name' => $admin->name,
+                'totalFamilies' => $totalFamilies,
+                'totalMembers' => $totalMembers,
+                'totalStates' => $totalStates,
+                'totalCities' => $totalCities,
+                'marriedHeads' => $marriedHeads,
+                'unmarriedHeads' => $unmarriedHeads,
+                'familiesPerState' => $familiesPerState,
+                'marriedMembers' => $marriedMembers,
+                'unmarriedMembers' => $unmarriedMembers,
+                'cumulativeData' => $cumulativeData,
+                'labels' => $labels,
             ]);
 
         } else {
             return redirect('/admin-login');
         }
+
         return view('admin', $admin);
     }
 
-    function familyList()
+    public function familyList()
     {
         $heads = UserRegistration::paginate(5);
+
         return view('Auth.Admin-login.family-list', ['heads' => $heads]);
     }
 
-    function exportPDF($id)
+    public function exportPDF($id)
     {
 
         $head = UserRegistration::with('members')->findOrFail($id);
         $pdf = PDF::loadView('Auth.Admin-login.view-family-details-pdf', ['head' => $head]);
+
         return $pdf->stream('Family Details.pdf');
+
         return $pdf->download('Family Details.pdf');
     }
 
-    function exportExcel($id)
+    public function exportExcel($id)
     {
         $head = UserRegistration::with('members')->findOrFail($id);
         $excel = Excel::download(new FamilyDetailsExcel($head), 'family_details.xlsx');
+
         return $excel;
     }
 
-    function StateList()
+    public function StateList()
     {
         $states = State::paginate(7);
+
         return view('Auth.Admin-login.state-list', ['states' => $states]);
     }
 
-    function CityList()
+    public function CityList()
     {
         $cities = City::with('state')->paginate(7);
+
         return view('Auth.Admin-login.city-list', ['cities' => $cities]);
     }
 
-    function searchHead(Request $request)
+    public function searchHead(Request $request)
     {
-        $searchData = UserRegistration::where('name', 'like', '%' . $request->search . '%')
-            ->orWhere('mobile_number', 'like', '%' . $request->search . '%')->orWhere('state', 'like', '%' . $request->search . '%')->orWhere('city', 'like', '%' . $request->search . '%')
+        $searchData = UserRegistration::where('name', 'like', '%'.$request->search.'%')
+            ->orWhere('mobile_number', 'like', '%'.$request->search.'%')->orWhere('state', 'like', '%'.$request->search.'%')->orWhere('city', 'like', '%'.$request->search.'%')
             ->paginate(5);
+
         return view('Auth.Admin-login.search-head', ['searchData' => $searchData]);
     }
 
-    function searchState(Request $request)
+    public function searchState(Request $request)
     {
-        $searchData = State::where('state_name', 'like', '%' . $request->search . '%')
+        $searchData = State::where('state_name', 'like', '%'.$request->search.'%')
             ->paginate(5);
+
         return view('Auth.Admin-login.search-state', ['searchData' => $searchData]);
     }
 
-    function logout()
+    public function logout()
     {
         Session::forget('admin');
+
         return redirect('/admin-login');
     }
 
-    function addState(Request $request)
+    public function addState(Request $request)
     {
-        $state = new State();
-        $admin = new Admin();
+        $state = new State;
+        $admin = new Admin;
 
         $validation = $request->validate([
             'state_name' => 'required|unique:states,state_name',
@@ -340,6 +348,7 @@ class AdminController extends Controller
                 'details' => json_encode(['ip_address' => $request->ip()]),
             ]);
             Session::flash('state', 'State added Successfully.');
+
             // return redirect('/add-city');
             return redirect('/add-city')->with([
                 'state_id_to_select' => $state->state_id,
@@ -354,6 +363,7 @@ class AdminController extends Controller
     public function addStates()
     {
         $states = State::select('state_id', 'state_name')->get();
+
         return view('/Auth/Admin-login/user-registration-admin', compact('states'));
     }
 
@@ -371,12 +381,13 @@ class AdminController extends Controller
     public function getCities(Request $request)
     {
         $cities = City::where('state_id', '=', $request->state_id)->get(['city_id', 'city_name']);
+
         return response()->json($cities);
     }
 
-    function addCity(Request $request)
+    public function addCity(Request $request)
     {
-        $city = new City();
+        $city = new City;
         $validator = $request->validate([
             'state_id' => 'required|exists:states,state_id',
             'city_name' => 'required|unique:cities,city_name',
@@ -398,25 +409,22 @@ class AdminController extends Controller
                 'details' => json_encode(['ip_address' => $request->ip()]),
             ]);
             $state_id = $request->state_id;
+
             return redirect()->route('view-state-details', ['state_id' => $state_id]);
         } else {
             return 'Something went wrong';
         }
     }
 
-
-
-
-    function editFamilyHead($id)
+    public function editFamilyHead($id)
     {
         $heads = UserRegistration::findOrFail($id);
         $states = State::select('state_id', 'state_name')->get();
+
         return view('/Auth/Admin-login/edit-family-head', ['heads' => $heads, 'states' => $states]);
     }
 
-
-
-    function editFamilyHeadData(Request $request, $id)
+    public function editFamilyHeadData(Request $request, $id)
     {
         $heads = UserRegistration::findOrFail($id);
         $cutDate = Carbon::now()->subYears(21);
@@ -424,15 +432,15 @@ class AdminController extends Controller
         $validation = $request->validate([
             'name' => 'required|max:50',
             'surname' => 'required|max:50',
-            'birthdate' => 'required|before_or_equal:' . $cutDate,
-            'mobile_number' => 'required|numeric|digits:10|unique:UserRegistration,mobile_number,' . $id,
+            'birthdate' => 'required|before_or_equal:'.$cutDate,
+            'mobile_number' => 'required|numeric|digits:10|unique:UserRegistration,mobile_number,'.$id,
             'address' => 'required',
             'state' => 'required',
             'city' => 'required',
             'pincode' => 'required|digits:6',
             'status' => 'required',
             'hobbies.*' => 'required',
-            'photo' => 'sometimes|image|mimes:jpg,png|max:2048'
+            'photo' => 'sometimes|image|mimes:jpg,png|max:2048',
         ], [
             'birthdate.before_or_equal' => 'Family head must be 21 years or older',
             'hobbies.*.required' => 'At least 1 hobby required',
@@ -457,7 +465,6 @@ class AdminController extends Controller
         $photoPath = $heads->photo;
         $imagePath = null;
 
-
         if ($request->hasFile('photo')) {
 
             if ($heads->photo) {
@@ -467,7 +474,6 @@ class AdminController extends Controller
             $path = $request->file('photo')->store('photos', 'public');
             $heads->photo = $path;
         }
-
 
         if ($heads->save()) {
             Session::flash('heads', 'Head updated Successfully.');
@@ -481,16 +487,18 @@ class AdminController extends Controller
         } else {
             return 'Something went wrong';
         }
+
         return redirect()->route('view-family-details', ['id' => $id]);
     }
 
-    function editFamilyMember($head_id, $id)
+    public function editFamilyMember($head_id, $id)
     {
         $member = Member::where('head_id', $head_id)->findOrFail($id);
+
         return view('/Auth/Admin-login/edit-family-member', ['member' => $member]);
     }
 
-    function editFamilyMemberData(Request $request, $head_id, $id)
+    public function editFamilyMemberData(Request $request, $head_id, $id)
     {
         $member = Member::where('head_id', $head_id)->findOrFail($id);
         $cutDate = Carbon::now()->subYears(21);
@@ -499,7 +507,7 @@ class AdminController extends Controller
             'birthdate' => 'required|date',
             'status' => 'required',
             'education' => 'nullable',
-            'photo' => 'nullable|image|mimes:jpg,png|max:2048'
+            'photo' => 'nullable|image|mimes:jpg,png|max:2048',
         ], [
             'birthdate.before_or_equal' => 'Family member must be 21 years or older',
         ]);
@@ -529,10 +537,11 @@ class AdminController extends Controller
         } else {
             return 'Something went wrong';
         }
+
         return redirect()->route('view-family-details', ['id' => $head_id]);
     }
 
-    function viewFamilyDetails($id, Request $request)
+    public function viewFamilyDetails($id, Request $request)
     {
         $head = UserRegistration::findOrFail($id);
         $members = $head->members()->paginate(3);
@@ -540,12 +549,12 @@ class AdminController extends Controller
         return view('Auth.Admin-login.view-family-details', [
             'head' => $head,
             'members' => $members,
-            'id' => $id
+            'id' => $id,
         ]);
 
     }
 
-    function deleteFamilyDetails($id, Request $request)
+    public function deleteFamilyDetails($id, Request $request)
     {
         $head = UserRegistration::with('members')->findOrFail($id);
         $head->update(['op_status' => 9]);
@@ -557,9 +566,11 @@ class AdminController extends Controller
             'resource_id' => $head->id,
             'details' => json_encode(['ip_address' => $request->ip()]),
         ]);
+
         return redirect('/family-list')
-            ->with('success', $head->name . "'s Family details successfully deleted.");
+            ->with('success', $head->name."'s Family details successfully deleted.");
     }
+
     public function deleteFamilyMember($id, Request $request)
     {
         $member = Member::findOrFail($id);
@@ -576,10 +587,10 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('view-family-details', ['id' => $head_id])
-            ->with('success', $member->name . " successfully deleted.");
+            ->with('success', $member->name.' successfully deleted.');
     }
 
-    function viewStateDetails($state_id, Request $request)
+    public function viewStateDetails($state_id, Request $request)
     {
         $state = State::findOrFail($state_id);
         $cities = $state->cities()->paginate(3);
@@ -587,17 +598,16 @@ class AdminController extends Controller
         return view('Auth.Admin-login.view-state-details', [
             'state' => $state,
             'cities' => $cities,
-            'stateId' => $state_id
+            'stateId' => $state_id,
         ]);
 
     }
-
 
     public function showAddCityForm(Request $request)
     {
         $stateId = $request->query('state_id');
 
-        if (!$stateId) {
+        if (! $stateId) {
             return redirect()->back()->with('error', 'State ID is required.');
         }
 
@@ -605,21 +615,21 @@ class AdminController extends Controller
 
         return view('add-city', [
             'state' => $state,
-            'stateId' => $stateId
+            'stateId' => $stateId,
         ]);
     }
 
-    function editState($state_id)
+    public function editState($state_id)
     {
         $stateDetails = State::findOrFail($state_id);
+
         return view('/Auth/Admin-login/edit-state', ['stateDetails' => $stateDetails]);
     }
 
-    function editStateData(Request $request, $state_id)
+    public function editStateData(Request $request, $state_id)
     {
         $stateDetails = State::findOrFail($state_id);
         $stateDetails->state_name = $request->state_name;
-
 
         if ($stateDetails->save()) {
             Session::flash('$stateDetails', 'State updated Successfully.');
@@ -633,13 +643,15 @@ class AdminController extends Controller
         } else {
             return 'Something went wrong';
         }
+
         return redirect()->route('view-state-details', ['state_id' => $state_id]);
     }
 
-    function editCity($state_id, $city_id)
+    public function editCity($state_id, $city_id)
     {
         $city = City::where('state_id', $state_id)->findOrFail($city_id);
         $state = State::findOrFail($state_id);
+
         return view('/Auth/Admin-login/edit-city', ['city' => $city, 'state' => $state]);
     }
 
@@ -658,7 +670,7 @@ class AdminController extends Controller
         $state->delete();
 
         return redirect('/state-list')
-            ->with('success', $state->state_name . " successfully deleted.");
+            ->with('success', $state->state_name.' successfully deleted.');
     }
 
     public function deleteCity($city_id, Request $request)
@@ -678,10 +690,10 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('view-state-details', ['state_id' => $state_id])
-            ->with('success', $city->city_name . " successfully deleted.");
+            ->with('success', $city->city_name.' successfully deleted.');
     }
 
-    function editCityData(Request $request, $state_id, $city_id)
+    public function editCityData(Request $request, $state_id, $city_id)
     {
         $city = City::where('state_id', $state_id)->findOrFail($city_id);
 
@@ -698,14 +710,14 @@ class AdminController extends Controller
         } else {
             return 'Something went wrong';
         }
+
         return redirect()->route('view-state-details', ['state_id' => $state_id]);
     }
-
 
     public function index()
     {
         $logs = AdminAction::with('admin')->latest()->paginate(20);
+
         return $logs;
     }
-
 }

@@ -2,19 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Member extends Model
 {
     use HasFactory;
     use SoftDeletes;
-    protected $table = "members";
-    protected $guarded = []; 
-    
-    protected $primaryKey = 'id';
 
+    protected $table = 'members';
+
+    protected $guarded = [];
+
+    protected $primaryKey = 'id';
 
     public function user()
     {
@@ -22,12 +23,11 @@ class Member extends Model
     }
 
     protected static function booted()
-{
-    static::restoring(function(Member $member) {
-     
-        $member->op_status = 1;
-        $member->save();
-    });
-}
+    {
+        static::restoring(function (Member $member) {
 
+            $member->op_status = 1;
+            $member->save();
+        });
+    }
 }

@@ -227,20 +227,69 @@
     <title>Families</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* This is the new parent container that uses Flexbox */
+
         .page-container {
             display: flex;
             min-height: 100vh;
         }
 
-        /* Sidebar Styling (assuming it's a separate component) */
-        .sidebar {
-            width: 280px; /* Fixed width for the sidebar */
-            background-color: #2c3e50; /* A dark color to match your image */
-            color: #ecf0f1;
-            padding: 2rem 1rem;
+ 
+         .sidebar {
+            width: 280px;
+            background-color: #1F2937;
+            color: #d1d5db;
+            padding: 1.5rem 1rem;
+            transition: width 0.3s ease;
+            position: fixed;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 10;
         }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar.collapsed .sidebar-text,
+        .sidebar.collapsed .sidebar-header h1 {
+            display: none;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s, color 0.2s;
+            text-decoration: none;
+            color: #d1d5db;
+        }
+
+        .sidebar-link:hover {
+            background-color: #374151;
+            color: #ffffff;
+        }
+
+        .sidebar-link.active {
+            background-color: #2563eb;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+
+        .page-wrapper {
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+        }
+
+        .page-wrapper.collapsed {
+            margin-left: 80px;
+        }
+
         
+
         .logo {
             font-size: 1.7rem;
             font-weight: 700;
@@ -332,25 +381,47 @@
         .logo{
          color:#007BFF
         }
+        
         .main-header {
             display: flex;
             justify-content: space-between;
+            text-align:left;
             align-items: center;
             padding: 1.5rem;
             background-color: #ffffff;
             border-bottom: 1px solid #e5e7eb;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            gap:2rem;
+        }
+
+        .header-text{
+            /* width:100%; */
+            display: flex;
+            justify-content: space-between; 
+            gap:1rem;
+            align-items: center;
         }
     </style>
 </head>
 
 <body class="bg-gray-100 font-sans">
+    <aside>
+   <x-sidebar></x-sidebar>
+    </aside>
+  
     <div class="page-container">
-        <x-sidebar></x-sidebar>
-
         <div class="flex-grow">
             <header class="main-header">
+                <div class="header-text">
+ <button id="sidebarToggle" class="p-2 text-gray-400 hover:text-white focus:outline-none">
+    <!-- hamburger icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+</button>
                 <h1 class="text-2xl font-bold text-gray-600">Family Details</h1>
+                </div>
+                 
                 <div style="width: 50%;">
                     <form action="/search-head" class="search" method="get">
                         <input type="text" name="search" placeholder="Search by Name, State, City, Mobile number">
@@ -362,7 +433,7 @@
                     </form>
                 </div>
             </header>
-            <div class="mx-auto p-6">
+            <div class="mx-auto p-6 pt-0">
                 <div class="bg-white rounded-xl shadow overflow-x-auto">
                     <table class="w-full text-sm text-gray-700">
                         <thead class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider sticky top-0">
@@ -437,5 +508,19 @@
             </div>
         </div>
     </div>
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.querySelector('.sidebar');
+            const pageWrapper = document.querySelector('.page-wrapper');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+
+            if (sidebar && pageWrapper && sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                    pageWrapper.classList.toggle('collapsed');
+                });
+            }
+        });
+    </script>
 </body>
 </html>

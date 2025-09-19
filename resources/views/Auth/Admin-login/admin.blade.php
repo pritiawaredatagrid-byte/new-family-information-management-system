@@ -15,35 +15,67 @@
       font-family: 'Inter', sans-serif;
       background-color: #e5e7eb;
     }
+.page-container {
+            display: flex;
+            min-height: 100vh;
+        }
 
-    .sidebar {
-      width: 280px;
-      background-color:  #1F2937;
-      color: #d1d5db;
-      padding: 1.5rem 1rem;
-    }
+ 
+         .sidebar {
+            width: 280px;
+            background-color: #1F2937;
+            color: #d1d5db;
+            padding: 1.5rem 1rem;
+            transition: width 0.3s ease;
+            position: fixed;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
 
-    .sidebar-link {
-      display: flex;
-      align-items: center;
-      padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
-      transition: background-color 0.2s, color 0.2s;
-      text-decoration: none;
-      color: #d1d5db;
-    }
+        .sidebar.collapsed {
+            width: 80px;
+        }
 
-    .sidebar-link:hover {
-      background-color: #374151;
-      color: #ffffff;
-    }
+        .sidebar.collapsed .sidebar-text,
+        .sidebar.collapsed .sidebar-header h1 {
+            display: none;
+        }
 
-    .sidebar-link.active {
-      background-color: #2563eb;
-      color: #ffffff;
-      font-weight: 600;
-    }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s, color 0.2s;
+            text-decoration: none;
+            color: #d1d5db;
+        }
 
+        .sidebar-link:hover {
+            background-color: #374151;
+            color: #ffffff;
+        }
+
+        .sidebar-link.active {
+            background-color: #2563eb;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+
+        .page-wrapper {
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+        }
+
+        .page-wrapper.collapsed {
+            margin-left: 80px;
+        }
+
+      
     .stats-card {
       background-color: #ffffff;
       border-radius: 0.75rem;
@@ -62,17 +94,49 @@
       gap:1.5rem;
     }
 
+
+        .main-header {
+            display: flex;
+            /* justify-content: space-between; */
+            text-align:left;
+            align-items: center;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            gap:2rem;
+        }
+
+        .header-text{
+            /* width:100%; */
+            display: flex;
+            justify-content: space-between; 
+            gap:1rem;
+            align-items: center;
+        }
   </style>
 </head>
 
 <body class="flex">
 
-  <x-sidebar></x-sidebar>
-  
+    <aside>
+    <x-sidebar></x-sidebar>
+    </aside>
+   <div class="page-wrapper">
   <main class="flex-1 p-8 overflow-y-auto">
 
     <div class="flex justify-between items-center mb-8">
+     <div class="header-text">
+      
+     
+        <button id="sidebarToggle" class="p-2 text-gray-400 hover:text-white focus:outline-none">
+    <!-- hamburger icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+</button>
       <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+</div>
       <div class="flex items-center space-x-4">
 
         <div class="flex items-center space-x-2">
@@ -148,6 +212,7 @@
       </div>
     </div>
   </main>
+  </div>
 
   <script>
   const ctx1 = document.getElementById('marital_status');
@@ -301,6 +366,19 @@ new Chart(ctx4, {
       }
     }
 });
+
+ document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.querySelector('.sidebar');
+            const pageWrapper = document.querySelector('.page-wrapper');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+
+            if (sidebar && pageWrapper && sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                    pageWrapper.classList.toggle('collapsed');
+                });
+            }
+        });
 </script>
 </body>
 

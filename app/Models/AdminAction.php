@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AdminAction extends Model
 {
-     protected $fillable = [
+    protected $fillable = [
         'admin_id',
         'action',
         'resource_type',

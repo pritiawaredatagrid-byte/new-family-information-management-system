@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Models\UserRegistration;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,26 +26,25 @@ Route::middleware('CheckAdminAuth')->group(function () {
 
     Route::get('admin-logout', [AdminController::class, 'logout']);
 
-
-    //Edit family head
+    // Edit family head
     Route::view('edit-family-head', '/Auth/Admin-login/edit-family-head');
     Route::get('edit-family-head/{id}', [AdminController::class, 'editFamilyHead']);
     Route::put('edit-family-head-data/{id}', [AdminController::class, 'editFamilyHeadData']);
 
-    //Edit family member
+    // Edit family member
     Route::view('edit-family-member', '/Auth/Admin-login/edit-family-member');
     Route::get('edit-family-member/{head_id}/{id}', [AdminController::class, 'editFamilyMember']);
     Route::put('edit-family-member-data/{head_id}/{id}', [AdminController::class, 'editFamilyMemberData']);
 
     Route::post('/check-mobile-uniqueness', function (Request $request) {
-    $mobileNumber = $request->input('mobile_number');
+        $mobileNumber = $request->input('mobile_number');
 
-    $isUnique = !UserRegistration::where('mobile_number', $mobileNumber)->exists();
+        $isUnique = ! UserRegistration::where('mobile_number', $mobileNumber)->exists();
 
-    return response()->json($isUnique);
-});
+        return response()->json($isUnique);
+    });
 
-    //View family Details
+    // View family Details
     Route::view('view-family-details', '/Auth/Admin-login/view-family-details');
     Route::get('view-family-details/{id}', [AdminController::class, 'viewFamilyDetails'])->name('view-family-details');
 
@@ -60,7 +59,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::get('export-excel/{id}', [AdminController::class, 'exportExcel'])->name('export-excel');
     Route::get('view-family-details-excel/{id}', [AdminController::class, 'viewFamilyDetailsExcel'])->name('view-family-details-excel');
 
-    //View state Details
+    // View state Details
     Route::view('view-state-details', '/Auth/Admin-login/view-state-details');
     Route::get('view-state-details/{state_id}', [AdminController::class, 'viewStateDetails'])->name('view-state-details');
 
@@ -69,7 +68,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
     // delete city
     Route::delete('delete-city/{city_id}', [AdminController::class, 'deleteCity'])->name('delete-city');
 
-    //Edit state
+    // Edit state
     Route::view('edit-state', '/Auth/Admin-login/edit-state');
     Route::get('edit-state/{state_id}', [AdminController::class, 'editState']);
     Route::put('edit-state-data/{state_id}', [AdminController::class, 'editStateData']);
@@ -79,7 +78,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::get('edit-city/{state_id}/{city_id}', [AdminController::class, 'editCity']);
     Route::put('edit-city-data/{state_id}/{city_id}', [AdminController::class, 'editCityData']);
 
-    //new state add
+    // new state add
     Route::view('add-state', 'add-state');
     Route::post('add-state', [AdminController::class, 'addState']);
 
@@ -89,10 +88,9 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::post('add-city', [AdminController::class, 'addCity'])->name('add-city');
     Route::get('add-city', [AdminController::class, 'addStates_state']);
 
-
     Route::get('/add-city/{state_id}', [AdminController::class, 'showAddCityForm'])->name('add-city-form');
 
-    //User Registration
+    // User Registration
     Route::view('user-registration-admin', '/Auth/Admin-login/user-registration-admin');
     Route::post('user-registration-admin', [AdminController::class, 'userRegistrationAdmin']);
     Route::get('user-registration-admin', [AdminController::class, 'addStates']);
@@ -103,8 +101,6 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::get('add-family-member-admin/{head_id}', [AdminController::class, 'addFamilyMemberFormAdmin'])->name('add-member-form-admin');
     Route::post('add-family-member-admin', [AdminController::class, 'addFamilyMemberAdmin'])->name('add-member-submit-admin');
 });
-
-
 
 Route::view('admin-login', '/Auth/Admin-login/admin-login');
 Route::view('admin-forget-password', '/Auth/Admin-login/admin-forget-password');
@@ -119,7 +115,7 @@ Route::post('admin-login', [AdminController::class, 'login']);
 
 // Route::get('member-list', [AdminController::class, 'memberList']);
 
-//User Registration
+// User Registration
 Route::view('user-registration', 'user-registration');
 Route::post('user-registration', [UserController::class, 'userRegistration']);
 Route::get('user-registration', [UserController::class, 'addStates']);

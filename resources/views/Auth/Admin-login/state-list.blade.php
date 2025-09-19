@@ -105,11 +105,7 @@
             color: #d1d5db;
         }
 
-        .sidebar-link:hover {
-            background-color: #374151;
-            color: #ffffff;
-        }
-
+       
         .sidebar-link.active {
             background-color: #2563eb;
             color: #ffffff;
@@ -129,8 +125,9 @@
 
         .main-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
+            text-align:left;
             padding: 1.5rem;
             background-color: #ffffff;
             border-bottom: 1px solid #e5e7eb;
@@ -185,15 +182,46 @@
         .search svg:hover {
             fill: #2196f3;
         }
+
+         .main-header {
+            display: flex;
+            justify-content: space-between;
+            text-align:left;
+            align-items: center;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            gap:2rem;
+        }
+
+        .header-text{
+            /* width:100%; */
+            display: flex;
+            justify-content: space-between; 
+            gap:1rem;
+            align-items: center;
+        }
     </style>
 </head>
 
 <body class="bg-gray-100 font-sans">
+     <aside>
     <x-sidebar></x-sidebar>
-
+    </aside>
     <div class="page-wrapper">
         <header class="main-header">
+            <div class="header-text">
+ <button id="sidebarToggle" class="p-2 text-gray-400 hover:text-white focus:outline-none">
+    <!-- hamburger icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+</button>
             <h1 class="text-2xl font-bold text-gray-600">States</h1>
+            </div>
+           
+
             <div style="width: 50%;">
                 <form action="/search-state" class="search" method="get">
                     <input type="text" name="search" placeholder="Search State">
