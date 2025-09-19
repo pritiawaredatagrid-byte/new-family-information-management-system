@@ -17,9 +17,10 @@ use App\Exports\FamilyDetailsExcel;
 use Illuminate\Support\Facades\Session;
 use App\Models\AdminAction;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Activitylog\Models\Activity;
-
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -138,66 +139,75 @@ class AdminController extends Controller
     function login(Request $request)
     {
 
-        $validation = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+       $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        $admin = Admin::where([
-            ['email', "=", $request->email],
-            ['password', "=", $request->password],
-        ])->first();
+    $admin = Admin::where('email', $request->email)->first();
 
-        if (!$admin) {
-            $validation = $request->validate([
-                'user' => 'required',
-            ], [
-                'user.required' => 'User does not exist',
-            ]);
-        }
-        Session::put('admin', $admin);
-        return redirect('dashboard');
+    if (!$admin || !Hash::check($request->password, $admin->password)) {
+        return back()->withErrors(['email' => 'User does not exist or password is incorrect'])->withInput();
+    }
+
+    Session::put('admin', $admin);
+    return redirect('dashboard');
     }
 
     function AdminForgetPassword(Request $request)
     {
-        $link = Crypt::encryptString($request->email);
-        $link = url('/admin-forget-password/' . $link);
-        $validation = $request->validate([
-            'email' => 'required|email',
-        ]);
-        $admin = Admin::where('email', $request->email)->first();
+        $request->validate([
+        'email' => 'required|email',
+    ]);
 
-        if (!$admin) {
-            return redirect()->back()->withErrors(['email' => 'Please enter valid email.'])->withInput();
-        }
-        Mail::to($request->email)->send(new AdminForgotPassword($link));
-        return redirect('/');
+    $admin = Admin::where('email', $request->email)->first();
+
+    if (!$admin) {
+        return redirect()->back()->withErrors(['email' => 'Please enter valid email.'])->withInput();
+    }
+
+    
+    $link = URL::temporarySignedRoute(
+        'admin.reset-password',         
+        now()->addMinutes(15),      
+        ['email' => $request->email]
+    );
+
+    Mail::to($request->email)->send(new AdminForgotPassword($link));
+
+    return redirect('/')->with('status', 'Password reset link sent to your email.');
     }
 
     function AdminResetForgetPassword($email)
     {
-        $argEmail = Crypt::decryptString($email);
-        return view('admin-set-forget-password', ['email' => $argEmail]);
+            $admin = Admin::where('email', $email)->first();
 
+    if (!$admin) {
+        abort(404);
+    }
+
+    return view('admin-set-forget-password', ['email' => $email]);
     }
 
     function AdminSetForgetPassword(Request $request)
-    {
-        $validate = $request->validate(
-            [
-                'email' => 'required|email',
-                'password' => 'required|min:3|confirmed'
-            ]
-        );
-        $admin = Admin::where('email', $request->email)->first();
-        if ($admin) {
-            $admin->password = $request->password;
-            if ($admin->save()) {
-                return redirect('admin-login');
-            }
-        }
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|min:3|confirmed',
+    ]);
+
+    $admin = Admin::where('email', $request->email)->first();
+
+    if ($admin) {
+        $admin->password = Hash::make($request->password);
+        $admin->save();
+
+        return redirect('admin-login')->with('success', 'Password reset successfully.');
     }
+
+    return redirect()->back()->withErrors(['email' => 'Something went wrong.']);
+}
+
 
 
     function dashboard()
@@ -572,7 +582,7 @@ class AdminController extends Controller
     function viewStateDetails($state_id, Request $request)
     {
         $state = State::findOrFail($state_id);
-        $cities = $state->cities()->paginate(5);
+        $cities = $state->cities()->paginate(3);
 
         return view('Auth.Admin-login.view-state-details', [
             'state' => $state,

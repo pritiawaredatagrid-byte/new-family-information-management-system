@@ -335,11 +335,19 @@
                         <p class="error-message">{{ $message }}</p>
                     @enderror
                 </div>
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label for="">Mobile Number</label>
                     <input type="tel" name="mobile_number" id="mobile_number" placeholder="Enter Mobile Number"
                         value="{{ old('mobile_number', $heads->mobile_number) }}">
                     @error('mobile_number')
+                        <p class="error-message">{{ $message }}</p>
+                    @enderror
+                </div> -->
+                <div class="form-group">
+                    <label for="mobile_number">Mobile Number</label>
+                   <input type="tel" name="mobile_number" id="mobile_number" placeholder="Enter Mobile Number"
+                        value="{{ old('mobile_number', $heads->mobile_number) }}">
+                     @error('mobile_number')
                         <p class="error-message">{{ $message }}</p>
                     @enderror
                 </div>
@@ -520,23 +528,22 @@
                     filesize: 2048
                 },
                 mobile_number: {
-                    required: true,
-                    digits: 10,
-                    remote: {
-                        url: "/check-mobile-number", 
-                        type: "post",
-                        data: {
-                            _token: function() {
-                                return $('meta[name="csrf-token"]').attr('content');
-                            },
-                            mobile_number: function() {
-                                return $("input[name='mobile_number']").val();
-                            },
-                            current_id: "{{ $heads->id }}"
-                        }
-                    }
-                }
+    required: true,
+    numeric: true,
+    digits: 10,
+    remote: {
+        url: '/check-mobile-uniqueness',
+        type: 'POST',
+        data: {
+            mobile_number: function () {
+                return $('#mobile_number').val();
             },
+            _token: function () {
+                return $('meta[name="csrf-token"]').attr('content');
+            }
+        }
+    }
+},
             messages: {
                 'hobbies[]': { required: "At least 1 hobby is required." },
                 mobile_number: {
@@ -545,7 +552,7 @@
             }
         });
 
-        // Your city loading logic
+       
         function loadCities(stateId, initialCityName) {
             $('.city').html('<option value="">Select City</option>');
             if (stateId) {
@@ -587,7 +594,7 @@
             loadCities(selectedStateId, null);
         });
 
-        // Your marital status logic
+        
         const marriedStatus = document.getElementById('married');
         const weddingDateField = document.getElementById('wedding_date_field');
         function toggleWeddingDate() {
@@ -602,12 +609,11 @@
         });
         window.addEventListener('load', toggleWeddingDate);
 
-        // --- Hobbies Logic ---
+    
         const hobbiesContainer = document.getElementById('hobbies-container');
         const addHobbyBtn = document.getElementById('addHobbyBtn');
         const removeAllHobbiesBtn = document.getElementById('removeAllHobbiesBtn');
 
-        // Function to update visibility of remove buttons
         function updateRemoveButtons() {
             const removeBtns = hobbiesContainer.querySelectorAll('.btn-remove-hobby');
             if (removeBtns.length <= 1) {
@@ -617,7 +623,6 @@
             }
         }
 
-        // Add hobby button click listener
         addHobbyBtn.addEventListener('click', () => {
             const newHobbyDiv = document.createElement('div');
             newHobbyDiv.className = 'hobby-input-group';
@@ -629,7 +634,7 @@
             updateRemoveButtons();
         });
 
-        // Remove hobby button click listener (using event delegation)
+      
         hobbiesContainer.addEventListener('click', (event) => {
             if (event.target.classList.contains('btn-remove-hobby')) {
                 const hobbyGroup = event.target.closest('.hobby-input-group');
@@ -640,10 +645,10 @@
             }
         });
 
-        // Remove all hobbies button click listener
+        
         removeAllHobbiesBtn.addEventListener('click', () => {
             hobbiesContainer.innerHTML = '';
-            // Create a single empty hobby row after clearing
+            
             const newHobbyDiv = document.createElement('div');
             newHobbyDiv.className = 'hobby-input-group';
             newHobbyDiv.innerHTML = `
@@ -654,7 +659,7 @@
             updateRemoveButtons();
         });
 
-        // Initialize button states on page load
+       
         updateRemoveButtons();
     });
 </script>

@@ -37,16 +37,13 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::get('edit-family-member/{head_id}/{id}', [AdminController::class, 'editFamilyMember']);
     Route::put('edit-family-member-data/{head_id}/{id}', [AdminController::class, 'editFamilyMemberData']);
 
-    Route::post('/check-mobile-number', function (Request $request) {
-        $mobileNumber = $request->input('mobile_number');
-        $currentId = $request->input('current_id');
+    Route::post('/check-mobile-uniqueness', function (Request $request) {
+    $mobileNumber = $request->input('mobile_number');
 
-        $isUnique = !UserRegistration::where('mobile_number', $mobileNumber)
-            ->where('id', '!=', $currentId)
-            ->exists();
+    $isUnique = !UserRegistration::where('mobile_number', $mobileNumber)->exists();
 
-        return response()->json($isUnique);
-    });
+    return response()->json($isUnique);
+});
 
     //View family Details
     Route::view('view-family-details', '/Auth/Admin-login/view-family-details');
@@ -112,7 +109,11 @@ Route::middleware('CheckAdminAuth')->group(function () {
 Route::view('admin-login', '/Auth/Admin-login/admin-login');
 Route::view('admin-forget-password', '/Auth/Admin-login/admin-forget-password');
 Route::post('admin-forget-password', [AdminController::class, 'AdminForgetPassword']);
-Route::get('admin-forget-password/{email}', [AdminController::class, 'AdminResetForgetPassword']);
+// Route::get('admin-forget-password/{email}', [AdminController::class, 'AdminResetForgetPassword']);
+Route::get('/admin-forget-password/{email}', [AdminController::class, 'AdminResetForgetPassword'])
+    ->name('admin.reset-password')
+    ->middleware('signed');
+
 Route::post('admin-set-forget-password', [AdminController::class, 'AdminSetForgetPassword']);
 Route::post('admin-login', [AdminController::class, 'login']);
 

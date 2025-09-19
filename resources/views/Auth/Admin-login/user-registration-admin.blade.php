@@ -737,7 +737,7 @@
                 </button>
             @endif
         </div>
-        <h2>Registration Form</h2>
+        <h2>Add Family Head</h2>
         @error('user')
             <p class="error-message">{{ $message }}</p>
         @enderror

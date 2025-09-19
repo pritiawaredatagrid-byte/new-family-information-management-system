@@ -43,6 +43,12 @@
       color: #ffffff;
       font-weight: 600;
     }
+/* 
+     @media screen and (max-width: 480px) {
+      .sidebar {
+      display:none;
+    }
+        } */
 
   </style>
 </head>
@@ -86,11 +92,12 @@
     </nav>
     <div class="mt-auto">
       <a href="/admin-logout" class="sidebar-link mt-4">
-        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd"
-            d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-            clip-rule="evenodd" />
-        </svg>
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"
+         xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3H6.75A2.25 2.25 0 004.5 5.25v13.5A2.25 2.25 0 006.75 21h6.75a2.25 2.25 0 002.25-2.25V15a.75.75 0 011.5 0v3.75A3.75 3.75 0 0113.5 22.5H6.75A3.75 3.75 0 013 18.75V5.25A3.75 3.75 0 016.75 1.5h6.75a3.75 3.75 0 013.75 3.75V9a.75.75 0 01-1.5 0z" clip-rule="evenodd"/>
+        <path d="M21 12l-3-3m0 0l3 3m-3-3v6" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
         Logout
       </a>
     </div>

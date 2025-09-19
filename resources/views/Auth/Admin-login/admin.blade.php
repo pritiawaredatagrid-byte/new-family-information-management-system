@@ -144,6 +144,7 @@
           <canvas id="member_marital_status" width="1000" height="1000"></canvas>
           <canvas id="familiesPerState" width="1000" height="1000"></canvas>
           <canvas id="familyGrowth" width="1000" height="1000"></canvas>
+
       </div>
     </div>
   </main>
