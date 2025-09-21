@@ -136,24 +136,25 @@
       display: block;
       font-weight: 100;
     }
-    .btn.back {
-            display: inline-block;
-            background-color: #616161;
-            color: #fff;
-            padding: 0.75rem 1.5rem;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1rem;
-            margin-top: 1rem;
-            width: 100%;
-            text-align: center;
-            transition: background-color 0.2s;
-        }
 
-        .btn.back:hover {
-            background-color: #424242;
-        }
+    .btn.back {
+      display: inline-block;
+      background-color: #616161;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-top: 1rem;
+      width: 100%;
+      text-align: center;
+      transition: background-color 0.2s;
+    }
+
+    .btn.back:hover {
+      background-color: #424242;
+    }
   </style>
 </head>
 
@@ -194,5 +195,3 @@
 </body>
 
 </html>
-
-

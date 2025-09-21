@@ -1,4 +1,3 @@
-
 <html lang="en">
 
 <head>
@@ -18,7 +17,7 @@
 
     .sidebar {
       width: 280px;
-      background-color:  #1F2937;
+      background-color: #1F2937;
       color: #d1d5db;
       padding: 1.5rem 1rem;
     }
@@ -43,13 +42,13 @@
       color: #ffffff;
       font-weight: 600;
     }
-/* 
+
+    /* 
      @media screen and (max-width: 480px) {
       .sidebar {
       display:none;
     }
         } */
-
   </style>
 </head>
 
@@ -59,10 +58,11 @@
     <div class="flex items-center space-x-3 mb-8">
       <svg width="35" height="35" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
 
-  <circle cx="50" cy="30" r="20" fill="currentColor"/>
+        <circle cx="50" cy="30" r="20" fill="currentColor" />
 
-  <path d="M25 70 Q50 40 75 70 L75 80 Q50 110 25 80 Z" fill="currentColor"/>
-</svg><h1 class="text-3xl font-bold text-gray-200">FIMS Admin</h1>
+        <path d="M25 70 Q50 40 75 70 L75 80 Q50 110 25 80 Z" fill="currentColor" />
+      </svg>
+      <h1 class="text-3xl font-bold text-gray-200">FIMS Admin</h1>
     </div>
     <nav class="flex-1 space-y-2">
       <a href="/dashboard" class="sidebar-link active">
@@ -72,7 +72,7 @@
         </svg>
         Dashboard
       </a>
-       
+
       <a href="/family-list" class="sidebar-link">
         <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -92,22 +92,18 @@
     </nav>
     <div class="mt-auto">
       <a href="/admin-logout" class="sidebar-link mt-4">
-        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"
-         xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3H6.75A2.25 2.25 0 004.5 5.25v13.5A2.25 2.25 0 006.75 21h6.75a2.25 2.25 0 002.25-2.25V15a.75.75 0 011.5 0v3.75A3.75 3.75 0 0113.5 22.5H6.75A3.75 3.75 0 013 18.75V5.25A3.75 3.75 0 016.75 1.5h6.75a3.75 3.75 0 013.75 3.75V9a.75.75 0 01-1.5 0z" clip-rule="evenodd"/>
-        <path d="M21 12l-3-3m0 0l3 3m-3-3v6" stroke="currentColor" stroke-width="1.5"
-              stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd"
+            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3H6.75A2.25 2.25 0 004.5 5.25v13.5A2.25 2.25 0 006.75 21h6.75a2.25 2.25 0 002.25-2.25V15a.75.75 0 011.5 0v3.75A3.75 3.75 0 0113.5 22.5H6.75A3.75 3.75 0 013 18.75V5.25A3.75 3.75 0 016.75 1.5h6.75a3.75 3.75 0 013.75 3.75V9a.75.75 0 01-1.5 0z"
+            clip-rule="evenodd" />
+          <path d="M21 12l-3-3m0 0l3 3m-3-3v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
         Logout
       </a>
     </div>
   </aside>
- 
+
 </body>
 
-</html> 
-
-
-
-
- 
+</html>

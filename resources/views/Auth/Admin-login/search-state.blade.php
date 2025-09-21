@@ -55,7 +55,7 @@
             font-weight: 600;
         }
 
-       
+
         .page-wrapper {
             margin-left: 280px;
             transition: margin-left 0.3s ease;
@@ -124,31 +124,174 @@
         .search svg:hover {
             fill: #2196f3;
         }
+
         .main-header {
             display: flex;
             justify-content: space-between;
-            text-align:left;
+            text-align: left;
             align-items: center;
             padding: 1.5rem;
             background-color: #ffffff;
             border-bottom: 1px solid #e5e7eb;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            gap:2rem;
+            gap: 2rem;
         }
 
-        .header-text{
+        .header-text {
             /* width:100%; */
             display: flex;
-            justify-content: space-between; 
-            gap:1rem;
+            justify-content: space-between;
+            gap: 1rem;
             align-items: center;
+        }
+
+        .header-text #sidebarToggle {
+            display: none;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 280px;
+                height: auto;
+                top: -100%;
+                left: 0;
+                padding: 1rem;
+                transition: top 0.3s ease;
+            }
+
+            .sidebar.active {
+                top: 0;
+                width: 100%;
+                height: auto;
+                position: fixed;
+            }
+
+            .sidebar.collapsed {
+                top: -100%;
+                width: 100%;
+            }
+
+            .sidebar.collapsed .sidebar-text,
+            .sidebar.collapsed .sidebar-header h1 {
+                display: initial;
+            }
+
+            .page-wrapper {
+                margin-left: 280px;
+            }
+
+            .page-wrapper.collapsed {
+                margin-left: 100px;
+            }
+
+            .main-header {
+                display: flex;
+                text-align: left;
+                padding: 1.5rem;
+                background-color: #ffffff;
+                border-bottom: 1px solid #e5e7eb;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                gap: 2rem;
+            }
+
+            .header-text {
+                display: flex;
+                justify-content: space-between;
+                gap: 0.5rem;
+
+            }
+
+            .header-text #sidebarToggle {
+                display: initial;
+            }
+
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: block;
+                top: -100%;
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .sidebar.active {
+                top: 0;
+                width: 100%;
+                height: auto;
+            }
+
+            .page-wrapper {
+                margin-left: 0;
+            }
+
+            .page-wrapper.collapsed {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                padding: 0.5rem;
+            }
+
+            .main-header {
+                padding: 1rem;
+            }
+
+            .header-text h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 
 <body class="bg-gray-100 font-sans">
-    <aside>
-    <x-sidebar></x-sidebar>
+    <aside class="sidebar h-screen flex flex-col">
+        <div class="flex items-center space-x-3 mb-8 sidebar-header">
+            <svg width="35" height="35" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="30" r="20" fill="currentColor" />
+                <path d="M25 70 Q50 40 75 70 L75 80 Q50 110 25 80 Z" fill="currentColor" />
+            </svg>
+            <h1 class="text-3xl font-bold text-gray-200 sidebar-text">FIMS Admin</h1>
+        </div>
+        <nav class="flex-1 space-y-2">
+            <a href="/dashboard" class="sidebar-link active">
+                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                <span class="sidebar-text">Dashboard</span>
+            </a>
+            <a href="/family-list" class="sidebar-link">
+                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM10 10a5 5 0 00-5 5v2a1 1 0 102 0v-2a3 3 0 013-3h4a3 3 0 013 3v2a1 1 0 102 0v-2a5 5 0 00-5-5H10z" />
+                </svg>
+                <span class="sidebar-text">Family Management</span>
+            </a>
+            <a href="/state-list" class="sidebar-link">
+                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7z" />
+                    <path fill-rule="evenodd"
+                        d="M19 19a1 1 0 01-1 1H2a1 1 0 01-1-1V5a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1V5a1 1 0 011-1h4a1 1 0 011 1v14zm-1-1v-3H4v3h14zm-4-7h-4a1 1 0 000 2h4a1 1 0 000-2z"
+                        clip-rule="evenodd" />
+                </svg>
+                <span class="sidebar-text">State Management</span>
+            </a>
+        </nav>
+        <div class="mt-auto">
+            <a href="/admin-logout" class="sidebar-link mt-4">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                        d="M15.75 9V5.25A2.25 2.25 0 0013.5 3H6.75A2.25 2.25 0 004.5 5.25v13.5A2.25 2.25 0 006.75 21h6.75a2.25 2.25 0 002.25-2.25V15a.75.75 0 011.5 0v3.75A3.75 3.75 0 0113.5 22.5H6.75A3.75 3.75 0 013 18.75V5.25A3.75 3.75 0 016.75 1.5h6.75a3.75 3.75 0 013.75 3.75V9a.75.75 0 01-1.5 0z"
+                        clip-rule="evenodd" />
+                    <path d="M21 12l-3-3m0 0l3 3m-3-3v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span class="sidebar-text">Logout</span>
+            </a>
+        </div>
     </aside>
 
 
@@ -156,13 +299,15 @@
 
         <header class="main-header">
             <div class="header-text">
- <button id="sidebarToggle" class="p-2 text-gray-400 hover:text-white focus:outline-none">
-    <!-- hamburger icon -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
-</button>
-            <h1 class="text-2xl font-bold text-gray-600">States</h1>
+                <button id="sidebarToggle" class="p-2 text-gray-400 hover:text-white focus:outline-none">
+                    <!-- hamburger icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <h1 class="text-2xl font-bold text-gray-600">States</h1>
             </div>
             <div style="width: 50%;">
                 <form action="/search-state" class="search" method="get">
