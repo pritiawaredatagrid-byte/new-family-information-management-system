@@ -300,7 +300,7 @@
         <header class="main-header">
             <div class="header-text">
                 <button id="sidebarToggle" class="p-2 text-gray-400 hover:text-white focus:outline-none">
-                    <!-- hamburger icon -->
+            
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -326,7 +326,7 @@
         <div class="p-6">
             <div class="bg-white rounded-xl shadow">
                 @if ($searchData->isEmpty())
-                    <p class="text-center text-gray-500 text-sm py-10">No state available.</p>
+                    <p class="text-center text-gray-500 text-sm py-10">No data available.</p>
                 @else
                     <table class="w-full text-sm text-gray-700">
                         <thead class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider sticky top-0">

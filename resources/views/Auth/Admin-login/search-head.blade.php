@@ -227,12 +227,6 @@
     <title>Families</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .page-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-
         .sidebar {
             width: 280px;
             background-color: #1F2937;
@@ -278,10 +272,10 @@
 
 
         .page-wrapper {
-            margin-left: 780px;
-            transition: margin-left 0.3s ease;
-            min-height: 100vh;
-        }
+        margin-left: 280px;
+        transition: margin-left 0.3s ease;
+        min-height: 100vh;
+      }
 
         .page-wrapper.collapsed {
             margin-left: 80px;
@@ -390,7 +384,7 @@
             background-color: #ffffff;
             border-bottom: 1px solid #e5e7eb;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            gap: 2rem;
+            gap: 3rem;
         }
 
         .header-text {
@@ -550,17 +544,9 @@
         </div>
     </aside>
     <div class="page-container">
-        <div class="flex-grow">
-            <header class="main-header">
+        <div class="page-wrapper">
+             <header class="main-header">
                 <div class="header-text">
-                    <button id="sidebarToggle" class="p-2 text-gray-400 hover:text-white focus:outline-none">
-                        <!-- hamburger icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
                     <h1 class="text-2xl font-bold text-gray-600">Family Details</h1>
                 </div>
 
@@ -577,21 +563,24 @@
                     </form>
                 </div>
             </header>
-            <div class="mx-auto p-6 pt-0">
+            <div class="mx-auto p-6 pt-2">
                 <div class="bg-white rounded-xl shadow overflow-x-auto">
+                @if ($searchData->isEmpty())
+                          <p class="text-center text-gray-500 text-sm py-10">No data available.</p>
+                @else
                     <table class="w-full text-sm text-gray-700">
                         <thead class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider sticky top-0">
                             <tr>
                                 <th class="px-2 py-2 text-center">Sr.No</th>
                                 <th class="text-center">Photo</th>
-                                <th class="px-3 py-3 text-left">Name</th>
-                                <th class="px-3 py-3 text-center">Birth Date</th>
+                                <th class="px-1 py-1 text-left">Name</th>
+                                <th class="px-0 py-1 text-left">Birth Date</th>
                                 <th class="px-3 py-3 text-center">Mobile</th>
-                                <th class="px-3 py-3 text-left">Address</th>
-                                <th class="px-3 py-3 text-center">Marital Status</th>
-                                <th class="px-5 py-5 text-center">Wedding Date</th>
-                                <th class="px-3 py-3 text-left">Hobbies</th>
-                                <th class="px-3 py-3 text-center">Action</th>
+                                <th class="px-1 py-1 text-left">Address</th>
+                                <th class="px-1 py-1 text-center">Marital Status</th>
+                                <th class="px-2 py-2 text-center">Wedding Date</th>
+                                <th class="px-2 py-2 text-left">Hobbies</th>
+                                <th class="px-1 py-2 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
@@ -608,7 +597,7 @@
                                     </td>
                                     <td class="px-3 py-3 font-medium whitespace-nowrap">{{ $sd->name }} {{ $sd->surname }}
                                     </td>
-                                    <td class="px-3 py-3 text-center whitespace-nowrap">{{ $sd->birthdate ?? '-' }}</td>
+                                    <td class="px-0 py-1 text-left whitespace-nowrap">{{ $sd->birthdate ?? '-' }}</td>
                                     <td class="px-3 py-3 text-center whitespace-nowrap">{{ $sd->mobile_number ?? '-' }}</td>
                                     <td class="px-3 py-3 truncate max-w-[200px] text-left">
                                         {{ $sd->address ?? '-' }}<br>
@@ -636,7 +625,7 @@
                                             <span class="text-gray-400">-</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3 text-center">
+                                    <td class="px-0 py-2 text-center">
                                         <div class="flex justify-center gap-2">
                                             <a href="{{'view-family-details/' . $sd->id}}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px"
@@ -651,12 +640,12 @@
                             @endforeach
                         </tbody>
                     </table>
+                    @endif
                 </div>
                 <div class="mt-6">
                     {{ $searchData->links('pagination::tailwind') }}
                 </div>
-            </div>
-        </div>
+          
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
