@@ -219,7 +219,12 @@
             font-size: 0.95rem;
             text-align: left;
         }
-
+.error-message-style {
+      color: red;
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+      margin-top: 1rem;
+    }
         @media (max-width: 480px) {
             .main {
                 padding: 1.5rem 2rem;
@@ -240,7 +245,8 @@
 <body>
     <div class="main">
         <h2>Add State</h2>
-        <form action="/add-state" method="post">
+        <div class="error-container"></div>
+        <form action="/add-state" method="post" id="ajax-form">
             @csrf
             <div>
                 @if(Session('state'))
@@ -248,13 +254,54 @@
                 @endif
                 <label for="" class="text-gray-600 space-y-2">State</label>
                 <input type="text" value="" name="state_name" placeholder="Enter State Here">
-                @error('state_name')
-                    <p class="text-red-500">{{ $message }}</p>
-                @enderror
+                 <div class="state_name-error error-message-style"></div>
             </div>
             <button type="submit" class="admin-login">Add State</button>
         </form>
     </div>
+    <script>
+$(document).ready(function () {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    });
+
+    $('#ajax-form').on('submit', function (e) {
+        e.preventDefault();
+
+ 
+        $('.error-message-style').text('');
+        $('.error-container').text('');
+
+        $.ajax({
+            type: 'POST',
+            url: '/admin-login',
+            data: $(this).serialize(),
+            success: function (response) {
+             
+                window.location.href = '/dashboard';
+            },
+            error: function (xhr) {
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    if (errors.email) {
+                        $('.email-error').text(errors.email[0]);
+                    }
+                    if (errors.password) {
+                        $('.password-error').text(errors.password[0]);
+                    }
+                } else if (xhr.status === 401 || xhr.status === 400) {
+                    $('.error-container').html(`<p class="error-message">Invalid credentials.</p>`);
+                } else {
+                    $('.error-container').html(`<p class="error-message">Something went wrong.</p>`);
+                }
+            }
+        });
+    });
+});
+</script>
+
 </body>
 
 </html>

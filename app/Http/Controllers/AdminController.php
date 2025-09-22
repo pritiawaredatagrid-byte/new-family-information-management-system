@@ -27,7 +27,6 @@ class AdminController extends Controller
     {
         $cutDate = Carbon::now()->subYears(21);
         $users = new UserRegistration;
-
         $validation = $request->validate([
             'name' => 'required|max:50',
             'surname' => 'required|max:50',
@@ -44,7 +43,6 @@ class AdminController extends Controller
             'birthdate.before_or_equal' => 'Family head must be 21 years or older',
             'hobbies.*.required' => 'At least 1 hobby required',
         ]);
-
         $users->name = $request->name;
         $users->surname = $request->surname;
         $users->birthdate = $request->birthdate;
@@ -62,13 +60,11 @@ class AdminController extends Controller
         $users->status = $request->status;
         $users->wedding_date = $request->wedding_date;
         $users->hobby = json_encode($request->hobbies);
-
         $imagePath = null;
         if ($request->hasFile('photo')) {
             $photoPath = $request->file('photo')->store('photos', 'public');
         }
         $users->photo = $photoPath;
-
         if ($users->save()) {
             $headId = $users->id;
             AdminAction::create([

@@ -274,6 +274,24 @@
             margin-top: 0.25rem;
             display: block;
         }
+            .btn.back {
+      display: inline-block;
+      background-color: #616161;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-top: 1rem;
+      width: 100%;
+      text-align: center;
+      transition: background-color 0.2s;
+    }
+
+    .btn.back:hover {
+      background-color: #424242;
+    }
     </style>
 </head>
 
@@ -410,6 +428,7 @@
             <div class="button-group">
                 <button type="submit" name="submit" class="btn btn-submit">Add Family Head</button>
             </div>
+             <a href="/family-list" class="btn back">Back</a>
         </form>
     </div>
 
