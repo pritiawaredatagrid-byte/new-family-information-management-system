@@ -138,7 +138,6 @@ class AdminController extends Controller
 
     public function login(Request $request)
     {
-
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -147,10 +146,19 @@ class AdminController extends Controller
         $admin = Admin::where('email', $request->email)->first();
 
         if (! $admin || ! Hash::check($request->password, $admin->password)) {
-            return back()->withErrors(['email' => 'User does not exist or password is incorrect'])->withInput();
+            if ($request->ajax()) {
+
+                return response()->json(['message' => 'Invalid credentials.'], 401);
+            }
+
+            return back()->withErrors(['login' => 'Invalid credentials'])->withInput();
         }
 
         Session::put('admin', $admin);
+
+        if ($request->ajax()) {
+            return response()->json(['message' => 'Login successful'], 200);
+        }
 
         return redirect('dashboard');
     }
