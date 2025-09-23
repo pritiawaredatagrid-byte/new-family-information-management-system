@@ -8,17 +8,17 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class FamilyDetailsExcel implements FromView, ShouldAutoSize
 {
-    private $head;
+    private $families;
 
-    public function __construct($head)
+    public function __construct($families)
     {
-        $this->head = $head;
+        $this->families = $families;
     }
 
     public function view(): View
     {
         return view('Auth.Admin-login.view-family-details-excel', [
-            'head' => $this->head,
+            'families' => $this->families,
         ]);
     }
 }

@@ -39,39 +39,29 @@ class UserController extends Controller
         $users->birthdate = $request->birthdate;
         $users->mobile_number = $request->mobile_number;
         $users->address = $request->address;
-        $stateId = $request->state;
-        $state = State::find($stateId);
-        if ($state) {
-            $users->state = $state->state_name;
-        } else {
-            $users->state = null;
-        }
+
+        $state = State::find($request->state);
+        $users->state = $state ? $state->state_name : null;
+
         $users->city = $request->city;
         $users->pincode = $request->pincode;
         $users->status = $request->status;
         $users->wedding_date = $request->wedding_date;
         $users->hobby = json_encode($request->hobbies);
 
-        $imagePath = null;
         if ($request->hasFile('photo')) {
             $photoPath = $request->file('photo')->store('photos', 'public');
+            $users->photo = $photoPath;
         }
-        $users->photo = $photoPath;
 
         if ($users->save()) {
             $headId = $users->id;
-            AdminAction::create([
-                'admin_id' => auth()->id(),
-                'action' => 'Head Added',
-                'resource_type' => 'family',
-                'resource_id' => $users->id,
-                'details' => json_encode(['ip_address' => $request->ip()]),
-            ]);
+
+            session()->put('headId', $headId);
 
             return redirect()->back()
                 ->with('users', 'Family Head Added Successfully!')
                 ->with('family_head_added', true)
-                ->with('headId', $headId)
                 ->withErrors([]);
         }
 

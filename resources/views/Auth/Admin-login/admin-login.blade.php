@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -6,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login</title>
   <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   <style>
     :root {
       --primary-color: #007bff;
@@ -158,40 +159,77 @@
   </style>
 </head>
 
-
-
 <body>
   <div class="login-card">
     <h2>Admin Login</h2>
-    @error('user')
-      <p class="error-message">{{ $message }}</p>
-    @enderror
-    <form action="/admin-login" method="post">
-      @csrf
-      <div class="form-group">
-        <label for="email">Admin Email</label>
-        <input type="email" id="email" name="email" placeholder="Enter Admin Email" />
-        @error('email')
-          <p class="error-message-style">{{ $message }}</p>
-        @enderror
-      </div>
+    
+    <div class="error-container"></div>
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" placeholder="Enter Admin Password" />
-        @error('password')
-          <p class="error-message-style">{{ $message }}</p>
-        @enderror
-      </div>
+    <form action="/admin-login" method="POST" id="ajax-form">
+        @csrf
+        <div class="form-group">
+            <label for="email">Admin Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter Admin Email" />
+            <div class="email-error error-message-style"></div>
+        </div>
 
-      <button type="submit" class="login-button">Login</button>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter Admin Password" />
+            <div class="password-error error-message-style"></div>
+        </div>
 
-      <p class="link-text">
-        <a href="/admin-forget-password">Forgot Your Password?</a>
-      </p>
-      <a href="/" class="btn back">Back</a>
+        <button type="submit" class="login-button">Login</button>
+
+        <p class="link-text">
+            <a href="/admin-forget-password">Forgot Your Password?</a>
+        </p>
+        <a href="/" class="btn back">Back</a>
     </form>
-  </div>
+</div>
+<script>
+$(document).ready(function () {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    });
+
+    $('#ajax-form').on('submit', function (e) {
+        e.preventDefault();
+
+ 
+        $('.error-message-style').text('');
+        $('.error-container').text('');
+
+        $.ajax({
+            type: 'POST',
+            url: '/admin-login',
+            data: $(this).serialize(),
+            success: function (response) {
+             
+                window.location.href = '/dashboard';
+            },
+            error: function (xhr) {
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    if (errors.email) {
+                        $('.email-error').text(errors.email[0]);
+                    }
+                    if (errors.password) {
+                        $('.password-error').text(errors.password[0]);
+                    }
+                } else if (xhr.status === 401 || xhr.status === 400) {
+                    $('.error-container').html(`<p class="error-message">Invalid credentials.</p>`);
+                } else {
+                    $('.error-container').html(`<p class="error-message">Something went wrong.</p>`);
+                }
+            }
+        });
+    });
+});
+</script>
+
 </body>
 
 </html>

@@ -54,14 +54,17 @@ Route::middleware('CheckAdminAuth')->group(function () {
     // delete family member
     Route::delete('delete-family-member/{id}', [AdminController::class, 'deleteFamilyMember'])->name('delete-family-member');
 
-    Route::get('view-family-details-pdf/{id}', [AdminController::class, 'viewFamilyDetailsPdf'])->name('view-family-details-pdf');
-    Route::get('export-pdf/{id}', [AdminController::class, 'exportPDF'])->name('export-pdf');
-    Route::get('export-excel/{id}', [AdminController::class, 'exportExcel'])->name('export-excel');
-    Route::get('view-family-details-excel/{id}', [AdminController::class, 'viewFamilyDetailsExcel'])->name('view-family-details-excel');
+    // family details data download
+    Route::get('/view-family-details-pdf', [AdminController::class, 'exportPDF'])->name('view-family-details-pdf');
+    Route::get('/view-family-details-excel', [AdminController::class, 'exportExcel'])->name('view-family-details-excel');
+
+    // Search family details data download
+    Route::get('/view-family-details-pdf', [AdminController::class, 'exportPDF'])->name('view-family-details-pdf');
+    Route::get('/view-family-details-excel', [AdminController::class, 'exportExcel'])->name('view-family-details-excel');
 
     // View state Details
-    Route::view('view-state-details', '/Auth/Admin-login/view-state-details');
-    Route::get('view-state-details/{state_id}', [AdminController::class, 'viewStateDetails'])->name('view-state-details');
+    Route::get('/view-search-family-details-pdf', [AdminController::class, 'exportPDFSearchHead'])->name('view-family-details-pdf');
+    Route::get('/view-search-family-details-excel', [AdminController::class, 'exportExcelSearchHead'])->name('view-family-details-excel');
 
     // delete state details
     Route::delete('delete-state-details/{state_id}', [AdminController::class, 'deleteStateDetails'])->name('delete-state-details');
@@ -116,15 +119,9 @@ Route::post('admin-login', [AdminController::class, 'login']);
 // Route::get('member-list', [AdminController::class, 'memberList']);
 
 // User Registration
-Route::view('user-registration', 'user-registration');
-Route::post('user-registration', [UserController::class, 'userRegistration']);
 Route::get('user-registration', [UserController::class, 'addStates']);
+Route::post('user-registration', [UserController::class, 'userRegistration']);
 Route::post('get-cities', [UserController::class, 'getCities'])->name('get.cities');
-
-Route::view('add-family-member', 'add-family-member');
-Route::get('add-family-member/{head_id}', [UserController::class, 'addFamilyMemberForm'])->name('add-member-form');
-Route::post('add-family-member', [UserController::class, 'addFamilyMember'])->name('add-member-submit');
-// Route::view('head-list', 'head-list');
 
 use App\Http\Controllers\PowerBIController;
 

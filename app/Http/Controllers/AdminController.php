@@ -26,119 +26,85 @@ class AdminController extends Controller
     public function userRegistrationAdmin(Request $request)
     {
         $cutDate = Carbon::now()->subYears(21);
-        $users = new UserRegistration;
 
-        $validation = $request->validate([
-            'name' => 'required|max:50',
-            'surname' => 'required|max:50',
-            'birthdate' => 'required|before_or_equal:'.$cutDate,
-            'mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
-            'address' => 'required',
-            'state' => 'required',
-            'city' => 'required',
-            'pincode' => 'required|digits:6',
-            'status' => 'required',
-            'hobbies.*' => 'required',
-            'photo' => 'required|image|mimes:jpg,png|max:2048',
-        ], [
-            'birthdate.before_or_equal' => 'Family head must be 21 years or older',
-            'hobbies.*.required' => 'At least 1 hobby required',
+        $validated = $request->validate([
+            'head.name' => 'required|max:50',
+            'head.surname' => 'required|max:50',
+            'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
+            'head.mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
+            'head.address' => 'required',
+            'head.state' => 'required',
+            'head.city' => 'required',
+            'head.pincode' => 'required|digits:6',
+            'head.status' => 'required|in:married,unmarried',
+            'head.hobbies.*' => 'required|string',
+            'head.photo' => 'required|image|mimes:jpg,png|max:2048',
+
+            'members.*.name' => 'required|max:50',
+            'members.*.birthdate' => 'required|date',
+            'members.*.status' => 'required|in:married,unmarried',
+            'members.*.wedding_date' => 'nullable|date',
+            'members.*.education' => 'nullable|string|max:100',
+            'members.*.photo' => 'nullable|image|mimes:jpg,png|max:2048',
         ]);
 
-        $users->name = $request->name;
-        $users->surname = $request->surname;
-        $users->birthdate = $request->birthdate;
-        $users->mobile_number = $request->mobile_number;
-        $users->address = $request->address;
-        $stateId = $request->state;
-        $state = State::find($stateId);
-        if ($state) {
-            $users->state = $state->state_name;
-        } else {
-            $users->state = null;
-        }
-        $users->city = $request->city;
-        $users->pincode = $request->pincode;
-        $users->status = $request->status;
-        $users->wedding_date = $request->wedding_date;
-        $users->hobby = json_encode($request->hobbies);
+        $headData = $request->input('head');
+        $head = new UserRegistration;
+        $head->name = $headData['name'];
+        $head->surname = $headData['surname'];
+        $head->birthdate = $headData['birthdate'];
+        $head->mobile_number = $headData['mobile_number'];
+        $head->address = $headData['address'];
 
-        $imagePath = null;
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('photos', 'public');
-        }
-        $users->photo = $photoPath;
+        $state = State::find($headData['state']);
+        $head->state = $state ? $state->state_name : null;
 
-        if ($users->save()) {
-            $headId = $users->id;
-            AdminAction::create([
-                'admin_id' => auth()->id(),
-                'action' => 'Head Added',
-                'resource_type' => 'family',
-                'resource_id' => $users->id,
-                'details' => json_encode(['ip_address' => $request->ip()]),
-            ]);
+        $head->city = $headData['city'];
+        $head->pincode = $headData['pincode'];
+        $head->status = $headData['status'];
+        $head->wedding_date = $headData['wedding_date'] ?? null;
+        $head->hobby = json_encode($headData['hobbies']);
 
-            return redirect()->back()
-                ->with('users', 'Family Head Added Successfully!')
-                ->with('family_head_added', true)
-                ->with('headId', $headId)
-                ->withErrors([]);
+        if ($request->hasFile('head.photo')) {
+            $head->photo = $request->file('head.photo')->store('photos', 'public');
         }
 
-        return redirect()->back()->with('users', 'Error: Family Head could not be added.');
-    }
+        $head->save();
 
-    public function addFamilyMemberFormAdmin($head_id)
-    {
-        return view('/Auth/Admin-login/add-family-member-admin', compact('head_id'));
-    }
+        if ($request->has('members')) {
+            foreach ($request->members as $index => $memberData) {
+                $member = new Member;
+                $member->head_id = $head->id;
+                $member->name = $memberData['name'];
+                $member->birthdate = $memberData['birthdate'];
+                $member->status = $memberData['status'];
+                $member->wedding_date = $memberData['wedding_date'] ?? null;
+                $member->education = $memberData['education'] ?? null;
 
-    public function addFamilyMemberAdmin(Request $request)
-    {
-        $member = new Member;
-        $head_id = $request->head_id;
+                if (isset($memberData['photo']) && $request->hasFile("members.$index.photo")) {
+                    $member->photo = $request->file("members.$index.photo")->store('photos', 'public');
+                }
 
-        $validation = $request->validate([
-            'name' => 'required|max:50',
-            'birthdate' => 'required',
-            'status' => 'required',
-            'education' => 'nullable',
-            'photo' => 'nullable|image|mimes:jpg,png|max:2048',
-        ], [
-            'birthdate.before_or_equal' => 'Family member must be 21 years or older',
+                $member->save();
+            }
+        }
+
+        AdminAction::create([
+            'admin_id' => auth()->id(),
+            'action' => 'Head Added with Members',
+            'resource_type' => 'family',
+            'resource_id' => $head->id,
+            'details' => json_encode(['ip_address' => $request->ip()]),
         ]);
-        $member->head_id = $head_id;
-        $member->name = $request->name;
-        $member->birthdate = $request->birthdate;
-        $member->status = $request->status;
-        $member->wedding_date = $request->wedding_date;
-        $member->education = $request->education;
 
-        $photoPath = null;
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('photos', 'public');
-        }
-        $member->photo = $photoPath;
-
-        if ($member->save()) {
-            AdminAction::create([
-                'admin_id' => auth()->id(),
-                'action' => 'Member Added',
-                'resource_type' => 'member',
-                'resource_id' => $member->id,
-                'details' => json_encode(['ip_address' => $request->ip()]),
-            ]);
-
-            return redirect()->route('view-family-details', ['id' => $head_id]);
-        }
-
-        return redirect()->back()->with('error', 'Error: Family member could not be added.');
+        return redirect()->back()
+            ->with('users', 'Family Head and Members Added Successfully!')
+            ->with('family_head_added', true)
+            ->with('headId', $head->id);
     }
 
     public function login(Request $request)
     {
-
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -147,10 +113,19 @@ class AdminController extends Controller
         $admin = Admin::where('email', $request->email)->first();
 
         if (! $admin || ! Hash::check($request->password, $admin->password)) {
-            return back()->withErrors(['email' => 'User does not exist or password is incorrect'])->withInput();
+            if ($request->ajax()) {
+
+                return response()->json(['message' => 'Invalid credentials.'], 401);
+            }
+
+            return back()->withErrors(['login' => 'Invalid credentials'])->withInput();
         }
 
         Session::put('admin', $admin);
+
+        if ($request->ajax()) {
+            return response()->json(['message' => 'Login successful'], 200);
+        }
 
         return redirect('dashboard');
     }
@@ -273,23 +248,40 @@ class AdminController extends Controller
         return view('Auth.Admin-login.family-list', ['heads' => $heads]);
     }
 
-    public function exportPDF($id)
+    public function exportPDF()
     {
 
-        $head = UserRegistration::with('members')->findOrFail($id);
-        $pdf = PDF::loadView('Auth.Admin-login.view-family-details-pdf', ['head' => $head]);
+        $families = UserRegistration::with('members')->get();
 
-        return $pdf->stream('Family Details.pdf');
+        $pdf = PDF::loadView('Auth.Admin-login.view-family-details-pdf', compact('families'));
 
-        return $pdf->download('Family Details.pdf');
+        return $pdf->download('All_Family_Details.pdf');
+
     }
 
-    public function exportExcel($id)
+    public function exportExcel()
     {
-        $head = UserRegistration::with('members')->findOrFail($id);
-        $excel = Excel::download(new FamilyDetailsExcel($head), 'family_details.xlsx');
+        $families = UserRegistration::with('members')->get();
 
-        return $excel;
+        return Excel::download(new FamilyDetailsExcel($families), 'family_details.xlsx');
+    }
+
+    public function exportPDFSearchHead()
+    {
+
+        $families = UserRegistration::with('members')->get();
+
+        $pdf = PDF::loadView('Auth.Admin-login.view-search-family-details-pdf', compact('families'));
+
+        return $pdf->download('All_Family_Details.pdf');
+
+    }
+
+    public function exportExcelSearchHead()
+    {
+        $families = UserRegistration::with('members')->get();
+
+        return Excel::download(new FamilyDetailsExcel($families), 'family_details.xlsx');
     }
 
     public function StateList()
