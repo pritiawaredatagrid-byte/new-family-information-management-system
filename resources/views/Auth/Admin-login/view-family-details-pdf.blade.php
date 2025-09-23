@@ -1,186 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Families</title>
+    <title>All Families Report</title>
     <style>
-    body {
-        font-family: sans-serif;
-        background-color: #f3f4f6;
-        margin: 0;
-        padding: 20px;
-    }
-    h2 {
-        font-weight: bold;
-        color: #4b5563;
-        margin-bottom: 1.5rem;
-        margin-top: 2rem;
-    }
-    .container {
-        width: 100%;
-        margin: auto;
-    }
-    .table-container {
-        background-color: #ffffff;
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
-        overflow: hidden;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        color: #374151;
-    }
-    /* Adjusted padding and font size for better fit */
-    th, td {
-        padding: 4px; /* Reduced padding */
-        border: 1px solid #d1d5db;
-        text-align: center;
-        vertical-align: top;
-        font-size: 10px; /* Reduced font size */
-    }
-    thead {
-        background-color: #f3f4f6;
-        color: #4b5563;
-        text-transform: uppercase;
-        font-size: 10px; /* Reduced font size */
-        letter-spacing: 0.05em;
-    }
-    img.photo-thumbnail {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 1px solid #d1d5db;
-        margin: auto;
-        display: block;
-    }
-    .no-photo {
-        color: #9ca3af;
-        font-size: 8px; /* Reduced font size */
-    }
-    .hobby-tag {
-        background-color: #e0f2fe;
-        color: #1e40af;
-        font-size: 8px; /* Reduced font size */
-        padding: 2px 5px; /* Reduced padding */
-        border-radius: 8px;
-        display: inline-block;
-        margin: 2px;
-    }
-</style>
-<h2>Family Head</h2>
-<div class="table-container">
-    <table>
-        <thead>
-            <tr>
-                <th>Sr. No</th>
-                <th>Photo</th>
-                <th>Name</th>
-                <th>Birth Date</th>
-                <th>Mobile</th>
-                <th>Address</th>
-                <th>State</th>
-                <th>City</th>
-                <th>Pincode</th>
-                <th>Marital Status</th>
-                <th>Wedding Date</th>
-                <th>Hobbies</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td>
-                    @php
-                        $photoPath = storage_path('app/public/' . $head->photo);
-                        $photoSrc = null;
-                        if ($head->photo && file_exists($photoPath)) {
-                            $photoData = file_get_contents($photoPath);
-                            $photoSrc = 'data:image/' . pathinfo($photoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode($photoData);
-                        }
-                    @endphp
-                    @if ($photoSrc)
-                        <img src="{{ $photoSrc }}" class="photo-thumbnail" />
-                    @else
-                        <span class="no-photo">No photo</span>
-                    @endif
-                </td>
-                <td>{{ $head->name }} {{ $head->surname }}</td>
-                 <td style="white-space: nowrap;">{{ $head->birthdate ?? '-' }}</td>
-                <td>{{ $head->mobile_number ?? '-' }}</td>
-                <td style="word-wrap: break-word; max-width: 150px;">{{ $head->address ?? '-' }}</td>
-                <td>{{ $head->state ?? '-' }}</td>
-                <td>{{ $head->city ?? '-' }}</td>
-                <td>{{ $head->pincode ?? '-' }}</td>
-                <td>{{ $head->status ?? '-' }}</td>
-                <td>{{ $head->wedding_date ?? '-' }}</td>
-                <td>
-                    @php
-                        $string = $head->hobby;
-                        $hobbies = [];
-                        preg_match_all('/"(.*?)"/', $string, $matches);
-                        if (!empty($matches[1]))
-                            $hobbies = $matches[1];
-                    @endphp
-                    @if (!empty($hobbies))
-                        @foreach ($hobbies as $hobby)
-                            <span class="hobby-tag">{{ $hobby }}</span>
-                        @endforeach
-                    @else
-                        <span class="no-photo">-</span>
-                    @endif
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-        <h2>Family Members</h2>
-        <div class="table-container">
-            <table>
-                <thead>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            color: #333;
+        }
+        .family-section {
+            margin-bottom: 40px;
+        }
+        .family-section:not(:first-child) {
+            page-break-before: always;
+        }
+        h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #222;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 6px;
+            font-size: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f5f5f5;
+        }
+        .photo-thumbnail {
+            width: 40px;
+            height: 40px;
+            border-radius:50%;
+            object-fit:cover;
+        }
+        .no-photo {
+            font-size: 10px;
+            color: #999;
+        }
+        .hobby-tag {
+            display: inline-block;
+            background-color: #e0f2fe;
+            color: #1e40af;
+            border-radius: 4px;
+            padding: 2px 5px;
+            font-size: 10px;
+            margin: 1px;
+        }
+    </style>
+</head>
+<body>
+
+@foreach ($families as $familyIndex => $head)
+    <div class="family-section">
+        <h2>Family Head {{ $familyIndex + 1 }}: {{ $head->name }} {{ $head->surname }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>Birth Date</th>
+                    <th>Mobile</th>
+                    <th>Address</th>
+                    <th>State</th>
+                    <th>City</th>
+                    <th>Pincode</th>
+                    <th>Marital Status</th>
+                    <th>Wedding Date</th>
+                    <th>Hobbies</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @php
+                            $photoPath = storage_path('app/public/' . $head->photo);
+                            $photoSrc = null;
+                            if ($head->photo && file_exists($photoPath)) {
+                                $photoData = file_get_contents($photoPath);
+                                $photoSrc = 'data:image/' . pathinfo($photoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode($photoData);
+                            }
+                        @endphp
+                        @if ($photoSrc)
+                            <img src="{{ $photoSrc }}" class="photo-thumbnail" />
+                        @else
+                            <span class="no-photo">No photo</span>
+                        @endif
+                    </td>
+                    <td>{{ $head->birthdate ?? '-' }}</td>
+                    <td>{{ $head->mobile_number ?? '-' }}</td>
+                    <td>{{ $head->address ?? '-' }}</td>
+                    <td>{{ $head->state ?? '-' }}</td>
+                    <td>{{ $head->city ?? '-' }}</td>
+                    <td>{{ $head->pincode ?? '-' }}</td>
+                    <td>{{ ucfirst($head->status) ?? '-' }}</td>
+                    <td>{{ $head->status == 'married' ? ($head->wedding_date ?? '-') : '-' }}</td>
+                    <td>
+                        @php
+                            $hobbies = [];
+                            preg_match_all('/"(.*?)"/', $head->hobby, $matches);
+                            if (!empty($matches[1])) {
+                                $hobbies = $matches[1];
+                            }
+                        @endphp
+                        @if (!empty($hobbies))
+                            @foreach ($hobbies as $hobby)
+                                <span class="hobby-tag">{{ $hobby }}</span>
+                            @endforeach
+                        @else
+                            <span class="no-photo">-</span>
+                        @endif
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Members</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr. No</th>
+                    <th>Photo</th>
+                    <th>Name</th>
+                    <th>Birth Date</th>
+                    <th>Status</th>
+                    <th>Wedding Date</th>
+                    <th>Education</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($head->members as $memberIndex => $member)
                     <tr>
-                        <th>Sr. No</th>
-                        <th>Photo</th>
-                        <th>Name</th>
-                        <th>Birth Date</th>
-                        <th>Marital Status</th>
-                        <th>Wedding Date</th>
-                        <th>Education</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($head->members as $member)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $memberIndex + 1 }}</td>
                         <td>
                             @php
-                                $memberPhotoPath = storage_path('app/public/' . $member->photo);
-                                $memberPhotoSrc = null;
-                                if ($member->photo && file_exists($memberPhotoPath)) {
-                                    $memberPhotoData = file_get_contents($memberPhotoPath);
-                                    $memberPhotoSrc = 'data:image/' . pathinfo($memberPhotoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode($memberPhotoData);
+                                $mPath = storage_path('app/public/' . $member->photo);
+                                $mSrc = null;
+                                if ($member->photo && file_exists($mPath)) {
+                                    $mData = file_get_contents($mPath);
+                                    $mSrc = 'data:image/' . pathinfo($mPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode($mData);
                                 }
                             @endphp
-                            @if ($memberPhotoSrc)
-                                <img src="{{ $memberPhotoSrc }}" class="photo-thumbnail" />
+                            @if ($mSrc)
+                                <img src="{{ $mSrc }}" class="photo-thumbnail" />
                             @else
                                 <span class="no-photo">No photo</span>
                             @endif
                         </td>
                         <td>{{ $member->name }}</td>
                         <td>{{ $member->birthdate ?? '-' }}</td>
-                        <td>{{ $member->status ?? '-' }}</td>
-                        <td>{{ $member->wedding_date ?? '-' }}</td>
+                        <td>{{ ucfirst($member->status) ?? '-' }}</td>
+                        <td>{{ $member->status == 'married' ? ($member->wedding_date ?? '-') : '-' }}</td>
                         <td>{{ $member->education ?? '-' }}</td>
                     </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <tr>
+                        <td colspan="7">No members</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
+@endforeach
+
 </body>
 </html>
