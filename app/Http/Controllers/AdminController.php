@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\FamilyDetailsExcel;
+use App\Exports\SearchFamilyDetailsExcel;
 use App\Mail\AdminForgotPassword;
 use App\Models\Admin;
 use App\Models\AdminAction;
@@ -243,7 +244,7 @@ class AdminController extends Controller
 
     public function familyList()
     {
-        $heads = UserRegistration::paginate(5);
+        $heads = UserRegistration::where('op_status', 1)->paginate(5);
 
         return view('Auth.Admin-login.family-list', ['heads' => $heads]);
     }
@@ -266,34 +267,45 @@ class AdminController extends Controller
         return Excel::download(new FamilyDetailsExcel($families), 'family_details.xlsx');
     }
 
-    public function exportPDFSearchHead()
+    public function exportPDFSearchHead(Request $request)
     {
+        $search = $request->query('search');
+        $families = UserRegistration::with('members')
+            ->where('name', 'like', "%$search%")
+            ->orWhere('mobile_number', 'like', "%$search%")
+            ->orWhere('state', 'like', "%$search%")
+            ->orWhere('city', 'like', "%$search%")
+            ->get();
 
-        $families = UserRegistration::with('members')->get();
+        $pdf = PDF::loadView('Auth.Admin-login.search-view-family-details-pdf', compact('families'));
 
-        $pdf = PDF::loadView('Auth.Admin-login.view-search-family-details-pdf', compact('families'));
-
-        return $pdf->download('All_Family_Details.pdf');
-
+        return $pdf->download('Filtered_Family_Details.pdf');
     }
 
-    public function exportExcelSearchHead()
+    public function exportExcelSearchHead(Request $request)
     {
-        $families = UserRegistration::with('members')->get();
+        $search = $request->query('search');
 
-        return Excel::download(new FamilyDetailsExcel($families), 'family_details.xlsx');
+        $families = UserRegistration::with('members')
+            ->where('name', 'like', "%$search%")
+            ->orWhere('mobile_number', 'like', "%$search%")
+            ->orWhere('state', 'like', "%$search%")
+            ->orWhere('city', 'like', "%$search%")
+            ->get();
+
+        return Excel::download(new SearchFamilyDetailsExcel($families), 'Filtered_Family_Details.xlsx');
     }
 
     public function StateList()
     {
-        $states = State::paginate(7);
+        $states = State::paginate(10);
 
         return view('Auth.Admin-login.state-list', ['states' => $states]);
     }
 
     public function CityList()
     {
-        $cities = City::with('state')->paginate(7);
+        $cities = City::with('state')->paginate(10);
 
         return view('Auth.Admin-login.city-list', ['cities' => $cities]);
     }
@@ -536,7 +548,7 @@ class AdminController extends Controller
     public function viewFamilyDetails($id, Request $request)
     {
         $head = UserRegistration::findOrFail($id);
-        $members = $head->members()->paginate(3);
+        $members = $head->members()->paginate(10);
 
         return view('Auth.Admin-login.view-family-details', [
             'head' => $head,
@@ -585,7 +597,7 @@ class AdminController extends Controller
     public function viewStateDetails($state_id, Request $request)
     {
         $state = State::findOrFail($state_id);
-        $cities = $state->cities()->paginate(3);
+        $cities = $state->cities()->paginate(10);
 
         return view('Auth.Admin-login.view-state-details', [
             'state' => $state,
@@ -650,6 +662,8 @@ class AdminController extends Controller
     public function deleteStateDetails($state_id, Request $request)
     {
         $state = State::findOrFail($state_id);
+        $state->update(['op_status' => 9]);
+        $state->delete();
         AdminAction::create([
             'admin_id' => auth()->id(),
             'action' => 'State deleted',
@@ -657,9 +671,6 @@ class AdminController extends Controller
             'resource_id' => $state->state_id,
             'details' => json_encode(['ip_address' => $request->ip()]),
         ]);
-
-        $state->update(['op_status' => 9]);
-        $state->delete();
 
         return redirect('/state-list')
             ->with('success', $state->state_name.' successfully deleted.');
@@ -708,7 +719,7 @@ class AdminController extends Controller
 
     public function index()
     {
-        $logs = AdminAction::with('admin')->latest()->paginate(20);
+        $logs = AdminAction::with('admin')->latest()->paginate(10);
 
         return $logs;
     }

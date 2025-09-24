@@ -59,12 +59,12 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::get('/view-family-details-excel', [AdminController::class, 'exportExcel'])->name('view-family-details-excel');
 
     // Search family details data download
-    Route::get('/view-family-details-pdf', [AdminController::class, 'exportPDF'])->name('view-family-details-pdf');
-    Route::get('/view-family-details-excel', [AdminController::class, 'exportExcel'])->name('view-family-details-excel');
+    Route::get('/search-view-family-details-pdf', [AdminController::class, 'exportPDFSearchHead'])->name('search-view-family-details-pdf');
+    Route::get('/search-view-family-details-excel', [AdminController::class, 'exportExcelSearchHead'])->name('search-view-family-details-excel');
 
     // View state Details
-    Route::get('/view-search-family-details-pdf', [AdminController::class, 'exportPDFSearchHead'])->name('view-family-details-pdf');
-    Route::get('/view-search-family-details-excel', [AdminController::class, 'exportExcelSearchHead'])->name('view-family-details-excel');
+    Route::view('view-state-details', '/Auth/Admin-login/view-state-details');
+    Route::get('view-state-details/{state_id}', [AdminController::class, 'viewStateDetails'])->name('view-state-details');
 
     // delete state details
     Route::delete('delete-state-details/{state_id}', [AdminController::class, 'deleteStateDetails'])->name('delete-state-details');

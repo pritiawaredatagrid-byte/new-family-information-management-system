@@ -372,12 +372,12 @@
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-bold text-gray-600">Family Heads</h1>
                  <div class="flex justify-between items-center">
-                <a href="{{ route('view-search-family-details-pdf') }}"
+                <a href="{{ route('search-view-family-details-pdf', ['search' => request('search')]) }}"
                     class="mr-5 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg shadow hover:bg-blue-700 transition">
                     Download PDF
                 </a>
                 <a class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg shadow hover:bg-blue-700 transition"
-                    href="{{ route('view-search-family-details-excel') }}">
+                    href="{{ route('search-view-family-details-excel', ['search' => request('search')]) }}">
                     Export to Excel
                 </a>
             </div>

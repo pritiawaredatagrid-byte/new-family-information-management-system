@@ -9,63 +9,93 @@ use App\Models\State;
 use App\Models\UserRegistration;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
     public function userRegistration(Request $request)
     {
         $cutDate = Carbon::now()->subYears(21);
-        $users = new UserRegistration;
 
-        $validation = $request->validate([
-            'name' => 'required|max:50',
-            'surname' => 'required|max:50',
-            'birthdate' => 'required|date|before:today|before_or_equal:'.$cutDate,
-            'mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
-            'address' => 'required',
-            'state' => 'required',
-            'city' => 'required',
-            'pincode' => 'required|digits:6',
-            'status' => 'required',
-            'hobbies.*' => 'required',
-            'photo' => 'required|image|mimes:jpg,png|max:2048',
-        ], [
-            'birthdate.before_or_equal' => 'Family head must be 21 years or older',
-            'hobbies.*.required' => 'At least 1 hobby required',
+        $rules = [
+            'head.name' => 'required|max:50',
+            'head.surname' => 'required|max:50',
+            'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
+            'head.mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
+            'head.address' => 'required',
+            'head.state' => 'required',
+            'head.city' => 'required',
+            'head.pincode' => 'required|digits:6',
+            'head.status' => 'required|in:married,unmarried',
+            'hobbies.*' => 'required|string',
+            'head.photo' => 'required|image|mimes:jpg,png|max:2048',
+            'members.*.name' => 'required|max:50',
+            'members.*.birthdate' => 'required|date',
+            'members.*.status' => 'required|in:married,unmarried',
+            'members.*.wedding_date' => 'nullable|date',
+            'members.*.education' => 'nullable|string|max:100',
+            'members.*.photo' => 'nullable|image|mimes:jpg,png|max:2048',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $headData = $request->input('head');
+
+        $head = new UserRegistration;
+        $head->name = $headData['name'];
+        $head->surname = $headData['surname'];
+        $head->birthdate = $headData['birthdate'];
+        $head->mobile_number = $headData['mobile_number'];
+        $head->address = $headData['address'];
+
+        $state = State::find($headData['state']);
+        $head->state = $state ? $state->state_name : null;
+
+        $head->city = $headData['city'];
+        $head->pincode = $headData['pincode'];
+        $head->status = $headData['status'];
+        $head->wedding_date = $headData['wedding_date'] ?? null;
+
+        $hobbies = $request->input('hobbies');
+        if ($hobbies) {
+            $head->hobby = json_encode($hobbies);
+        }
+
+        if ($request->hasFile('head.photo')) {
+            $head->photo = $request->file('head.photo')->store('photos', 'public');
+        }
+
+        $head->save();
+
+        if ($request->has('members')) {
+            foreach ($request->members as $index => $memberData) {
+                $member = new Member;
+                $member->head_id = $head->id;
+                $member->name = $memberData['name'];
+                $member->birthdate = $memberData['birthdate'];
+                $member->status = $memberData['status'];
+                $member->wedding_date = $memberData['wedding_date'] ?? null;
+                $member->education = $memberData['education'] ?? null;
+                if ($request->hasFile("members.$index.photo")) {
+                    $member->photo = $request->file("members.$index.photo")->store('photos', 'public');
+                }
+                $member->save();
+            }
+        }
+
+        AdminAction::create([
+            'admin_id' => auth()->id(),
+            'action' => 'Head Added with Members',
+            'resource_type' => 'family',
+            'resource_id' => $head->id,
+            'details' => json_encode(['ip_address' => $request->ip()]),
         ]);
 
-        $users->name = $request->name;
-        $users->surname = $request->surname;
-        $users->birthdate = $request->birthdate;
-        $users->mobile_number = $request->mobile_number;
-        $users->address = $request->address;
-
-        $state = State::find($request->state);
-        $users->state = $state ? $state->state_name : null;
-
-        $users->city = $request->city;
-        $users->pincode = $request->pincode;
-        $users->status = $request->status;
-        $users->wedding_date = $request->wedding_date;
-        $users->hobby = json_encode($request->hobbies);
-
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('photos', 'public');
-            $users->photo = $photoPath;
-        }
-
-        if ($users->save()) {
-            $headId = $users->id;
-
-            session()->put('headId', $headId);
-
-            return redirect()->back()
-                ->with('users', 'Family Head Added Successfully!')
-                ->with('family_head_added', true)
-                ->withErrors([]);
-        }
-
-        return redirect()->back()->with('users', 'Error: Family Head could not be added.');
+        return response()->json(['message' => 'Family Head and Members Added Successfully!', 'headId' => $head->id]);
     }
 
     public function addFamilyMemberForm($head_id)
