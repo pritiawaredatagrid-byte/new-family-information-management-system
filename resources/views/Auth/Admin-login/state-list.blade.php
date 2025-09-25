@@ -351,7 +351,7 @@
                             <tr>
                                 <th class="px-1 py-3 text-center">Sr.No</th>
                                 <th class="px-1 py-3 text-left">State Name</th>
-                                <th class="px-1 py-3 text-left">Action</th>
+                                <th class="px-1 py-3 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
