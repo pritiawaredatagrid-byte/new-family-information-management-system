@@ -738,6 +738,11 @@
                             <span id="members_${index}_education-error" class="jquery-error"></span>
                         </div>
                         <div class="form-group">
+                            <label>Relation</label>
+                            <input type="text" name="members[${index}][relation]">
+                            <span id="members_${index}_relation-error" class="jquery-error"></span>
+                        </div>
+                        <div class="form-group">
                             <label for="member-photo-${index}">Profile Photo <span style="color:red">(optional)</span></label>
                             <input type="file" name="members[${index}][photo]" id="member-photo-${index}">
                             <span id="members_${index}_photo-error" class="jquery-error"></span>

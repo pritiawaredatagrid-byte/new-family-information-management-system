@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,74 +8,279 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Registration in admin</title>
     <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
         integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
-    <style>
-        :root {
-            --primary-color: #2196F3;
-            --secondary-color: #f44336;
-            --tertiary-color: #ffc107;
-            --text-color: #424242;
-            --border-color: #bdbdbd;
-            --bg-color: #F5F5F5;
-            --card-bg: #FFFFFF;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
+  <style>
+    :root {
+        --primary-color: #2196F3;
+        --secondary-color: #f44336;
+        --tertiary-color: #ffc107;
+        --text-color: #424242;
+        --border-color: #bdbdbd;
+        --bg-color: #F5F5F5;
+        --card-bg: #FFFFFF;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
+    body {
+        font-family: sans-serif;
+        background-color: var(--bg-color);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 3rem 1rem;
+    }
+
+    .card {
+        background-color: var(--card-bg);
+        padding: 2.5rem 3rem;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        width: 100%;
+        max-width: 900px;
+    }
+
+    h2 {
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        color: var(--text-color);
+    }
+      h3 {
+       margin-top: 2rem;
+        margin-bottom: 2rem;
+        color: var(--text-color);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem 2rem;
+        align-items: flex-start;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    label {
+        font-weight: normal;
+        color: #616161;
+        margin-bottom: 0.5rem;
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .radio-options {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .radio-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .status-error-container label.error {
+        color: red;
+        font-size: 14px;
+    }
+
+    .hobbies-section {
+        position: relative;
+        padding-bottom: 4rem;
+    }
+
+    #hobbies-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .hobby-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .hobby-input {
+        flex-grow: 1;
+    }
+
+    .btn-remove-hobby {
+        background-color: var(--tertiary-color);
+        color: #333;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    .btn-remove-hobby:hover {
+        background-color: #ffb300;
+    }
+
+    .hobby-controls {
+        display: flex;
+        gap: 1rem;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        justify-content: flex-end;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 5px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 1rem;
+           margin-top:2rem;
+    }
+
+    .btn-add {
+     
+        background-color: var(--primary-color);
+        color: #fff;
+    }
+
+    .btn-add:hover {
+        background-color: #1976D2;
+    }
+
+    .btn-remove-all {
+        background-color: var(--secondary-color);
+        color: #fff;
+    }
+
+    .btn-remove-all:hover {
+        background-color: #d32f2f;
+    }
+
+    .btn-submit {
+        background-color: var(--primary-color);
+        color: #fff;
+        width: 100%;
+    }
+
+    .btn-submit:hover {
+        background-color: #1976D2;
+    }
+
+    .error-message {
+        color: var(--secondary-color);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .member-form {
+        background-color: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e0e0e0;
+    }
+
+    .member-form h4 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: var(--text-color);
+    }
+
+    .btn-remove-member {
+        background-color: var(--secondary-color);
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-remove-member:hover {
+        background-color: #d32f2f;
+    }
+
+
+</style>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration Form</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <style>
         body {
-            font-family: sans-serif;
-            background-color: var(--bg-color);
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             min-height: 100vh;
-            padding: 3rem 1rem;
+            margin: 0;
+            padding: 20px;
         }
 
         .card {
-            background-color: var(--card-bg);
-            padding: 2.5rem 3rem;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 900px;
         }
 
-        h2 {
-            font-size: 2rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            color: var(--text-color);
-        }
-
-        .alert {
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .alert.success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .error-message {
-            color: var(--secondary-color);
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
+        h2, h3, h4 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem 2.5rem;
-            align-items: flex-start;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
         .form-group {
@@ -86,79 +293,99 @@
         }
 
         label {
-            font-weight: 600;
-            color: #616161;
-            margin-bottom: 0.5rem;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
         }
 
-        input,
-        select,
-        textarea {
+        input[type="text"], input[type="tel"], input[type="date"], input[type="file"], textarea, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
             box-sizing: border-box;
-            font-size: 1rem;
-            transition: border-color 0.2s;
+            transition: border-color 0.3s;
         }
 
-        input:focus,
-        select:focus,
-        textarea:focus {
+        input[type="text"]:focus, input[type="tel"]:focus, input[type="date"]:focus, textarea:focus, select:focus {
+            border-color: #007bff;
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
         }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        label {
-            font-weight: normal;
-            color: #616161;
-            margin-bottom: 0.5rem;
-        }
-
 
         .radio-options {
             display: flex;
-            gap: 2rem;
+            gap: 20px;
+            align-items: center;
         }
 
-        .radio-group {
+        .radio-options label {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 5px;
+            font-weight: normal;
         }
 
-
-        .radio-group input[type="radio"]+label {
-            margin-left: 0.3rem;
+        .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
         }
 
-        .status-error-container label.error {
-            color: red;
-            font-size: 14px;
+        .jquery-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
         }
 
-        .hobbies-section {
-            position: relative;
-            padding-bottom: 4rem;
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            font-weight: bold;
         }
 
-        #hobbies-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+        .btn-add {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .btn-add:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
         }
 
+        .btn-submit {
+            background-color: #007bff;
+            color: #fff;
+            width: 100%;
+            font-size: 16px;
+        }
+        .btn-submit:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-remove-member {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .btn-remove-member:hover {
+            background-color: #c82333;
+        }
+
+        .hobby-row, .member-form {
+            border: 1px dashed #ccc;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+        
         .hobby-row {
             display: flex;
+            gap: 10px;
             align-items: center;
-            gap: 0.5rem;
         }
 
         .hobby-input {
@@ -166,449 +393,396 @@
         }
 
         .btn-remove-hobby {
-            background-color: var(--tertiary-color);
-            color: #333;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-        }
-
-        .btn-remove-hobby:hover {
-            background-color: #ffb300;
-        }
-
-        .hobby-controls {
-            display: flex;
-            gap: 1rem;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            justify-content: flex-end;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 5px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.2s;
-        }
-
-        .btn-add {
-            background-color: var(--primary-color);
+            background-color: #dc3545;
             color: #fff;
-        }
-
-        .btn-add:hover {
-            background-color: #1976D2;
         }
 
         .btn-remove-all {
-            background-color: var(--secondary-color);
+            background-color: #f0ad4e;
             color: #fff;
         }
 
-        .btn-remove-all:hover {
-            background-color: #d32f2f;
-        }
-
-        .btn-submit {
-            background-color: var(--primary-color);
-            color: #fff;
-            flex-grow: 1;
-        }
-
-        .btn-submit:hover {
-            background-color: #1976D2;
-        }
-
-        .btn-secondary {
-            background-color: #616161;
-            color: #fff;
-            flex-grow: 1;
-        }
-
-        .btn-secondary:hover {
-            background-color: #424242;
-        }
-
-        .button-group {
-            margin-top: 2.5rem;
+        .hobby-controls {
+            margin-top: 10px;
             display: flex;
-            gap: 1rem;
+            gap: 10px;
         }
-
+        
         .hidden {
             display: none;
         }
 
-        .back-btn {
-            text-decoration: none;
-            color: #616161;
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 2rem;
-            display: inline-block;
-            transition: color 0.2s;
+        hr {
+            border: 0;
+            height: 1px;
+            background-color: #ccc;
+            margin: 20px 0;
         }
-
-        .back-btn:hover {
-            color: #000;
-        }
-
-        .error-message {
-            color: var(--secondary-color);
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-
-        .jquery-error {
-            color: var(--secondary-color);
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-            display: block;
-        }
-            .btn.back {
-      display: inline-block;
-      background-color: #616161;
-      color: #fff;
-      padding: 0.75rem 1.5rem;
-      border-radius: 5px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1rem;
-      margin-top: 1rem;
-      width: 100%;
-      text-align: center;
-      transition: background-color 0.2s;
-    }
-
-    .btn.back:hover {
-      background-color: #424242;
-    }
     </style>
 </head>
-
 <body class="registration-body">
-
     <div class="card">
-        <!-- <a href="/home-page" class="back-btn" aria-label="Go back to the previous page">&#8592; Back</a> -->
-        <div style="display:flex justify-content:space-between">
-            @if(Session('users'))
-                <div class="alert success" role="alert">
-                    <span class="message">{{ Session('users') }}</span>
-                </div>
-            @endif
-            @if(Session::has('family_head_added'))
-                <button type="button" class="btn btn-secondary">
-                    <a href="/add-family-member-admin/{{ Session::get('headId') }}" style="color:white; text-decoration:none;">Add
-                        Family Member</a>
-                </button>
-            @endif
+        <h2>Add New Family</h2>
+        <div id="loading-spinner" style="display: none; text-align: center; color: #007bff;">
+            <p>Submitting form...</p>
         </div>
-        <h2>Add Family Head</h2>
-        @error('user')
-            <p class="error-message">{{ $message }}</p>
-        @enderror
-        <form action="/user-registration-admin" method="post" class="form" enctype="multipart/form-data">
+        <div id="success-message" style="display: none; text-align: center; color: #28a745;">
+            <p>Family Head and Members Added Successfully!</p>
+        </div>
+
+        <form action="/user-registration" method="POST" enctype="multipart/form-data" id="registrationForm">
             @csrf
+
+            <h3>Family Head Details</h3>
 
             <div class="form-grid">
                 <div class="form-group">
                     <label for="name">Family Head Name</label>
-                    <input type="text" name="name" id="name" placeholder="Family Head Name">
-                    @error('name')
-                        <p class="error-message">{{ $message }}</p>
-                    @enderror
+                    <input type="text" name="head[name]" id="name" placeholder="Family Head Name">
+                    <span id="head_name-error" class="jquery-error"></span>
                 </div>
+
                 <div class="form-group">
                     <label for="surname">Surname</label>
-                    <input type="text" name="surname" id="surname" placeholder="Family Head Surname">
-                    @error('surname')
-                        <p class="error-message">{{ $message }}</p>
-                    @enderror
+                    <input type="text" name="head[surname]" id="surname" placeholder="Family Head Surname">
+                    <span id="head_surname-error" class="jquery-error"></span>
                 </div>
+
                 <div class="form-group">
                     <label for="birthdate">Birth Date</label>
-                    <input type="date" name="birthdate" id="birthdate">
-                    @error('birthdate')
-                        <p class="error-message">{{ $message }}</p>
-                    @enderror
+                    <input type="date" name="head[birthdate]" id="birthdate">
+                    <span id="head_birthdate-error" class="jquery-error"></span>
                 </div>
+
                 <div class="form-group">
                     <label for="mobile_number">Mobile Number</label>
-                    <input type="tel" name="mobile_number" id="mobile_number" placeholder="Enter Mobile Number">
-                    @error('mobile_number')
-                        <p class="error-message">{{ $message }}</p>
-                    @enderror
+                    <input type="tel" name="head[mobile_number]" id="mobile_number" placeholder="Enter Mobile Number">
+                    <span id="head_mobile_number-error" class="jquery-error"></span>
                 </div>
+
                 <div class="form-group full-width">
                     <label for="address">Address</label>
-                    <textarea name="address" id="address" placeholder="Enter Address"></textarea>
-                    @error('address')
-                        <p class="error-message">{{ $message }}</p>
-                    @enderror
+                    <textarea name="head[address]" id="address" placeholder="Enter Address"></textarea>
+                    <span id="head_address-error" class="jquery-error"></span>
                 </div>
+
                 <div class="form-group">
                     <label for="state">State</label>
-                    <select name="state" id="state" class="state">
+                    <select name="head[state]" id="state" class="state">
                         <option value="">Select State</option>
                         @foreach($states as $data)
                             <option value="{{ $data->state_id }}">{{ $data->state_name }}</option>
                         @endforeach
                     </select>
-                    @error('state')
-                        <p class="error-message">{{ $message }}</p>
-                    @enderror
+                    <span id="head_state-error" class="jquery-error"></span>
                 </div>
+
                 <div class="form-group">
                     <label for="city">City</label>
-                    <select name="city" id="city" class="city">
+                    <select name="head[city]" id="city" class="city">
                         <option value="">Select City</option>
                     </select>
-                    @error('city')
-                        <p class="error-message">{{ $message }}</p>
-                    @enderror
+                    <span id="head_city-error" class="jquery-error"></span>
                 </div>
+
                 <div class="form-group">
                     <label for="pincode">Pincode</label>
-                    <input type="tel" name="pincode" id="pincode" placeholder="Enter Pincode" maxlength="6">
-                    @error('pincode')
-                        <p class="error-message">{{ $message }}</p>
-                    @enderror
+                    <input type="tel" name="head[pincode]" id="pincode" placeholder="Enter Pincode" maxlength="6">
+                    <span id="head_pincode-error" class="jquery-error"></span>
                 </div>
+
                 <div class="form-group">
                     <label>Marital Status</label>
-                    <div class="marital-status">
-                        <div class="radio-options">
-                            <div class="radio-group">
-                                <input type="radio" id="married" name="status" value="married">
-                                <label for="married">Married</label>
-                                <input type="radio" id="unmarried" name="status" value="unmarried">
-                                <label for="unmarried">Unmarried</label>
-                            </div>
-                        </div>
-
+                    <div class="radio-options">
+                        <label><input type="radio" name="head[status]" value="married" @if(old('head.status') == 'married') checked @endif> Married</label>
+                        <label><input type="radio" name="head[status]" value="unmarried" @if(old('head.status') == 'unmarried') checked @endif> Unmarried</label>
                     </div>
-                    <div class="status-error-container"></div>
+                    <span id="head_status-error" class="jquery-error"></span>
                 </div>
-                <div class="form-group full-width hidden" id="wedding-date-group">
+
+                <div class="form-group" id="wedding-date-group">
                     <label for="wedding_date">Wedding Date</label>
-                    <input type="date" name="wedding_date" id="wedding_date">
+                    <input type="date" name="head[wedding_date]" id="wedding_date">
+                    <span id="head_wedding_date-error" class="jquery-error"></span>
                 </div>
-                <div class="form-group hobbies-section full-width">
-                    <label for="">Hobbies</label>
-                    <div id="hobbies-container">
 
-                    </div>
-                    @error('hobbies.*')
-                        <p class="error-message">{{ $message }}</p>
-                    @enderror
+
+                <div class="form-group full-width hobbies-section">
+                    <label for="">Hobbies</label>
+                    <div id="hobbies-container"></div>
+                    <span id="hobbies-error" class="jquery-error"></span>
                     <div class="hobby-controls">
                         <button type="button" id="addHobbyBtn" class="btn btn-add">Add Hobby</button>
-                        <button type="button" id="removeAllHobbiesBtn" class="btn btn-remove-all">Remove All
-                            Hobbies</button>
+                        <button type="button" id="removeAllHobbiesBtn" class="btn btn-remove-all">Remove All Hobbies</button>
                     </div>
                 </div>
+
                 <div class="form-group full-width">
                     <label for="photo">Profile Photo</label>
-                    <input type="file" name="photo" accept="image/*" id="photo">
-                    @error('photo')
-                        <p class="error-message">{{ $message }}</p>
-                    @enderror
+                    <input type="file" name="head[photo]" accept="image/*" id="photo">
+                    <span id="head_photo-error" class="jquery-error"></span>
                 </div>
             </div>
 
-            <div class="button-group">
-                <button type="submit" name="submit" class="btn btn-submit">Add Family Head</button>
+            <hr>
+
+            <div id="member-section">
+                
             </div>
-             <a href="/family-list" class="btn back">Back</a>
+
+            <button type="button" id="addMemberBtn" class="btn btn-add">
+                ➕ Add Family Member
+            </button>
+
+            <br><br>
+
+            <button type="submit" class="btn btn-submit">Submit All</button>
         </form>
     </div>
 
-
     <script>
-    $(document).ready(function () {
+        $(document).ready(function () {
+           
+            let isMemberValidationSetup = false;
+            $.validator.addMethod('isAdult', function (value, element, params) {
+                if (!value) return true;
+                const birthDate = new Date(value);
+                const cutOffDate = new Date(params);
+                return birthDate <= cutOffDate;
+            }, 'Family head must be 21 years or older.');
 
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
+          
+            $.validator.addMethod('filesize', function (value, element, param) {
+                return this.optional(element) || (element.files[0].size <= param);
+            }, 'File size must be less than {0} bytes.');
 
-    $.validator.addMethod('isAdult', function (value, element, params) {
-        if (!value) return true;
-        const birthDate = new Date(value);
-        const cutOffDate = new Date(params);
-        return birthDate <= cutOffDate;
-    }, 'Family head must be 21 years or older.');
-
-    $.validator.addMethod('uniqueMobile', function (value, element) {
-        let isUnique = false;
-        $.ajax({
-            type: "POST",
-            url: "/check-mobile-uniqueness",
-            data: { mobile_number: value },
-            dataType: "json",
-            async: false,
-            success: function (response) {
-                isUnique = response.isUnique;
-            }
-        });
-        return isUnique;
-    }, 'This mobile number is already registered.');
-
-    $.validator.addMethod('filesize', function (value, element, param) {
-        return this.optional(element) || (element.files[0].size <= param * 1024);
-    }, 'File size must be less than {0} KB.');
-
-
-    $('.form').validate({
-        errorElement: 'span',
-        errorClass: 'jquery-error',
-        rules: {
-            name: { required: true, maxlength: 50 },
-            surname: { required: true, maxlength: 50 },
-            birthdate: { required: true, date: true, isAdult: "2004-09-16" },
-            mobile_number: { required: true, numeric: true, digits: 10, uniqueMobile: true },
-            address: { required: true },
-            state: { required: true },
-            city: { required: true },
-            pincode: { required: true, digits: 6 },
-            status: { required: true },
-            'hobbies[]': { required: true },
-            photo: { required: true, extension: "jpg|png", filesize: 2048 }
-        },
-        messages: {
-            'hobbies[]': { required: "At least 1 hobby is required." }
-        },
-        errorPlacement: function (error, element) {
-            if (element.attr("name") === "status") {
-                $(".status-error-container").html(error);
-            } else if (element.attr("name").startsWith("hobbies")) {
-                $("#hobbies-container .error-message").remove();
-                error.addClass("error-message").appendTo("#hobbies-container");
-            } else {
-                error.insertAfter(element);
-            }
-        },
-    });
-
-
-    $('.form').on('submit', function (e) {
-        e.preventDefault();
-
-        $('.alert').remove();
-        $('.error-message').remove();
-
-        if ($(this).valid()) {
-            const formData = new FormData(this);
-
-            $.ajax({
-                url: $(this).attr('action'),
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    $('.card').prepend('<div class="alert success" role="alert"><span class="message">' + response.users + '</span></div>');
-
-                    if (response.family_head_added) {
-                        $('.card').find('.btn-secondary').remove();
-                        $('.card').prepend('<button type="button" class="btn btn-secondary"><a href="/add-family-member-admin/' + response.headId + '" style="color:white; text-decoration:none;">Add Family Member</a></button>');
-                    }
-
-                    $('.form')[0].reset();
-                    $('#wedding-date-group').addClass('hidden');
-                    $('#hobbies-container').empty();
-                    addHobbyRow();
+            
+            const form = $('#registrationForm');
+            form.validate({
+                errorElement: 'span',
+                errorClass: 'jquery-error',
+                ignore: ':hidden:not(.ignore-validation)',
+                rules: {
+                    'head[name]': { required: true, maxlength: 50 },
+                    'head[surname]': { required: true, maxlength: 50 },
+                    'head[birthdate]': { required: true, date: true, isAdult: "2004-09-16" },
+                    'head[mobile_number]': {
+                        required: true,
+                        numeric: true,
+                        digits: 10,
+                        remote: {
+                            url: '/check-mobile-uniqueness',
+                            type: 'POST',
+                            data: {
+                                mobile_number: function () {
+                                    return $('#mobile_number').val();
+                                },
+                                _token: function () {
+                                    return $('meta[name="csrf-token"]').attr('content');
+                                }
+                            }
+                        }
+                    },
+                    'head[address]': { required: true },
+                    'head[state]': { required: true },
+                    'head[city]': { required: true },
+                    'head[pincode]': { required: true, digits: 6 },
+                    'head[status]': { required: true },
+                    'hobbies[]': { required: true },
+                    'head[photo]': { required: true, extension: "jpg|png", filesize: 2048 * 1024 }
                 },
-                error: function (xhr) {
-                    const errors = xhr.responseJSON.errors;
-                    if (xhr.status === 422 && errors) {
-                        $.each(errors, function (field, messages) {
-                            let inputField = $('[name="' + field + '"]');
-                            if (!inputField.length && field.includes('.')) {
-                                inputField = $('[name="' + field.replace(/\.\d+/, '[]') + '"]');
-                            }
-                            if (inputField.length) {
-                                inputField.after('<span class="jquery-error">' + messages[0] + '</span>');
-                            } else {
-                                $('.button-group').before('<p class="error-message">' + messages[0] + '</p>');
-                            }
-                        });
-                    } else {
-                        $('.card').prepend('<div class="alert error" role="alert"><span class="message">An unexpected error occurred. Please try again.</span></div>');
-                    }
+                messages: {
+                    'head[mobile_number]': {
+                        remote: "This mobile number is already registered."
+                    },
+                },
+                errorPlacement: function (error, element) {
+                    const name = element.attr("name").replace(/\[|\]/g, '_');
+                    $(`#${name}-error`).html(error);
+                },
+                submitHandler: function (form) {
+                    submitFormAjax($(form));
                 }
             });
-        }
-    });
 
-    const weddingDateGroup = $('#wedding-date-group');
-    $('input[name="status"]').on('change', function () {
-        if ($(this).val() === 'married') {
-            weddingDateGroup.removeClass('hidden');
-        } else {
-            weddingDateGroup.addClass('hidden');
-            $('#wedding_date').rules('remove', 'required');
-        }
-    });
+            function submitFormAjax(form) {
+                $('#loading-spinner').show();
+                $('.jquery-error').html(''); 
+                
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: new FormData(form[0]),
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        $('#loading-spinner').hide();
+                        $('#success-message').show();
+                        form.trigger('reset'); 
+                        $('#member-section').empty(); 
+                        hobbiesContainer.empty();
+                        addHobbyRow();
+                    },
+                    error: function (xhr) {
+                        $('#loading-spinner').hide();
+                        if (xhr.status === 422) { 
+                            const errors = xhr.responseJSON.errors;
+                            $.each(errors, function (key, value) {
+                              
+                                const formattedKey = key.replace(/\./g, '_');
+                                $(`#${formattedKey}-error`).html(value[0]);
+                            });
+                        } else {
+                            alert('An unexpected error occurred. Please try again.');
+                        }
+                    }
+                });
+            }
 
-    $('.state').on('change', function () {
-        const idState = $(this).val();
-        $('.city').html('<option value="">Select City</option>');
-        if (idState) {
-            $.ajax({
-                url: "{{ route('get.cities') }}",
-                type: "POST",
-                data: {
-                    state_id: idState,
-                },
-                dataType: 'json',
-                success: function (cities) {
-                    $.each(cities, function (key, value) {
-                        $('.city').append('<option value="' + value.city_name + '">' + value.city_name + '</option>');
+           
+            function toggleWeddingDate() {
+                const selectedStatus = $('input[name="head[status]"]:checked').val();
+                if (selectedStatus === 'married') {
+                    $('#wedding-date-group').removeClass('hidden');
+                } else {
+                    $('#wedding-date-group').addClass('hidden');
+                }
+            }
+
+            $('input[name="head[status]"]').on('change', toggleWeddingDate);
+            toggleWeddingDate();
+            
+       
+            $('.state').on('change', function () {
+                const idState = $(this).val();
+                $('.city').html('<option value="">Select City</option>');
+                if (idState) {
+                    $.ajax({
+                        url: "{{ route('get.cities') }}",
+                        type: "POST",
+                        data: {
+                            state_id: idState,
+                            _token: '{{ csrf_token() }}'
+                        },
+                        dataType: 'json',
+                        success: function (cities) {
+                            $.each(cities, function (key, value) {
+                                $('.city').append('<option value="' + value.city_name + '">' + value.city_name + '</option>');
+                            });
+                        }
                     });
                 }
             });
-        }
-    });
 
-    const hobbiesContainer = $('#hobbies-container');
+            const hobbiesContainer = $('#hobbies-container');
 
-    function addHobbyRow() {
-        const newHobbyRow = `
-            <div class="hobby-row">
-                <input type="text" name="hobbies[]" placeholder="Enter hobby here" class="hobby-input">
-                <button type="button" class="btn btn-remove-hobby">Remove</button>
-            </div>
-        `;
-        hobbiesContainer.append(newHobbyRow);
-    }
+            function addHobbyRow() {
+                const newHobbyRow = `
+                <div class="hobby-row">
+                    <input type="text" name="hobbies[]" placeholder="Enter hobby here" class="hobby-input">
+                    <button type="button" class="btn btn-remove-hobby">Remove</button>
+                </div>
+                `;
+                hobbiesContainer.append(newHobbyRow);
+            }
 
-    $('#addHobbyBtn').on('click', addHobbyRow);
+            $('#addHobbyBtn').on('click', addHobbyRow);
 
-    hobbiesContainer.on('click', '.btn-remove-hobby', function () {
-        if (hobbiesContainer.find('.hobby-row').length > 1) {
-            $(this).closest('.hobby-row').remove();
-        }
-    });
+            hobbiesContainer.on('click', '.btn-remove-hobby', function () {
+                if (hobbiesContainer.find('.hobby-row').length > 1) {
+                    $(this).closest('.hobby-row').remove();
+                }
+            });
 
-    $('#removeAllHobbiesBtn').on('click', function () {
-        hobbiesContainer.empty();
-        addHobbyRow();
-    });
+            $('#removeAllHobbiesBtn').on('click', function () {
+                hobbiesContainer.empty();
+                addHobbyRow();
+            });
 
-    addHobbyRow();
-});
-</script>
+            addHobbyRow();
+
+            
+            let memberIndex = 0;
+
+            function getMemberForm(index) {
+                return `
+                <div class="member-form" data-index="${index}">
+                    <h4>Member ${index + 1}</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" name="members[${index}][name]" required>
+                            <span id="members_${index}_name-error" class="jquery-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Birthdate</label>
+                            <input type="date" name="members[${index}][birthdate]" required>
+                            <span id="members_${index}_birthdate-error" class="jquery-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <div class="radio-options">
+                                <label><input type="radio" name="members[${index}][status]" value="married" class="member-status"> Married</label>
+                                <label><input type="radio" name="members[${index}][status]" value="unmarried" class="member-status"> Unmarried</label>
+                            </div>
+                            <span id="members_${index}_status-error" class="jquery-error"></span>
+                        </div>
+                        <div class="form-group wedding-date-member hidden">
+                            <label>Wedding Date (optional)</label>
+                            <input type="date" name="members[${index}][wedding_date]">
+                            <span id="members_${index}_wedding_date-error" class="jquery-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Education (optional)</label>
+                            <input type="text" name="members[${index}][education]">
+                            <span id="members_${index}_education-error" class="jquery-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Relation</label>
+                            <input type="text" name="members[${index}][relation]">
+                            <span id="members_${index}_relation-error" class="jquery-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="member-photo-${index}">Profile Photo <span style="color:red">(optional)</span></label>
+                            <input type="file" name="members[${index}][photo]" id="member-photo-${index}">
+                            <span id="members_${index}_photo-error" class="jquery-error"></span>
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <button type="button" class="btn btn-remove-member" onclick="removeMemberForm(this)">Remove Member</button>
+                    </div>
+                    <hr>
+                </div>
+                `;
+            }
+
+            document.getElementById('addMemberBtn').addEventListener('click', function () {
+                const container = document.getElementById('member-section');
+                container.insertAdjacentHTML('beforeend', getMemberForm(memberIndex));
+                
+               
+                $('#registrationForm').validate().form();
+                
+                memberIndex++;
+            });
+
+            window.removeMemberForm = function(button) {
+                $(button).closest('.member-form').remove();
+            };
+
+       
+            $('#member-section').on('change', '.member-status', function() {
+                const status = $(this).val();
+                const weddingDateGroup = $(this).closest('.member-form').find('.wedding-date-member');
+                if (status === 'married') {
+                    weddingDateGroup.removeClass('hidden');
+                } else {
+                    weddingDateGroup.addClass('hidden');
+                }
+            });
+        });
+    </script>
 </body>
+
 
 </html>

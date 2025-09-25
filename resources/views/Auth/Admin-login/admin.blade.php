@@ -245,6 +245,13 @@
         </svg>
         <span class="sidebar-text">Family Management</span>
       </a>
+      <a href="/member-list" class="sidebar-link">
+        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM10 10a5 5 0 00-5 5v2a1 1 0 102 0v-2a3 3 0 013-3h4a3 3 0 013 3v2a1 1 0 102 0v-2a5 5 0 00-5-5H10z" />
+        </svg>
+        <span class="sidebar-text">Member Management</span>
+      </a>
       <a href="/state-list" class="sidebar-link">
         <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
           <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7z" />
@@ -253,6 +260,15 @@
             clip-rule="evenodd" />
         </svg>
         <span class="sidebar-text">State Management</span>
+      </a>
+       <a href="/city-list" class="sidebar-link">
+        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7z" />
+          <path fill-rule="evenodd"
+            d="M19 19a1 1 0 01-1 1H2a1 1 0 01-1-1V5a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1V5a1 1 0 011-1h4a1 1 0 011 1v14zm-1-1v-3H4v3h14zm-4-7h-4a1 1 0 000 2h4a1 1 0 000-2z"
+            clip-rule="evenodd" />
+        </svg>
+        <span class="sidebar-text">City Management</span>
       </a>
     </nav>
     <div class="mt-auto">

@@ -16,14 +16,15 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::view('family-list', '/Auth/Admin-login/family-list');
 
     Route::get('family-list', [AdminController::class, 'familyList']);
-
+    Route::get('member-list', [AdminController::class, 'memberList']);
     Route::get('state-list', [AdminController::class, 'stateList']);
     Route::get('city-list', [AdminController::class, 'cityList']);
 
     Route::get('search-head', [AdminController::class, 'searchHead'])->name('search-head');
+    Route::get('search-member', [AdminController::class, 'searchMember'])->name('search-member');
 
     Route::get('search-state', [AdminController::class, 'searchState'])->name('search-state');
-
+    Route::get('search-city', [AdminController::class, 'searchCity'])->name('search-city');
     Route::get('admin-logout', [AdminController::class, 'logout']);
 
     // Edit family head
@@ -35,6 +36,10 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::view('edit-family-member', '/Auth/Admin-login/edit-family-member');
     Route::get('edit-family-member/{head_id}/{id}', [AdminController::class, 'editFamilyMember']);
     Route::put('edit-family-member-data/{head_id}/{id}', [AdminController::class, 'editFamilyMemberData']);
+
+    // Edit member from member list
+    Route::get('edit-family-member/{id}', [AdminController::class, 'editFamilyMemberFromList']);
+    Route::put('edit-family-member-data/{id}', [AdminController::class, 'editFamilyMemberDataFromList']);
 
     Route::post('/check-mobile-uniqueness', function (Request $request) {
         $mobileNumber = $request->input('mobile_number');
@@ -80,6 +85,11 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::view('edit-city', '/Auth/Admin-login/edit-city');
     Route::get('edit-city/{state_id}/{city_id}', [AdminController::class, 'editCity']);
     Route::put('edit-city-data/{state_id}/{city_id}', [AdminController::class, 'editCityData']);
+
+    // edit city from list
+    Route::view('edit-city-from-list', '/Auth/Admin-login/edit-city-from-list');
+    Route::get('edit-city-from-list/{city_id}', [AdminController::class, 'editCityFromList']);
+    Route::put('edit-city-data-from-list/{city_id}', [AdminController::class, 'editCityDataFromList']);
 
     // new state add
     Route::view('add-state', 'add-state');

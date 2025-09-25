@@ -249,6 +249,13 @@ class AdminController extends Controller
         return view('Auth.Admin-login.family-list', ['heads' => $heads]);
     }
 
+    public function memberList()
+    {
+        $members = Member::where('op_status', 1)->paginate(5);
+
+        return view('Auth.Admin-login.member-list', ['members' => $members]);
+    }
+
     public function exportPDF()
     {
 
@@ -298,14 +305,14 @@ class AdminController extends Controller
 
     public function StateList()
     {
-        $states = State::paginate(10);
+        $states = State::where('op_status', 1)->paginate(10);
 
         return view('Auth.Admin-login.state-list', ['states' => $states]);
     }
 
     public function CityList()
     {
-        $cities = City::with('state')->paginate(10);
+        $cities = City::where('op_status', 1)->paginate(5);
 
         return view('Auth.Admin-login.city-list', ['cities' => $cities]);
     }
@@ -319,12 +326,27 @@ class AdminController extends Controller
         return view('Auth.Admin-login.search-head', ['searchData' => $searchData]);
     }
 
+    public function searchMember(Request $request)
+    {
+        $searchData = Member::where('name', 'like', '%'.$request->search.'%')->paginate(5);
+
+        return view('Auth.Admin-login.search-member', ['searchData' => $searchData]);
+    }
+
     public function searchState(Request $request)
     {
         $searchData = State::where('state_name', 'like', '%'.$request->search.'%')
             ->paginate(5);
 
         return view('Auth.Admin-login.search-state', ['searchData' => $searchData]);
+    }
+
+    public function searchCity(Request $request)
+    {
+        $searchData = City::where('city_name', 'like', '%'.$request->search.'%')
+            ->paginate(5);
+
+        return view('Auth.Admin-login.search-city', ['searchData' => $searchData]);
     }
 
     public function logout()
@@ -422,64 +444,130 @@ class AdminController extends Controller
 
     public function editFamilyHead($id)
     {
-        $heads = UserRegistration::findOrFail($id);
+        $familyHead = UserRegistration::with('members')->findOrFail($id);
         $states = State::select('state_id', 'state_name')->get();
 
-        return view('/Auth/Admin-login/edit-family-head', ['heads' => $heads, 'states' => $states]);
+        $hobbies = json_decode($familyHead->hobby ?? '[]', true);
+
+        return view('/Auth/Admin-login/edit-family-head', [
+            'familyHead' => $familyHead,
+            'states' => $states,
+            'hobbies' => $hobbies,
+        ]);
     }
 
     public function editFamilyHeadData(Request $request, $id)
     {
         $heads = UserRegistration::findOrFail($id);
-        $cutDate = Carbon::now()->subYears(21);
+        $cutDate = Carbon::now()->subYears(21)->format('Y-m-d');
 
-        $validation = $request->validate([
-            'name' => 'required|max:50',
-            'surname' => 'required|max:50',
-            'birthdate' => 'required|before_or_equal:'.$cutDate,
-            'mobile_number' => 'required|numeric|digits:10|unique:UserRegistration,mobile_number,'.$id,
-            'address' => 'required',
-            'state' => 'required',
-            'city' => 'required',
-            'pincode' => 'required|digits:6',
-            'status' => 'required',
-            'hobbies.*' => 'required',
-            'photo' => 'sometimes|image|mimes:jpg,png|max:2048',
+        $request->validate([
+            'head.name' => 'required|max:50',
+            'head.surname' => 'required|max:50',
+            'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
+            'head.mobile_number' => 'required|numeric|digits:10|unique:user_registrations,mobile_number,'.$id,
+            'head.address' => 'required',
+            'head.state' => 'required',
+            'head.city' => 'required',
+            'head.pincode' => 'required|digits:6',
+            'head.status' => 'required|in:married,unmarried',
+            'head.wedding_date' => 'nullable|date',
+
+            'hobbies' => 'nullable|array|min:1',
+            'hobbies.*' => 'required|string|max:50',
+
+            'head.photo' => 'nullable|image|mimes:jpg,png|max:2048',
+
+            'members' => 'nullable|array',
+            'members.*.id' => 'nullable|integer',
+            'members.*.name' => 'required|max:50',
+            'members.*.birthdate' => 'required|date',
+            'members.*.status' => 'required|in:married,unmarried',
+            'members.*.wedding_date' => 'nullable|date',
+            'members.*.education' => 'nullable|string|max:100',
+            'members.*.relation' => 'required|string|max:50',
+            'members.*.photo' => 'nullable|image|mimes:jpg,png|max:2048',
+
+            'members_to_delete' => 'nullable|array',
+            'members_to_delete.*' => 'integer',
         ], [
-            'birthdate.before_or_equal' => 'Family head must be 21 years or older',
-            'hobbies.*.required' => 'At least 1 hobby required',
+            'head.birthdate.before_or_equal' => 'Family head must be 21 years or older.',
+            'hobbies.min' => 'At least one hobby is required.',
         ]);
 
-        $heads->name = $request->name;
-        $heads->surname = $request->surname;
-        $heads->birthdate = $request->birthdate;
-        $heads->mobile_number = $request->mobile_number;
-        $heads->address = $request->address;
-        $stateId = $request->state;
-        $state = State::find($stateId);
-        if ($state) {
-            $heads->state = $state->state_name;
-        }
-        $heads->city = $request->city;
-        $heads->pincode = $request->pincode;
-        $heads->status = $request->status;
-        $heads->wedding_date = $request->wedding_date;
-        $heads->hobby = json_encode($request->hobbies);
+        $headData = $request->input('head');
 
-        $photoPath = $heads->photo;
-        $imagePath = null;
+        $heads->name = $headData['name'];
+        $heads->surname = $headData['surname'];
+        $heads->birthdate = $headData['birthdate'];
+        $heads->mobile_number = $headData['mobile_number'];
+        $heads->address = $headData['address'];
 
-        if ($request->hasFile('photo')) {
+        $state = State::select('state_name')->where('state_id', $headData['state'])->first();
+        $heads->state = $state ? $state->state_name : $headData['state'];
+
+        $heads->city = $headData['city'];
+        $heads->pincode = $headData['pincode'];
+        $heads->status = $headData['status'];
+        $heads->wedding_date = ($headData['status'] == 'married') ? $headData['wedding_date'] : null;
+
+        $heads->hobby = json_encode($request->input('hobbies', []));
+
+        if ($request->hasFile('head.photo')) {
+            $file = $request->file('head.photo');
 
             if ($heads->photo) {
                 Storage::disk('public')->delete($heads->photo);
             }
 
-            $path = $request->file('photo')->store('photos', 'public');
+            $path = $file->store('photos/heads', 'public');
             $heads->photo = $path;
         }
 
         if ($heads->save()) {
+
+            $membersToDelete = $request->input('members_to_delete', []);
+            if (! empty($membersToDelete)) {
+                $deletedMembers = FamilyMember::whereIn('id', $membersToDelete)->get();
+                foreach ($deletedMembers as $member) {
+                    if ($member->photo) {
+                        Storage::disk('public')->delete($member->photo);
+                    }
+                }
+                FamilyMember::whereIn('id', $membersToDelete)->delete();
+            }
+
+            $memberFiles = $request->file('members') ?? [];
+            if ($request->has('members')) {
+                foreach ($request->input('members') as $index => $memberData) {
+
+                    if (isset($memberData['id'])) {
+                        $member = FamilyMember::findOrFail($memberData['id']);
+                    } else {
+                        $member = new FamilyMember;
+                        $member->family_head_id = $heads->id;
+                    }
+
+                    $member->name = $memberData['name'];
+                    $member->birthdate = $memberData['birthdate'];
+                    $member->status = $memberData['status'];
+                    $member->wedding_date = ($memberData['status'] == 'married') ? ($memberData['wedding_date'] ?? null) : null;
+                    $member->education = $memberData['education'] ?? null;
+                    $member->relation = $memberData['relation'] ?? null;
+
+                    if (isset($memberFiles[$index]['photo'])) {
+                        $file = $memberFiles[$index]['photo'];
+                        if ($member->photo) {
+                            Storage::disk('public')->delete($member->photo);
+                        }
+                        $path = $file->store('photos/members', 'public');
+                        $member->photo = $path;
+                    }
+
+                    $member->save();
+                }
+            }
+
             Session::flash('heads', 'Head updated Successfully.');
             AdminAction::create([
                 'admin_id' => auth()->id(),
@@ -488,11 +576,12 @@ class AdminController extends Controller
                 'resource_id' => $heads->id,
                 'details' => json_encode(['ip_address' => $request->ip()]),
             ]);
-        } else {
-            return 'Something went wrong';
-        }
 
-        return redirect()->route('view-family-details', ['id' => $id]);
+            return response()->json(['message' => 'Update successful', 'redirect_url' => route('view-family-details', ['id' => $id])], 200);
+
+        } else {
+            return response()->json(['message' => 'Something went wrong while saving head data.'], 500);
+        }
     }
 
     public function editFamilyMember($head_id, $id)
@@ -511,6 +600,7 @@ class AdminController extends Controller
             'birthdate' => 'required|date',
             'status' => 'required',
             'education' => 'nullable',
+            'relation' => 'required',
             'photo' => 'nullable|image|mimes:jpg,png|max:2048',
         ], [
             'birthdate.before_or_equal' => 'Family member must be 21 years or older',
@@ -521,6 +611,58 @@ class AdminController extends Controller
         $member->status = $request->status;
         $member->wedding_date = $request->wedding_date;
         $member->education = $request->education;
+        $member->relation = $request->relation;
+        $photoPath = $member->photo;
+        $imagePath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('photos', 'public');
+        }
+        $member->photo = $photoPath;
+
+        if ($member->save()) {
+            Session::flash('member', 'Member updated Successfully.');
+            AdminAction::create([
+                'admin_id' => auth()->id(),
+                'action' => 'Member edited',
+                'resource_type' => 'member',
+                'resource_id' => $member->id,
+                'details' => json_encode(['ip_address' => $request->ip()]),
+            ]);
+        } else {
+            return 'Something went wrong';
+        }
+
+        return redirect()->route('view-family-details', ['id' => $head_id]);
+    }
+
+    public function editFamilyMemberFromList($id)
+    {
+        $member = Member::findOrFail($id);
+
+        return view('/Auth/Admin-login/edit-family-member', ['member' => $member]);
+    }
+
+    public function editFamilyMemberDataFromList(Request $request, $id)
+    {
+        $member = Member::findOrFail($id);
+        $cutDate = Carbon::now()->subYears(21);
+        $validation = $request->validate([
+            'name' => 'required|max:50',
+            'birthdate' => 'required|date',
+            'status' => 'required',
+            'education' => 'nullable',
+            'relation' => 'requird',
+            'photo' => 'nullable|image|mimes:jpg,png|max:2048',
+        ], [
+            'birthdate.before_or_equal' => 'Family member must be 21 years or older',
+        ]);
+
+        $member->name = $request->name;
+        $member->birthdate = $request->birthdate;
+        $member->status = $request->status;
+        $member->wedding_date = $request->wedding_date;
+        $member->education = $request->education;
+        $member->relation = $request->relation;
 
         $photoPath = $member->photo;
         $imagePath = null;
@@ -674,6 +816,34 @@ class AdminController extends Controller
 
         return redirect('/state-list')
             ->with('success', $state->state_name.' successfully deleted.');
+    }
+
+    public function editCityFromList($city_id)
+    {
+        $city = City::findOrFail($city_id);
+
+        return view('/Auth/Admin-login/edit-city-from-list', ['city' => $city]);
+    }
+
+    public function editCityDataFromList(Request $request, $city_id)
+    {
+        $city = City::findOrFail($city_id);
+
+        $city->city_name = $request->city_name;
+        if ($city->save()) {
+            Session::flash('city', 'City updated Successfully.');
+            AdminAction::create([
+                'admin_id' => auth()->id(),
+                'action' => 'City edited',
+                'resource_type' => 'city',
+                'resource_id' => $city->city_id,
+                'details' => json_encode(['ip_address' => $request->ip()]),
+            ]);
+        } else {
+            return 'Something went wrong';
+        }
+
+        return redirect('city-list');
     }
 
     public function deleteCity($city_id, Request $request)

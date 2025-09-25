@@ -317,6 +317,11 @@ background-color: #F5F5F5;
                 <input type="text" name="education" id="education" placeholder="Enter Education" value="{{ old('education', $member->education) }}">
             </div>
 
+            <div>
+                <label for="relation">Relation</label>
+                <input type="text" name="relation" id="relation" placeholder="Enter Relation" value="{{ old('relation', $member->relation) }}">
+            </div>
+
              <div>
                 <label for="photo">Profile Photo <span style="color:red">(optional)</span></label>
                  @if($member->photo)
