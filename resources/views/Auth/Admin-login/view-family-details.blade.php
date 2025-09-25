@@ -218,6 +218,7 @@
                                     <p><strong>Status:</strong> {{ ucfirst($member->status) ?? '-' }}</p>
                                     <p><strong>Wedding Date:</strong> {{ $member->status == 'married' ? (\Carbon\Carbon::parse($member->wedding_date)->format('d-m-Y') ?? '-') : '-' }}</p>
                                     <p><strong>Education:</strong> {{ $member->education ?? '-' }}</p>
+                                    <p><strong>Relation:</strong> {{ $member->relation ?? '-' }}</p>
                                 </div>
                             </div>
 

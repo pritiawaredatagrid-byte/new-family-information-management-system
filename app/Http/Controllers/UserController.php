@@ -34,6 +34,7 @@ class UserController extends Controller
             'members.*.status' => 'required|in:married,unmarried',
             'members.*.wedding_date' => 'nullable|date',
             'members.*.education' => 'nullable|string|max:100',
+            'members.*.relation' => 'string|max:100',
             'members.*.photo' => 'nullable|image|mimes:jpg,png|max:2048',
         ];
 
@@ -80,6 +81,7 @@ class UserController extends Controller
                 $member->status = $memberData['status'];
                 $member->wedding_date = $memberData['wedding_date'] ?? null;
                 $member->education = $memberData['education'] ?? null;
+                $member->relation = $memberData['relation'] ?? null;
                 if ($request->hasFile("members.$index.photo")) {
                     $member->photo = $request->file("members.$index.photo")->store('photos', 'public');
                 }
@@ -127,6 +129,7 @@ class UserController extends Controller
             'birthdate' => 'required|date|before:today',
             'status' => 'required',
             'education' => 'nullable',
+            'relation' => 'required',
             'photo' => 'nullable|image|mimes:jpg,png|max:2048',
         ], [
             'birthdate.before_or_equal' => 'Family member must be 21 years or older',
