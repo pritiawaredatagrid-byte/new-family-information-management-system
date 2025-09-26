@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Family Information</title>
-    {{-- Assuming you have a standard style.css or similar, or just using the inline styles --}}
-    {{-- <link rel="stylesheet" href="{{ asset('/css/style.css') }}"> --}}
+   
+    <link rel="stylesheet" href="{{ asset('/css/style.css') }}"> 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
         integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    {{-- Use the minified/production version for better performance --}}
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.js"></script>
     
-    {{-- INLINE STYLES FROM ORIGINAL PROVIDED (omitted for brevity, assume they are present) --}}
+   
     <style>
-        /* [ ... Original Styles Go Here ... ] */
+    
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f2f5;
@@ -144,7 +144,6 @@
         }
 
         .hobby-row, .member-form {
-            border: 1px dashed #ccc;
             padding: 15px;
             margin-top: 15px;
             border-radius: 8px;
@@ -204,10 +203,10 @@
             <p>Family Information Updated Successfully! </p>
         </div>
 
-        {{-- KEY CHANGE: Update the form action and method for editing --}}
-        <form action="" method="POST" enctype="multipart/form-data" id="registrationForm">
+
+        <form action="{{ route('edit-family-head-data', ['id' => $familyHead->id]) }}" method="POST" enctype="multipart/form-data" id="registrationForm">
             @csrf
-            @method('PUT') {{-- Required for Laravel to handle PATCH/PUT requests --}}
+            @method('PUT')
 
             <h3>Family Head Details</h3>
 
@@ -232,7 +231,7 @@
 
                 <div class="form-group">
                     <label for="mobile_number">Mobile Number</label>
-                    {{-- Mobile number uniqueness check should ignore the current user's number --}}
+
                     <input type="tel" name="head[mobile_number]" id="mobile_number" placeholder="Enter Mobile Number" value="{{ $familyHead->mobile_number }}">
                     <span id="head_mobile_number-error" class="jquery-error"></span>
                 </div>
@@ -244,25 +243,29 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="state">State</label>
-                    <select name="head[state]" id="state" class="state">
-                        <option value="">Select State</option>
-                        {{-- Pre-populate state --}}
-                        @foreach($states as $data)
-                            <option value="{{ $data->state_id }}" @if($familyHead->state == $data->state_id) selected @endif>{{ $data->state_name }}</option>
-                        @endforeach
-                    </select>
-                    <span id="head_state-error" class="jquery-error"></span>
-                </div>
+    <label for="state">State</label>
+    <select name="head[state]" id="state" class="state form-control">
+        <option value="">Select State</option>
 
-                <div class="form-group">
-                    <label for="city">City</label>
-                    <select name="head[city]" id="city" class="city">
-                        {{-- City options will be loaded by AJAX on document ready or state change --}}
-                        <option value="{{ $familyHead->city }}" selected>{{ $familyHead->city }}</option>
-                    </select>
-                    <span id="head_city-error" class="jquery-error"></span>
-                </div>
+        @foreach($states as $data)
+            <option 
+                value="{{ $data->state_id }}" 
+                {{-- Compare the saved STATE NAME with the current State Name in the loop --}}
+                @if($familyHead->state == $data->state_name) selected @endif>
+                {{ $data->state_name }}
+            </option>
+        @endforeach
+    </select>
+    <span id="head_state-error" class="jquery-error"></span>
+</div>
+
+<div class="form-group">
+    <label for="city">City</label>
+    <select name="head[city]" id="city" class="city form-control">
+        <option value="{{ $familyHead->city }}" selected>{{ $familyHead->city }}</option>
+    </select>
+    <span id="head_city-error" class="jquery-error"></span>
+</div>
 
                 <div class="form-group">
                     <label for="pincode">Pincode</label>
@@ -279,8 +282,7 @@
                     <span id="head_status-error" class="jquery-error"></span>
                 </div>
 
-                {{-- Wedding date will be toggled by JS --}}
-                <div class="form-group" id="wedding-date-group">
+                <div class="form-group @if($familyHead->status !== 'married') hidden @endif" id="wedding-date-group">
                     <label for="wedding_date">Wedding Date</label>
                     <input type="date" name="head[wedding_date]" id="wedding_date" value="{{ $familyHead->wedding_date }}">
                     <span id="head_wedding_date-error" class="jquery-error"></span>
@@ -290,7 +292,7 @@
                 <div class="form-group full-width hobbies-section">
                     <label for="">Hobbies</label>
                     <div id="hobbies-container">
-                        {{-- Hobbies will be dynamically populated by JS --}}
+
                     </div>
                     <span id="hobbies-error" class="jquery-error"></span>
                     <div class="hobby-controls">
@@ -304,7 +306,7 @@
                     <input type="file" name="head[photo]" accept="image/*" id="photo" class="ignore-validation">
                     <span id="head_photo-error" class="jquery-error"></span>
                     @if($familyHead->photo)
-                    <p class="existing-photo-note">Current photo: **{{ $familyHead->photo }}**. Leave blank to keep existing photo.</p>
+                    <p class="existing-photo-note">Current photo: {{ $familyHead->photo }}.</p>
                     @endif
                 </div>
             </div>
@@ -312,7 +314,7 @@
             <hr>
 
             <div id="member-section">
-               
+
             </div>
 
             <button type="button" id="addMemberBtn" class="btn btn-add">
@@ -327,22 +329,21 @@
 
     <script>
         $(document).ready(function () {
-          
+
             const headData = @json($familyHead);
             const memberData = @json($familyHead->members ?? []);
-            const hobbyData = @json($familyHead->hobbies ?? []); /
-            const hobbiesArray = Array.isArray(hobbyData) ? hobbyData : (headData.hobbies ? headData.hobbies.split(',') : []);
+            const hobbyData = @json($hobbies ?? []);
 
             let memberIndex = 0;
             const hobbiesContainer = $('#hobbies-container');
 
-        
-            function loadCities(stateId, selectedCity) {
-                const citySelect = $('#city');
+
+              function loadCities(stateId, selectedCity) {
+            const citySelect = $('#city');
                 citySelect.html('<option value="">Loading Cities...</option>');
                 if (stateId) {
                     $.ajax({
-                        url: "{{ route('get.cities') }}", 
+                        url: "{{ route('get.cities') }}",
                         type: "POST",
                         data: {
                             state_id: stateId,
@@ -350,13 +351,12 @@
                         },
                         dataType: 'json',
                         success: function (cities) {
-                            citySelect.html('<option value="">Select City</option>');
-                            $.each(cities, function (key, value) {
-                                
-                                const isSelected = (value.city_name === selectedCity) ? 'selected' : '';
-                                citySelect.append(`<option value="${value.city_name}" ${isSelected}>${value.city_name}</option>`);
-                            });
-                        },
+                        citySelect.html('<option value="">Select City</option>');
+                        $.each(cities, function (key, value) {
+                            const isSelected = (value.city_name === selectedCity) ? 'selected' : ''; 
+                            citySelect.append(`<option value="${value.city_name}" ${isSelected}>${value.city_name}</option>`);
+                        });
+                    },
                         error: function() {
                              citySelect.html('<option value="">Error loading cities</option>');
                         }
@@ -366,22 +366,24 @@
                 }
             }
 
-            
             function getHobbyRow(value = '') {
-                return `
-                <div class="hobby-row">
-                    <input type="text" name="hobbies[]" placeholder="Enter hobby here" class="hobby-input" value="${value.trim()}">
-                    <button type="button" class="btn btn-remove-hobby">Remove</button>
-                </div>
-                `;
-            }
+    return `
+        <div class="hobby-row d-flex align-items-center mb-2">
+            <input type="text" name="hobbies[]" placeholder="Enter hobby here" class="hobby-input form-control" value="${value.trim()}">
+            
+            <button type="button" class="btn btn-danger btn-remove-hobby ms-2">
+                Remove 
+            </button> 
+        </div>
+    `;
+}
 
-      
+
             function addHobbyRow(value = '') {
                 hobbiesContainer.append(getHobbyRow(value));
             }
-            
-          
+
+
             function getMemberForm(index, member = {}) {
                 const isMarried = member.status === 'married';
                 const hiddenClass = isMarried ? '' : 'hidden';
@@ -389,8 +391,7 @@
                 return `
                 <div class="member-form" data-index="${index}">
                     <h4>Member ${index + 1}</h4>
-                    {{-- Hidden field for existing members to track their ID --}}
-                    ${member.id ? `<input type="hidden" name="members[${index}][id]" value="${member.id}">` : ''} 
+                    ${member.id ? `<input type="hidden" name="members[${index}][id]" value="${member.id}">` : ''}
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Name</label>
@@ -440,93 +441,7 @@
                 `;
             }
 
-            loadCities(headData.state, headData.city);
-            
-           
-            if (hobbiesArray.length > 0) {
-                hobbiesContainer.empty(); 
-                hobbiesArray.forEach(hobby => addHobbyRow(hobby));
-            } else {
-                addHobbyRow(); 
-            }
-
-          
-            const memberSection = $('#member-section');
-            if (memberData.length > 0) {
-                memberData.forEach(member => {
-                    memberSection.append(getMemberForm(memberIndex, member));
-                    memberIndex++;
-                });
-            }
-
-        
-       
-            function toggleWeddingDate() {
-                const selectedStatus = $('input[name="head[status]"]:checked').val();
-                if (selectedStatus === 'married') {
-                    $('#wedding-date-group').removeClass('hidden');
-                } else {
-                    $('#wedding-date-group').addClass('hidden');
-                  
-                    $('#wedding_date').rules('remove');
-                }
-            }
-
-            $('input[name="head[status]"]').on('change', toggleWeddingDate);
-            toggleWeddingDate(); 
-
-            $('.state').on('change', function () {
-                const idState = $(this).val();
-                loadCities(idState, ''); 
-            });
-
-      
-
-            $('#addHobbyBtn').on('click', addHobbyRow);
-
-            hobbiesContainer.on('click', '.btn-remove-hobby', function () {
-                $(this).closest('.hobby-row').remove();
-              
-            });
-
-            $('#removeAllHobbiesBtn').on('click', function () {
-                hobbiesContainer.empty();
-                addHobbyRow();
-            });
-
-       
-            document.getElementById('addMemberBtn').addEventListener('click', function () {
-                const container = document.getElementById('member-section');
-                container.insertAdjacentHTML('beforeend', getMemberForm(memberIndex));
-              
-                $('#registrationForm').validate().form(); 
-                memberIndex++;
-            });
-
-          
-            window.removeMemberForm = function(button, memberId) {
-                const form = $(button).closest('.member-form');
-                form.remove();
-                
-               
-                if (memberId) {
-                   
-                    $('#registrationForm').append(`<input type="hidden" name="members_to_delete[]" value="${memberId}">`);
-                }
-            };
-
          
-            $('#member-section').on('change', '.member-status', function() {
-                const status = $(this).val();
-                const weddingDateGroup = $(this).closest('.member-form').find('.wedding-date-member');
-                if (status === 'married') {
-                    weddingDateGroup.removeClass('hidden');
-                } else {
-                    weddingDateGroup.addClass('hidden');
-                }
-            });
-
-          
             $.validator.addMethod('isAdult', function (value, element, params) {
                 if (!value) return true;
                 const birthDate = new Date(value);
@@ -542,8 +457,8 @@
             form.validate({
                 errorElement: 'span',
                 errorClass: 'jquery-error',
-           
-                ignore: ':hidden:not(.ignore-validation)', 
+
+                ignore: ':hidden:not(.ignore-validation)',
                 rules: {
                     'head[name]': { required: true, maxlength: 50 },
                     'head[surname]': { required: true, maxlength: 50 },
@@ -553,11 +468,11 @@
                         numeric: true,
                         digits: 10,
                         remote: {
-                            url: '/check-mobile-uniqueness', 
+                            url: '/check-mobile-uniqueness',
                             type: 'POST',
                             data: {
                                 mobile_number: function () { return $('#mobile_number').val(); },
-                                user_id: headData.id, 
+                                user_id: headData.id,
                                 _token: function () { return $('meta[name="csrf-token"]').attr('content'); }
                             }
                         }
@@ -568,7 +483,7 @@
                     'head[pincode]': { required: true, digits: 6 },
                     'head[status]': { required: true },
                     'hobbies[]': { required: true },
-                    'head[photo]': { extension: "jpg|png", filesize: 2048 * 1024 } // NOT required on edit
+                    'head[photo]': { extension: "jpg|png", filesize: 2048 * 1024 }
                 },
                 messages: {
                     'head[mobile_number]': {
@@ -576,7 +491,7 @@
                     },
                 },
                 errorPlacement: function (error, element) {
-                   
+
                     const name = element.attr("name").replace(/\[|\]/g, '_');
                     $(`#${name}-error`).html(error);
                 },
@@ -584,32 +499,124 @@
                     submitFormAjax($(form));
                 }
             });
+
+          
+            const initialStateId = $('#state').val();
+            const initialCityName = headData.city; 
+        
+            if (initialStateId) {
+                loadCities(initialStateId, initialCityName);
+            } else {
+                $('#city').html('<option value="">Select State First</option>');
+            }
+        
+            $('.state').on('change', function () {
+                const idState = $(this).val();
+                loadCities(idState, ''); 
+            });
+
+       
+            if (hobbyData.length > 0) {
+                hobbiesContainer.empty();
+                hobbyData.forEach(hobby => addHobbyRow(hobby));
+            } else {
+                addHobbyRow();
+            }
+
+           
+            const memberSection = $('#member-section');
+            if (memberData.length > 0) {
+                memberData.forEach(member => {
+                    memberSection.append(getMemberForm(memberIndex, member));
+                    memberIndex++;
+                });
+            }
+
+          
+            function toggleWeddingDate() {
+                const selectedStatus = $('input[name="head[status]"]:checked').val();
+                if (selectedStatus === 'married') {
+                    $('#wedding-date-group').removeClass('hidden');
+                } else {
+                    $('#wedding-date-group').addClass('hidden');
+                    $('#wedding_date').val('');
+                    $('#wedding_date').rules('remove');
+                }
+            }
+
+            $('input[name="head[status]"]').on('change', toggleWeddingDate);
+            toggleWeddingDate();
+
+    
+            $('#addHobbyBtn').on('click', function() {
+                addHobbyRow();
+            });
+
+            hobbiesContainer.on('click', '.btn-remove-hobby', function (e) {
+                e.preventDefault(); 
+                $(this).closest('.hobby-row').remove();
+            });
             
-  
+             $('#removeAllHobbiesBtn').on('click', function () {
+                hobbiesContainer.empty();
+                addHobbyRow();
+            });
+
+            $('#addMemberBtn').on('click', function () {
+                const container = $('#member-section');
+                container.append(getMemberForm(memberIndex));
+                $('#registrationForm').validate().form();
+                memberIndex++;
+            });
+
+
+            window.removeMemberForm = function(button, memberId) {
+                const form = $(button).closest('.member-form');
+                form.remove();
+
+
+                if (memberId) {
+
+                    $('#registrationForm').append(`<input type="hidden" name="members_to_delete[]" value="${memberId}">`);
+                }
+            };
+
+
+            $('#member-section').on('change', '.member-status', function() {
+                const status = $(this).val();
+                const weddingDateGroup = $(this).closest('.member-form').find('.wedding-date-member');
+                if (status === 'married') {
+                    weddingDateGroup.removeClass('hidden');
+                } else {
+                    weddingDateGroup.addClass('hidden');
+                    weddingDateGroup.find('input[type="date"]').val('');
+                }
+            });
+
 
             function submitFormAjax(form) {
                 $('#loading-spinner').show();
                 $('#success-message').hide();
-                $('.jquery-error').html(''); 
-                
+                $('.jquery-error').html('');
+
                 $.ajax({
                     url: form.attr('action'),
-                    type: 'POST', 
+                    type: 'POST',
                     data: new FormData(form[0]),
                     processData: false,
                     contentType: false,
                     success: function (response) {
                         $('#loading-spinner').hide();
                         $('#success-message').show();
-                      
+
                     },
                     error: function (xhr) {
                         $('#loading-spinner').hide();
                         $('#success-message').hide();
-                        if (xhr.status === 422) { 
+                        if (xhr.status === 422) {
                             const errors = xhr.responseJSON.errors;
                             $.each(errors, function (key, value) {
-                                
+
                                 const formattedKey = key.replace(/\./g, '_');
                                 $(`#${formattedKey}-error`).html(value[0]);
                             });
@@ -621,5 +628,6 @@
             }
         });
     </script>
+
 </body>
 </html>

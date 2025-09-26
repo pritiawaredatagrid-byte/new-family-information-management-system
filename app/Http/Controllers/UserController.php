@@ -97,7 +97,10 @@ class UserController extends Controller
             'details' => json_encode(['ip_address' => $request->ip()]),
         ]);
 
-        return response()->json(['message' => 'Family Head and Members Added Successfully!', 'headId' => $head->id]);
+        return response()->json([
+            'message' => 'Family Head and Members Added Successfully!',
+            'headId' => $head->id,
+        ]);
     }
 
     public function addFamilyMemberForm($head_id)

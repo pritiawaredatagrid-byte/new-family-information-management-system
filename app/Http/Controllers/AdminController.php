@@ -40,7 +40,6 @@ class AdminController extends Controller
             'head.status' => 'required|in:married,unmarried',
             'head.hobbies.*' => 'required|string',
             'head.photo' => 'required|image|mimes:jpg,png|max:2048',
-
             'members.*.name' => 'required|max:50',
             'members.*.birthdate' => 'required|date',
             'members.*.status' => 'required|in:married,unmarried',
@@ -465,7 +464,7 @@ class AdminController extends Controller
             'head.name' => 'required|max:50',
             'head.surname' => 'required|max:50',
             'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
-            'head.mobile_number' => 'required|numeric|digits:10|unique:user_registrations,mobile_number,'.$id,
+            'head.mobile_number' => 'required|numeric|digits:10|unique:UserRegistration,mobile_number,'.$id,
             'head.address' => 'required',
             'head.state' => 'required',
             'head.city' => 'required',
@@ -528,13 +527,13 @@ class AdminController extends Controller
 
             $membersToDelete = $request->input('members_to_delete', []);
             if (! empty($membersToDelete)) {
-                $deletedMembers = FamilyMember::whereIn('id', $membersToDelete)->get();
+                $deletedMembers = Member::whereIn('id', $membersToDelete)->get();
                 foreach ($deletedMembers as $member) {
                     if ($member->photo) {
                         Storage::disk('public')->delete($member->photo);
                     }
                 }
-                FamilyMember::whereIn('id', $membersToDelete)->delete();
+                Member::whereIn('id', $membersToDelete)->delete();
             }
 
             $memberFiles = $request->file('members') ?? [];
@@ -542,10 +541,10 @@ class AdminController extends Controller
                 foreach ($request->input('members') as $index => $memberData) {
 
                     if (isset($memberData['id'])) {
-                        $member = FamilyMember::findOrFail($memberData['id']);
+                        $member = Member::findOrFail($memberData['id']);
                     } else {
-                        $member = new FamilyMember;
-                        $member->family_head_id = $heads->id;
+                        $member = new Member;
+                        $member->head_id = $heads->id;
                     }
 
                     $member->name = $memberData['name'];

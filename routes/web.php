@@ -30,7 +30,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
     // Edit family head
     Route::view('edit-family-head', '/Auth/Admin-login/edit-family-head');
     Route::get('edit-family-head/{id}', [AdminController::class, 'editFamilyHead']);
-    Route::put('edit-family-head-data/{id}', [AdminController::class, 'editFamilyHeadData']);
+    Route::put('edit-family-head-data/{id}', [AdminController::class, 'editFamilyHeadData'])->name('edit-family-head-data');
 
     // Edit family member
     Route::view('edit-family-member', '/Auth/Admin-login/edit-family-member');

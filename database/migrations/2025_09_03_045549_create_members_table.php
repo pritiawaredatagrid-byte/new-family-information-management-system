@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('members', function (Blueprint $table) {
             $table->id();
-            $table->integer('head_id');
+            $table->foreignId('head_id')->constrained('UserRegistration');
             $table->string('name');
             $table->date('birthdate');
             $table->string('status');

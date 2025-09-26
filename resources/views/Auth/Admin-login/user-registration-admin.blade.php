@@ -172,7 +172,7 @@
         font-weight: 600;
         cursor: pointer;
         font-size: 1rem;
-           margin-top:2rem;
+        margin-top:2rem;
     }
 
     .btn-add {
@@ -422,7 +422,7 @@
 </head>
 <body class="registration-body">
     <div class="card">
-        <h2>Add New Family</h2>
+        <h2>Registration Form</h2>
         <div id="loading-spinner" style="display: none; text-align: center; color: #007bff;">
             <p>Submitting form...</p>
         </div>
@@ -439,31 +439,26 @@
                 <div class="form-group">
                     <label for="name">Family Head Name</label>
                     <input type="text" name="head[name]" id="name" placeholder="Family Head Name">
-                    <span id="head_name-error" class="jquery-error"></span>
                 </div>
 
                 <div class="form-group">
                     <label for="surname">Surname</label>
                     <input type="text" name="head[surname]" id="surname" placeholder="Family Head Surname">
-                    <span id="head_surname-error" class="jquery-error"></span>
                 </div>
 
                 <div class="form-group">
                     <label for="birthdate">Birth Date</label>
                     <input type="date" name="head[birthdate]" id="birthdate">
-                    <span id="head_birthdate-error" class="jquery-error"></span>
                 </div>
 
                 <div class="form-group">
                     <label for="mobile_number">Mobile Number</label>
                     <input type="tel" name="head[mobile_number]" id="mobile_number" placeholder="Enter Mobile Number">
-                    <span id="head_mobile_number-error" class="jquery-error"></span>
                 </div>
 
                 <div class="form-group full-width">
                     <label for="address">Address</label>
                     <textarea name="head[address]" id="address" placeholder="Enter Address"></textarea>
-                    <span id="head_address-error" class="jquery-error"></span>
                 </div>
 
                 <div class="form-group">
@@ -474,7 +469,6 @@
                             <option value="{{ $data->state_id }}">{{ $data->state_name }}</option>
                         @endforeach
                     </select>
-                    <span id="head_state-error" class="jquery-error"></span>
                 </div>
 
                 <div class="form-group">
@@ -482,13 +476,11 @@
                     <select name="head[city]" id="city" class="city">
                         <option value="">Select City</option>
                     </select>
-                    <span id="head_city-error" class="jquery-error"></span>
                 </div>
 
                 <div class="form-group">
                     <label for="pincode">Pincode</label>
                     <input type="tel" name="head[pincode]" id="pincode" placeholder="Enter Pincode" maxlength="6">
-                    <span id="head_pincode-error" class="jquery-error"></span>
                 </div>
 
                 <div class="form-group">
@@ -497,20 +489,17 @@
                         <label><input type="radio" name="head[status]" value="married" @if(old('head.status') == 'married') checked @endif> Married</label>
                         <label><input type="radio" name="head[status]" value="unmarried" @if(old('head.status') == 'unmarried') checked @endif> Unmarried</label>
                     </div>
-                    <span id="head_status-error" class="jquery-error"></span>
                 </div>
 
                 <div class="form-group" id="wedding-date-group">
                     <label for="wedding_date">Wedding Date</label>
                     <input type="date" name="head[wedding_date]" id="wedding_date">
-                    <span id="head_wedding_date-error" class="jquery-error"></span>
                 </div>
 
 
                 <div class="form-group full-width hobbies-section">
                     <label for="">Hobbies</label>
                     <div id="hobbies-container"></div>
-                    <span id="hobbies-error" class="jquery-error"></span>
                     <div class="hobby-controls">
                         <button type="button" id="addHobbyBtn" class="btn btn-add">Add Hobby</button>
                         <button type="button" id="removeAllHobbiesBtn" class="btn btn-remove-all">Remove All Hobbies</button>
@@ -520,7 +509,6 @@
                 <div class="form-group full-width">
                     <label for="photo">Profile Photo</label>
                     <input type="file" name="head[photo]" accept="image/*" id="photo">
-                    <span id="head_photo-error" class="jquery-error"></span>
                 </div>
             </div>
 
@@ -543,7 +531,6 @@
     <script>
         $(document).ready(function () {
            
-            let isMemberValidationSetup = false;
             $.validator.addMethod('isAdult', function (value, element, params) {
                 if (!value) return true;
                 const birthDate = new Date(value);
@@ -577,9 +564,7 @@
                                 mobile_number: function () {
                                     return $('#mobile_number').val();
                                 },
-                                _token: function () {
-                                    return $('meta[name="csrf-token"]').attr('content');
-                                }
+                                _token: '{{ csrf_token() }}' 
                             }
                         }
                     },
@@ -588,6 +573,14 @@
                     'head[city]': { required: true },
                     'head[pincode]': { required: true, digits: 6 },
                     'head[status]': { required: true },
+                    'head[wedding_date]': {
+                        required: {
+                            depends: function(element) {
+                                return $('input[name="head[status]"]:checked').val() === 'married';
+                            }
+                        },
+                        date: true
+                    },
                     'hobbies[]': { required: true },
                     'head[photo]': { required: true, extension: "jpg|png", filesize: 2048 * 1024 }
                 },
@@ -597,8 +590,13 @@
                     },
                 },
                 errorPlacement: function (error, element) {
-                    const name = element.attr("name").replace(/\[|\]/g, '_');
-                    $(`#${name}-error`).html(error);
+                    if (element.attr("name") === "head[status]") {
+                        error.insertAfter(element.closest('.radio-options'));
+                    } else if (element.attr("name") === "hobbies[]") {
+                        error.insertAfter($('#hobbies-container'));
+                    } else {
+                        error.insertAfter(element);
+                    }
                 },
                 submitHandler: function (form) {
                     submitFormAjax($(form));
@@ -607,7 +605,7 @@
 
             function submitFormAjax(form) {
                 $('#loading-spinner').show();
-                $('.jquery-error').html(''); 
+                $('.jquery-error').remove(); 
                 
                 $.ajax({
                     url: form.attr('action'),
@@ -628,9 +626,16 @@
                         if (xhr.status === 422) { 
                             const errors = xhr.responseJSON.errors;
                             $.each(errors, function (key, value) {
-                              
-                                const formattedKey = key.replace(/\./g, '_');
-                                $(`#${formattedKey}-error`).html(value[0]);
+                                const element = form.find('[name="' + key.replace(/\./g, '\\]\\[') + '"]');
+                                const errorSpan = $(`<span class="jquery-error">${value[0]}</span>`);
+                                
+                                if (element.length) {
+                                    if (element.is(':radio')) {
+                                        errorSpan.insertAfter(element.closest('.radio-options'));
+                                    } else {
+                                        errorSpan.insertAfter(element.last());
+                                    }
+                                }
                             });
                         } else {
                             alert('An unexpected error occurred. Please try again.');
@@ -647,6 +652,7 @@
                 } else {
                     $('#wedding-date-group').addClass('hidden');
                 }
+                $('#wedding_date').valid();
             }
 
             $('input[name="head[status]"]').on('change', toggleWeddingDate);
@@ -692,11 +698,13 @@
                 if (hobbiesContainer.find('.hobby-row').length > 1) {
                     $(this).closest('.hobby-row').remove();
                 }
+                form.validate().element('[name="hobbies[]"]');
             });
 
             $('#removeAllHobbiesBtn').on('click', function () {
                 hobbiesContainer.empty();
                 addHobbyRow();
+                form.validate().element('[name="hobbies[]"]');
             });
 
             addHobbyRow();
@@ -705,47 +713,40 @@
             let memberIndex = 0;
 
             function getMemberForm(index) {
-                return `
+                const formHtml = `
                 <div class="member-form" data-index="${index}">
                     <h4>Member ${index + 1}</h4>
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Name</label>
-                            <input type="text" name="members[${index}][name]" required>
-                            <span id="members_${index}_name-error" class="jquery-error"></span>
+                            <input type="text" name="members[${index}][name]" id="member_name_${index}">
                         </div>
                         <div class="form-group">
                             <label>Birthdate</label>
-                            <input type="date" name="members[${index}][birthdate]" required>
-                            <span id="members_${index}_birthdate-error" class="jquery-error"></span>
+                            <input type="date" name="members[${index}][birthdate]" id="member_birthdate_${index}">
                         </div>
                         <div class="form-group">
                             <label>Status</label>
-                            <div class="radio-options">
+                            <div class="radio-options" id="member_status_options_${index}">
                                 <label><input type="radio" name="members[${index}][status]" value="married" class="member-status"> Married</label>
                                 <label><input type="radio" name="members[${index}][status]" value="unmarried" class="member-status"> Unmarried</label>
                             </div>
-                            <span id="members_${index}_status-error" class="jquery-error"></span>
                         </div>
                         <div class="form-group wedding-date-member hidden">
                             <label>Wedding Date (optional)</label>
-                            <input type="date" name="members[${index}][wedding_date]">
-                            <span id="members_${index}_wedding_date-error" class="jquery-error"></span>
+                            <input type="date" name="members[${index}][wedding_date]" id="member_wedding_date_${index}">
                         </div>
                         <div class="form-group">
                             <label>Education (optional)</label>
                             <input type="text" name="members[${index}][education]">
-                            <span id="members_${index}_education-error" class="jquery-error"></span>
                         </div>
                         <div class="form-group">
                             <label>Relation</label>
                             <input type="text" name="members[${index}][relation]">
-                            <span id="members_${index}_relation-error" class="jquery-error"></span>
                         </div>
                         <div class="form-group">
                             <label for="member-photo-${index}">Profile Photo <span style="color:red">(optional)</span></label>
                             <input type="file" name="members[${index}][photo]" id="member-photo-${index}">
-                            <span id="members_${index}_photo-error" class="jquery-error"></span>
                         </div>
                     </div>
                     <div class="form-group full-width">
@@ -754,31 +755,45 @@
                     <hr>
                 </div>
                 `;
+                return formHtml;
             }
 
             document.getElementById('addMemberBtn').addEventListener('click', function () {
                 const container = document.getElementById('member-section');
                 container.insertAdjacentHTML('beforeend', getMemberForm(memberIndex));
                 
-               
-                $('#registrationForm').validate().form();
-                
+                $(`input[name="members[${memberIndex}][name]"]`).rules('add', { required: true });
+                $(`input[name="members[${memberIndex}][birthdate]"]`).rules('add', { required: true, date: true });
+                $(`input[name="members[${memberIndex}][status]"]`).rules('add', { required: true });
+                $(`input[name="members[${memberIndex}][wedding_date]"]`).rules('add', { 
+                    date: true,
+                    depends: function(element) {
+                        return $(`input[name="members[${memberIndex}][status]"]:checked`).val() === 'married';
+                    }
+                });
+
                 memberIndex++;
             });
 
             window.removeMemberForm = function(button) {
-                $(button).closest('.member-form').remove();
+                const memberForm = $(button).closest('.member-form');
+                memberForm.remove();
             };
 
        
             $('#member-section').on('change', '.member-status', function() {
                 const status = $(this).val();
-                const weddingDateGroup = $(this).closest('.member-form').find('.wedding-date-member');
+                const memberForm = $(this).closest('.member-form');
+                const weddingDateGroup = memberForm.find('.wedding-date-member');
+                const weddingDateInput = weddingDateGroup.find('input[type="date"]');
+                
                 if (status === 'married') {
                     weddingDateGroup.removeClass('hidden');
                 } else {
                     weddingDateGroup.addClass('hidden');
                 }
+                
+                weddingDateInput.valid();
             });
         });
     </script>
