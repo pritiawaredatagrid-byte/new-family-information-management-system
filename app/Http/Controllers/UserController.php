@@ -20,7 +20,7 @@ class UserController extends Controller
         $rules = [
             'head.name' => 'required|max:50',
             'head.surname' => 'required|max:50',
-            'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
+            'head.birthdate' => 'required|date|before_or_equal:' . $cutDate,
             'head.mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
             'head.address' => 'required',
             'head.state' => 'required',
@@ -41,6 +41,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
+
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
@@ -97,9 +98,24 @@ class UserController extends Controller
             'details' => json_encode(['ip_address' => $request->ip()]),
         ]);
 
-        return response()->json(['message' => 'Family Head and Members Added Successfully!', 'headId' => $head->id]);
+        // Always return JSON response
+        return response()->json([
+            'message' => 'Family Head and Members Added Successfully!',
+            'headId' => $head->id,
+        ]);
     }
 
+    public function checkMobileUniqueness(Request $request)
+    {
+        $mobileNumber = $request->input('mobile_number');
+
+        $exists = UserRegistration::where('mobile_number', $mobileNumber)->exists();
+        if ($exists) {
+            return response()->json(false);
+        } else {
+            return response()->json(true);
+        }
+    }
     public function addFamilyMemberForm($head_id)
     {
         return view('add-family-member', compact('head_id'));
@@ -163,4 +179,6 @@ class UserController extends Controller
 
         return redirect()->back()->with('error', 'Error: Family member could not be added.');
     }
+
+
 }

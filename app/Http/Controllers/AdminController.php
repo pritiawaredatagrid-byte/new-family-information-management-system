@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Maatwebsite\Excel\Facades\Excel;
 use Mail;
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
@@ -28,28 +29,44 @@ class AdminController extends Controller
     {
         $cutDate = Carbon::now()->subYears(21);
 
-        $validated = $request->validate([
-            'head.name' => 'required|max:50',
-            'head.surname' => 'required|max:50',
-            'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
+        $rules = [
+            'head.name' => [
+                'required',
+                'max:50',
+                'regex:/^[A-Za-z]+$/',
+            ],
+            'head.surname' => [
+                'required',
+                'max:50',
+                'regex:/^[A-Za-z]+$/',
+            ],
+            'head.birthdate' => 'required|date|before_or_equal:' . $cutDate,
             'head.mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
             'head.address' => 'required',
             'head.state' => 'required',
             'head.city' => 'required',
             'head.pincode' => 'required|digits:6',
             'head.status' => 'required|in:married,unmarried',
-            'head.hobbies.*' => 'required|string',
+            'hobbies.*' => 'required|string',
             'head.photo' => 'required|image|mimes:jpg,png|max:2048',
-
             'members.*.name' => 'required|max:50',
             'members.*.birthdate' => 'required|date',
             'members.*.status' => 'required|in:married,unmarried',
             'members.*.wedding_date' => 'nullable|date',
             'members.*.education' => 'nullable|string|max:100',
+            'members.*.relation' => 'string|max:100',
             'members.*.photo' => 'nullable|image|mimes:jpg,png|max:2048',
-        ]);
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
         $headData = $request->input('head');
+
         $head = new UserRegistration;
         $head->name = $headData['name'];
         $head->surname = $headData['surname'];
@@ -64,7 +81,11 @@ class AdminController extends Controller
         $head->pincode = $headData['pincode'];
         $head->status = $headData['status'];
         $head->wedding_date = $headData['wedding_date'] ?? null;
-        $head->hobby = json_encode($headData['hobbies']);
+
+        $hobbies = $request->input('hobbies');
+        if ($hobbies) {
+            $head->hobby = json_encode($hobbies);
+        }
 
         if ($request->hasFile('head.photo')) {
             $head->photo = $request->file('head.photo')->store('photos', 'public');
@@ -81,11 +102,10 @@ class AdminController extends Controller
                 $member->status = $memberData['status'];
                 $member->wedding_date = $memberData['wedding_date'] ?? null;
                 $member->education = $memberData['education'] ?? null;
-
-                if (isset($memberData['photo']) && $request->hasFile("members.$index.photo")) {
+                $member->relation = $memberData['relation'] ?? null;
+                if ($request->hasFile("members.$index.photo")) {
                     $member->photo = $request->file("members.$index.photo")->store('photos', 'public');
                 }
-
                 $member->save();
             }
         }
@@ -98,10 +118,22 @@ class AdminController extends Controller
             'details' => json_encode(['ip_address' => $request->ip()]),
         ]);
 
-        return redirect()->back()
-            ->with('users', 'Family Head and Members Added Successfully!')
-            ->with('family_head_added', true)
-            ->with('headId', $head->id);
+        return response()->json([
+            'message' => 'Family Head and Members Added Successfully!',
+            'headId' => $head->id,
+        ]);
+    }
+
+    public function checkMobileUniqueness(Request $request)
+    {
+        $mobileNumber = $request->input('mobile_number');
+
+        $exists = UserRegistration::where('mobile_number', $mobileNumber)->exists();
+        if ($exists) {
+            return response()->json(false);
+        } else {
+            return response()->json(true);
+        }
     }
 
     public function login(Request $request)
@@ -113,7 +145,7 @@ class AdminController extends Controller
 
         $admin = Admin::where('email', $request->email)->first();
 
-        if (! $admin || ! Hash::check($request->password, $admin->password)) {
+        if (!$admin || !Hash::check($request->password, $admin->password)) {
             if ($request->ajax()) {
 
                 return response()->json(['message' => 'Invalid credentials.'], 401);
@@ -139,7 +171,7 @@ class AdminController extends Controller
 
         $admin = Admin::where('email', $request->email)->first();
 
-        if (! $admin) {
+        if (!$admin) {
             return redirect()->back()->withErrors(['email' => 'Please enter valid email.'])->withInput();
         }
 
@@ -158,7 +190,7 @@ class AdminController extends Controller
     {
         $admin = Admin::where('email', $email)->first();
 
-        if (! $admin) {
+        if (!$admin) {
             abort(404);
         }
 
@@ -319,8 +351,8 @@ class AdminController extends Controller
 
     public function searchHead(Request $request)
     {
-        $searchData = UserRegistration::where('name', 'like', '%'.$request->search.'%')
-            ->orWhere('mobile_number', 'like', '%'.$request->search.'%')->orWhere('state', 'like', '%'.$request->search.'%')->orWhere('city', 'like', '%'.$request->search.'%')
+        $searchData = UserRegistration::where('name', 'like', '%' . $request->search . '%')
+            ->orWhere('mobile_number', 'like', '%' . $request->search . '%')->orWhere('state', 'like', '%' . $request->search . '%')->orWhere('city', 'like', '%' . $request->search . '%')
             ->paginate(5);
 
         return view('Auth.Admin-login.search-head', ['searchData' => $searchData]);
@@ -328,14 +360,14 @@ class AdminController extends Controller
 
     public function searchMember(Request $request)
     {
-        $searchData = Member::where('name', 'like', '%'.$request->search.'%')->paginate(5);
+        $searchData = Member::where('name', 'like', '%' . $request->search . '%')->paginate(5);
 
         return view('Auth.Admin-login.search-member', ['searchData' => $searchData]);
     }
 
     public function searchState(Request $request)
     {
-        $searchData = State::where('state_name', 'like', '%'.$request->search.'%')
+        $searchData = State::where('state_name', 'like', '%' . $request->search . '%')
             ->paginate(5);
 
         return view('Auth.Admin-login.search-state', ['searchData' => $searchData]);
@@ -343,7 +375,7 @@ class AdminController extends Controller
 
     public function searchCity(Request $request)
     {
-        $searchData = City::where('city_name', 'like', '%'.$request->search.'%')
+        $searchData = City::where('city_name', 'like', '%' . $request->search . '%')
             ->paginate(5);
 
         return view('Auth.Admin-login.search-city', ['searchData' => $searchData]);
@@ -464,8 +496,8 @@ class AdminController extends Controller
         $request->validate([
             'head.name' => 'required|max:50',
             'head.surname' => 'required|max:50',
-            'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
-            'head.mobile_number' => 'required|numeric|digits:10|unique:user_registrations,mobile_number,'.$id,
+            'head.birthdate' => 'required|date|before_or_equal:' . $cutDate,
+            'head.mobile_number' => 'required|numeric|digits:10|unique:UserRegistration,mobile_number,' . $id,
             'head.address' => 'required',
             'head.state' => 'required',
             'head.city' => 'required',
@@ -527,14 +559,14 @@ class AdminController extends Controller
         if ($heads->save()) {
 
             $membersToDelete = $request->input('members_to_delete', []);
-            if (! empty($membersToDelete)) {
-                $deletedMembers = FamilyMember::whereIn('id', $membersToDelete)->get();
+            if (!empty($membersToDelete)) {
+                $deletedMembers = Member::whereIn('id', $membersToDelete)->get();
                 foreach ($deletedMembers as $member) {
                     if ($member->photo) {
                         Storage::disk('public')->delete($member->photo);
                     }
                 }
-                FamilyMember::whereIn('id', $membersToDelete)->delete();
+                Member::whereIn('id', $membersToDelete)->delete();
             }
 
             $memberFiles = $request->file('members') ?? [];
@@ -542,10 +574,10 @@ class AdminController extends Controller
                 foreach ($request->input('members') as $index => $memberData) {
 
                     if (isset($memberData['id'])) {
-                        $member = FamilyMember::findOrFail($memberData['id']);
+                        $member = Member::findOrFail($memberData['id']);
                     } else {
-                        $member = new FamilyMember;
-                        $member->family_head_id = $heads->id;
+                        $member = new Member;
+                        $member->head_id = $heads->id;
                     }
 
                     $member->name = $memberData['name'];
@@ -684,7 +716,7 @@ class AdminController extends Controller
             return 'Something went wrong';
         }
 
-        return redirect()->route('view-family-details', ['id' => $head_id]);
+        return redirect()->route('view-family-details', ['id' => $id]);
     }
 
     public function viewFamilyDetails($id, Request $request)
@@ -714,7 +746,7 @@ class AdminController extends Controller
         ]);
 
         return redirect('/family-list')
-            ->with('success', $head->name."'s Family details successfully deleted.");
+            ->with('success', $head->name . "'s Family details successfully deleted.");
     }
 
     public function deleteFamilyMember($id, Request $request)
@@ -733,7 +765,7 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('view-family-details', ['id' => $head_id])
-            ->with('success', $member->name.' successfully deleted.');
+            ->with('success', $member->name . ' successfully deleted.');
     }
 
     public function viewStateDetails($state_id, Request $request)
@@ -753,7 +785,7 @@ class AdminController extends Controller
     {
         $stateId = $request->query('state_id');
 
-        if (! $stateId) {
+        if (!$stateId) {
             return redirect()->back()->with('error', 'State ID is required.');
         }
 
@@ -815,7 +847,7 @@ class AdminController extends Controller
         ]);
 
         return redirect('/state-list')
-            ->with('success', $state->state_name.' successfully deleted.');
+            ->with('success', $state->state_name . ' successfully deleted.');
     }
 
     public function editCityFromList($city_id)
@@ -863,7 +895,7 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('view-state-details', ['state_id' => $state_id])
-            ->with('success', $city->city_name.' successfully deleted.');
+            ->with('success', $city->city_name . ' successfully deleted.');
     }
 
     public function editCityData(Request $request, $state_id, $city_id)
