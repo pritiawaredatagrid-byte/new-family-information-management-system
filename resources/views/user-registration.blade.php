@@ -1097,6 +1097,13 @@
                             }
                         });
 
+                        $(`input[name="members[${memberIndex}][relation]"]`).rules('add', {
+                            required: true,
+                            messages: {
+                                required: "Please enter the relation"
+                            }
+                        });
+
                         memberIndex++;
                     } catch (e) {
                         console.error('Error adding member form:', e);

@@ -81,7 +81,7 @@
 
 <body class="bg-gray-100 font-sans">
     <aside>
-    <x-sidebar></x-sidebar>
+        <x-sidebar></x-sidebar>
     </aside>
 
     <div class="page-wrapper">
@@ -95,19 +95,19 @@
             </div>
         </header> -->
         <header class="main-header">
-             <button id="sidebarToggle" class="p-2 text-gray-400 hover:text-white focus:outline-none">
+            <!-- <button id="sidebarToggle" class="p-2 text-gray-400 hover:text-white focus:outline-none">
   
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
-</button>
+    </svg> -->
+            </button>
             <h1 class="text-2xl font-bold text-gray-600">State Details</h1>
             <div class="flex items-center space-x-4">
                 <!-- <a href="/add-city?state_id={{ $stateId ?? '' }}"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
                     Add City
                 </a> -->
-                <a href="/add-city"
+                <a href="{{ route('add-city') }}?state_name={{ $state->state_name }}&state_id={{ $state->state_id }}"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
                     Add City
                 </a>

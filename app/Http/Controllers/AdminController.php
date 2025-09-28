@@ -21,7 +21,10 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Maatwebsite\Excel\Facades\Excel;
 use Mail;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
+
+
 
 class AdminController extends Controller
 {
@@ -276,14 +279,14 @@ class AdminController extends Controller
 
     public function familyList()
     {
-        $heads = UserRegistration::where('op_status', 1)->paginate(5);
+        $heads = UserRegistration::where('op_status', 1)->orderBy('id', 'desc')->paginate(5);
 
         return view('Auth.Admin-login.family-list', ['heads' => $heads]);
     }
 
     public function memberList()
     {
-        $members = Member::where('op_status', 1)->paginate(5);
+        $members = Member::where('op_status', 1)->orderBy('id', 'desc')->paginate(5);
 
         return view('Auth.Admin-login.member-list', ['members' => $members]);
     }
@@ -337,14 +340,14 @@ class AdminController extends Controller
 
     public function StateList()
     {
-        $states = State::where('op_status', 1)->paginate(10);
+        $states = State::where('op_status', 1)->orderBy('state_id', 'desc')->paginate(10);
 
         return view('Auth.Admin-login.state-list', ['states' => $states]);
     }
 
     public function CityList()
     {
-        $cities = City::where('op_status', 1)->paginate(5);
+        $cities = City::where('op_status', 1)->orderBy('city_id', 'desc')->paginate(5);
 
         return view('Auth.Admin-login.city-list', ['cities' => $cities]);
     }
@@ -390,33 +393,30 @@ class AdminController extends Controller
 
     public function addState(Request $request)
     {
-        $state = new State;
-        $admin = new Admin;
-
-        $validation = $request->validate([
+        $request->validate([
             'state_name' => 'required|unique:states,state_name',
         ]);
-        $state->state_name = $request->state_name;
-        if ($state->save()) {
-            AdminAction::create([
-                'admin_id' => auth()->id(),
-                'action' => 'State Added',
-                'resource_type' => 'State',
-                'resource_id' => $state->state_id,
-                'details' => json_encode(['ip_address' => $request->ip()]),
-            ]);
-            Session::flash('state', 'State added Successfully.');
 
-            // return redirect('/add-city');
-            return redirect('/add-city')->with([
-                'state_id_to_select' => $state->state_id,
-                'state_name_to_select' => $state->state_name,
-            ]);
+        $state = State::create([
+            'state_name' => $request->state_name,
+        ]);
 
-        } else {
-            return 'Something went wrong';
-        }
+
+        AdminAction::create([
+            'admin_id' => auth()->id(),
+            'action' => 'State Added',
+            'resource_type' => 'State',
+            'resource_id' => $state->state_id,
+            'details' => json_encode(['ip_address' => $request->ip()]),
+        ]);
+
+        return response()->json([
+            'message' => 'State added successfully!',
+            'state_id' => $state->state_id,
+            'state_name' => $state->state_name,
+        ]);
     }
+
 
     public function addStates()
     {
@@ -443,34 +443,56 @@ class AdminController extends Controller
         return response()->json($cities);
     }
 
+    public function showAddCityForm(Request $request)
+    {
+        $state_id = $request->query('state_id');
+        $state_name = $request->query('state_name');
+
+        return view('add-city', compact('state_id', 'state_name'));
+    }
     public function addCity(Request $request)
     {
-        $city = new City;
-        $validator = $request->validate([
+        $request->validate([
             'state_id' => 'required|exists:states,state_id',
-            'city_name' => 'required|unique:cities,city_name',
+            'city_name' => [
+                'required',
+                Rule::unique('cities')->where(function ($query) use ($request) {
+                    return $query->where('state_id', $request->state_id);
+                }),
+            ],
         ], [
-            'state_id.required' => 'State should be selected.',
             'city_name.required' => 'City name is required.',
-            'city_name.unique' => 'This city name already exists.',
+            'city_name.unique' => 'This city already exists in the selected state.',
         ]);
 
-        $city->state_id = $request->state_id;
-        $city->city_name = $request->city_name;
-        if ($city->save()) {
-            Session::flash('city', 'City added Successfully.');
-            AdminAction::create([
-                'admin_id' => auth()->id(),
-                'action' => 'City Added',
-                'resource_type' => 'City',
-                'resource_id' => $city->city_id,
-                'details' => json_encode(['ip_address' => $request->ip()]),
-            ]);
-            $state_id = $request->state_id;
+        $city = City::create([
+            'state_id' => $request->state_id,
+            'city_name' => $request->city_name,
+        ]);
 
-            return redirect()->route('view-state-details', ['state_id' => $state_id]);
+        AdminAction::create([
+            'admin_id' => auth()->id(),
+            'action' => 'City Added',
+            'resource_type' => 'City',
+            'resource_id' => $city->city_id,
+            'details' => json_encode(['ip_address' => $request->ip()]),
+        ]);
+
+        return redirect()->route('view-state-details', ['state_id' => $request->state_id])
+            ->with('city', 'City added successfully!');
+    }
+
+
+    public function checkCity(Request $request)
+    {
+        $exists = City::where('state_id', $request->state_id)
+            ->where('city_name', $request->city_name)
+            ->exists();
+
+        if ($exists) {
+            return response()->json("This city name already exists in the selected state");
         } else {
-            return 'Something went wrong';
+            return response()->json(true);
         }
     }
 
@@ -616,6 +638,53 @@ class AdminController extends Controller
         }
     }
 
+
+
+    public function addFamilyMemberFormAdmin($head_id)
+    {
+
+        return view('/Auth/Admin-login/add-family-member-admin', compact('head_id'));
+    }
+
+
+    public function addFamilyMemberAdmin(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'name' => 'required|string|max:50',
+            'birthdate' => 'required|date|before:today',
+            'status' => 'required|in:married,unmarried',
+            'wedding_date' => 'nullable|date|required_if:status,married',
+            'education' => 'nullable|string|max:100',
+            'relation' => 'required|string|max:100',
+            'photo' => 'nullable|image|mimes:jpg,png|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $member = new Member();
+        $member->head_id = $request->head_id;
+        $member->name = $request->name;
+        $member->birthdate = $request->birthdate;
+        $member->status = $request->status;
+        $member->wedding_date = $request->status === 'married' ? $request->wedding_date : null;
+        $member->education = $request->education;
+        $member->relation = $request->relation;
+
+        if ($request->hasFile('photo')) {
+            $filename = time() . '.' . $request->photo->extension();
+            $request->photo->move(public_path('uploads/'), $filename);
+            $member->photo = $filename;
+        }
+
+        $member->save();
+
+        return response()->json(['message' => 'Family member added successfully!']);
+    }
+
+
+
     public function editFamilyMember($head_id, $id)
     {
         $member = Member::where('head_id', $head_id)->findOrFail($id);
@@ -634,8 +703,6 @@ class AdminController extends Controller
             'education' => 'nullable',
             'relation' => 'required',
             'photo' => 'nullable|image|mimes:jpg,png|max:2048',
-        ], [
-            'birthdate.before_or_equal' => 'Family member must be 21 years or older',
         ]);
 
         $member->name = $request->name;
@@ -727,7 +794,7 @@ class AdminController extends Controller
         return view('Auth.Admin-login.view-family-details', [
             'head' => $head,
             'members' => $members,
-            'id' => $id,
+            'head_id' => $id,
         ]);
 
     }
@@ -781,36 +848,36 @@ class AdminController extends Controller
 
     }
 
-    public function showAddCityForm(Request $request)
-    {
-        $stateId = $request->query('state_id');
 
-        if (!$stateId) {
-            return redirect()->back()->with('error', 'State ID is required.');
-        }
-
-        $state = State::findOrFail($stateId);
-
-        return view('add-city', [
-            'state' => $state,
-            'stateId' => $stateId,
-        ]);
-    }
 
     public function editState($state_id)
     {
         $stateDetails = State::findOrFail($state_id);
-
-        return view('/Auth/Admin-login/edit-state', ['stateDetails' => $stateDetails]);
+        return view('Auth.Admin-login.edit-state', ['stateDetails' => $stateDetails]);
     }
 
     public function editStateData(Request $request, $state_id)
     {
         $stateDetails = State::findOrFail($state_id);
+
+        $validator = \Validator::make($request->all(), [
+            'state_name' => [
+                'required',
+                Rule::unique('states')->ignore($state_id, 'state_id')
+            ],
+        ]);
+
+        if ($validator->fails()) {
+
+            if ($request->ajax()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
         $stateDetails->state_name = $request->state_name;
 
         if ($stateDetails->save()) {
-            Session::flash('$stateDetails', 'State updated Successfully.');
             AdminAction::create([
                 'admin_id' => auth()->id(),
                 'action' => 'State edited',
@@ -818,11 +885,19 @@ class AdminController extends Controller
                 'resource_id' => $stateDetails->state_id,
                 'details' => json_encode(['ip_address' => $request->ip()]),
             ]);
-        } else {
-            return 'Something went wrong';
-        }
 
-        return redirect()->route('view-state-details', ['state_id' => $state_id]);
+            if ($request->ajax()) {
+                return response()->json(['message' => 'State updated successfully!']);
+            }
+
+            Session::flash('$stateDetails', 'State updated Successfully.');
+            return redirect()->route('view-state-details', ['state_id' => $state_id]);
+        } else {
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Something went wrong'], 500);
+            }
+            return redirect()->back()->with('error', 'Something went wrong');
+        }
     }
 
     public function editCity($state_id, $city_id)
@@ -830,9 +905,56 @@ class AdminController extends Controller
         $city = City::where('state_id', $state_id)->findOrFail($city_id);
         $state = State::findOrFail($state_id);
 
-        return view('/Auth/Admin-login/edit-city', ['city' => $city, 'state' => $state]);
+        return view('Auth.Admin-login.edit-city', [
+            'city' => $city,
+            'state' => $state
+        ]);
     }
 
+    public function editCityData(Request $request, $state_id, $city_id)
+    {
+        $city = City::where('state_id', $state_id)->findOrFail($city_id);
+
+        // Validation
+        $validator = \Validator::make($request->all(), [
+            'city_name' => [
+                'required',
+                Rule::unique('cities')->where(fn($query) => $query->where('state_id', $state_id))->ignore($city_id, 'city_id')
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->ajax()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $city->city_name = $request->city_name;
+
+        if ($city->save()) {
+            AdminAction::create([
+                'admin_id' => auth()->id(),
+                'action' => 'City edited',
+                'resource_type' => 'city',
+                'resource_id' => $city->city_id,
+                'details' => json_encode(['ip_address' => $request->ip()]),
+            ]);
+
+            if ($request->ajax()) {
+                return response()->json(['message' => 'City updated successfully!']);
+            }
+
+            Session::flash('city', 'City updated Successfully.');
+            return redirect()->route('view-state-details', ['state_id' => $state_id]);
+        }
+
+        if ($request->ajax()) {
+            return response()->json(['message' => 'Something went wrong'], 500);
+        }
+
+        return redirect()->back()->with('error', 'Something went wrong');
+    }
     public function deleteStateDetails($state_id, Request $request)
     {
         $state = State::findOrFail($state_id);
@@ -850,20 +972,36 @@ class AdminController extends Controller
             ->with('success', $state->state_name . ' successfully deleted.');
     }
 
+
     public function editCityFromList($city_id)
     {
         $city = City::findOrFail($city_id);
-
-        return view('/Auth/Admin-login/edit-city-from-list', ['city' => $city]);
+        return view('Auth.Admin-login.edit-city-from-list', ['city' => $city]);
     }
 
     public function editCityDataFromList(Request $request, $city_id)
     {
         $city = City::findOrFail($city_id);
 
+
+        $validator = \Validator::make($request->all(), [
+            'city_name' => [
+                'required',
+                Rule::unique('cities')->ignore($city_id, 'city_id')
+            ],
+        ]);
+
+        if ($validator->fails()) {
+
+            if ($request->ajax()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
         $city->city_name = $request->city_name;
         if ($city->save()) {
-            Session::flash('city', 'City updated Successfully.');
+
             AdminAction::create([
                 'admin_id' => auth()->id(),
                 'action' => 'City edited',
@@ -871,12 +1009,21 @@ class AdminController extends Controller
                 'resource_id' => $city->city_id,
                 'details' => json_encode(['ip_address' => $request->ip()]),
             ]);
-        } else {
-            return 'Something went wrong';
-        }
 
-        return redirect('city-list');
+            if ($request->ajax()) {
+                return response()->json(['message' => 'City updated successfully!']);
+            }
+
+            Session::flash('city', 'City updated Successfully.');
+            return redirect('city-list');
+        } else {
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Something went wrong'], 500);
+            }
+            return redirect()->back()->with('error', 'Something went wrong');
+        }
     }
+
 
     public function deleteCity($city_id, Request $request)
     {
@@ -898,26 +1045,7 @@ class AdminController extends Controller
             ->with('success', $city->city_name . ' successfully deleted.');
     }
 
-    public function editCityData(Request $request, $state_id, $city_id)
-    {
-        $city = City::where('state_id', $state_id)->findOrFail($city_id);
 
-        $city->city_name = $request->city_name;
-        if ($city->save()) {
-            Session::flash('city', 'City updated Successfully.');
-            AdminAction::create([
-                'admin_id' => auth()->id(),
-                'action' => 'City edited',
-                'resource_type' => 'city',
-                'resource_id' => $city->city_id,
-                'details' => json_encode(['ip_address' => $request->ip()]),
-            ]);
-        } else {
-            return 'Something went wrong';
-        }
-
-        return redirect()->route('view-state-details', ['state_id' => $state_id]);
-    }
 
     public function index()
     {
