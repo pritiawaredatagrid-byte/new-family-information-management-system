@@ -41,14 +41,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::get('edit-family-member/{id}', [AdminController::class, 'editFamilyMemberFromList']);
     Route::put('edit-family-member-data/{id}', [AdminController::class, 'editFamilyMemberDataFromList']);
 
-    Route::post('/check-mobile-uniqueness', function (Request $request) {
-        $mobileNumber = $request->input('mobile_number');
-
-        $isUnique = ! UserRegistration::where('mobile_number', $mobileNumber)->exists();
-
-        return response()->json($isUnique);
-    });
-
+    Route::post('/check-mobile-uniqueness', [AdminController::class, 'checkMobileUniqueness'])->name('check.mobile.uniqueness');
     // View family Details
     Route::view('view-family-details', '/Auth/Admin-login/view-family-details');
     Route::get('view-family-details/{id}', [AdminController::class, 'viewFamilyDetails'])->name('view-family-details');
@@ -132,6 +125,7 @@ Route::post('admin-login', [AdminController::class, 'login']);
 Route::get('user-registration', [UserController::class, 'addStates']);
 Route::post('user-registration', [UserController::class, 'userRegistration']);
 Route::post('get-cities', [UserController::class, 'getCities'])->name('get.cities');
+Route::post('/check-mobile-uniqueness', [UserController::class, 'checkMobileUniqueness'])->name('check.mobile.uniqueness');
 
 use App\Http\Controllers\PowerBIController;
 
