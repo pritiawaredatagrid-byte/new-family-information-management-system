@@ -89,12 +89,20 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::post('add-state', [AdminController::class, 'addState']);
 
     // //new city addition
-    Route::get('/add-city', [AdminController::class, 'showAddCityForm'])->name('add-city-form');
-    Route::view('add-city', 'add-city');
-    Route::post('add-city', [AdminController::class, 'addCity'])->name('add-city');
-    Route::get('add-city', [AdminController::class, 'addStates_state']);
+    // Route::get('/add-city', [AdminController::class, 'showAddCityForm'])->name('add-city-form');
+    // Route::view('add-city', 'add-city');
+    // Route::post('add-city', [AdminController::class, 'addCity'])->name('add-city');
+    // Route::get('add-city', [AdminController::class, 'addStates_state']);
+    // Route::post('/check-city', [AdminController::class, 'checkCity'])->name('check-city');
+    // Route::get('/add-city/{state_id}', [AdminController::class, 'showAddCityForm'])->name('add-city-form');
 
-    Route::get('/add-city/{state_id}', [AdminController::class, 'showAddCityForm'])->name('add-city-form');
+
+    Route::get('/add-city', [AdminController::class, 'showAddCityForm'])->name('add-city-form');
+
+    Route::post('/add-city', [AdminController::class, 'addCity'])->name('add-city');
+
+    Route::post('/check-city', [AdminController::class, 'checkCity'])->name('check-city');
+
 
     // User Registration
     Route::view('user-registration-admin', '/Auth/Admin-login/user-registration-admin');
@@ -103,9 +111,14 @@ Route::middleware('CheckAdminAuth')->group(function () {
 
     Route::post('get-cities', [AdminController::class, 'getCities'])->name('get.cities');
 
-    Route::view('add-family-member-admin', '/Auth/Admin-login/add-family-member-admin');
-    Route::get('add-family-member-admin/{head_id}', [AdminController::class, 'addFamilyMemberFormAdmin'])->name('add-member-form-admin');
-    Route::post('add-family-member-admin', [AdminController::class, 'addFamilyMemberAdmin'])->name('add-member-submit-admin');
+
+    // Show Add Family Member Form
+    Route::get('add-family-member-admin/{head_id}', [AdminController::class, 'addFamilyMemberFormAdmin'])
+        ->name('add-member-form-admin');
+
+
+    Route::post('add-family-member-admin', [AdminController::class, 'addFamilyMemberAdmin'])
+        ->name('add-member-submit-admin');
 });
 
 Route::view('admin-login', '/Auth/Admin-login/admin-login');

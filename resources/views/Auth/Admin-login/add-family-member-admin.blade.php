@@ -168,139 +168,64 @@
 
 <body class="Family-Member-body">
     <div class="main">
-        @if(session('success'))
-            <div class="alert success" role="alert">
-     <span class="message">{{ session('success') }}</span>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="alert error" role="alert">
-                <span class="message">{{ session('error') }}</span>
-            </div>
-        @endif
-
         <h2>Add Family Member</h2>
-        @if(Session::has('family_head_added'))
-            <button type="button" class="btn btn-secondary">
-                <a href="{{ route('add-member-form', ['head_id' => Session::get('headId')]) }}"
-                    style="color:white; text-decoration:none;">Add Family Member</a>
-            </button>
-        @endif
-        @error('user')
-            <p class="error">{{ $message }}</p>
-        @enderror
 
-        <form action="{{ route('add-member-submit-admin') }}" method="post" class="form" enctype="multipart/form-data">
+        <div id="success-message" style="color:green;display:none;padding:1rem 0;"></div>
+
+        <form id="add-family-member-form" action="{{ route('add-member-submit-admin') }}" method="post"
+            enctype="multipart/form-data">
             @csrf
+            <input type="hidden" name="head_id" value="{{ $head_id }}">
+
             <div>
                 <label for="name">Member Name</label>
                 <input type="text" name="name" id="name" placeholder="Enter Member Name">
+                <span class="error-message" id="name_error"></span>
             </div>
+
             <div>
                 <label for="birthdate">Birth Date</label>
                 <input type="date" name="birthdate" id="birthdate">
-                @error('birthdate')
-                    <p class="error">{{ $message }}</p>
-                @enderror
+                <span class="error-message" id="birthdate_error"></span>
             </div>
-            <div class="marital-status">
+
+            <div class="marital-status" id="marital-status-group">
                 <label>Marital Status</label>
-                <label>
-                    <input type="radio" name="status" value="married" id="married-radio">
-                    Married
-                </label>
-                <label>
-                    <input type="radio" name="status" value="unmarried" id="unmarried-radio">
-                    Unmarried
-                </label>
+                <label><input type="radio" name="status" value="married"> Married</label>
+                <label><input type="radio" name="status" value="unmarried"> Unmarried</label>
+                <span class="error-message" id="status_error"></span>
             </div>
-            <div id="marital-status-group"></div>
+
             <div class="WeddingDate">
                 <label for="wedding_date">Wedding Date</label>
                 <input type="date" name="wedding_date" id="wedding_date">
+                <span class="error-message" id="wedding_date_error"></span>
             </div>
+
             <div>
                 <label for="education">Education <span style="color:red">(optional)</span></label>
                 <input type="text" name="education" id="education" placeholder="Enter Education">
             </div>
+
+            <div>
+                <label for="relation">Relation</label>
+                <input type="text" name="relation" id="relation" placeholder="Enter Relation">
+                <span class="error-message" id="relation_error"></span>
+            </div>
+
             <div>
                 <label for="photo">Profile Photo <span style="color:red">(optional)</span></label>
                 <input type="file" name="photo" id="photo">
+                <span class="error-message" id="photo_error"></span>
             </div>
-            <input type="hidden" name="head_id" value="{{ $head_id }}">
-            <button type="submit" name="submit" class="admin-login">Add Family Member</button>
-            <!-- <a href="/" class="btn back">Go to home page</a> -->
+
+            <button type="submit" class="admin-login">Add Family Member</button>
         </form>
     </div>
 
     <script>
         $(document).ready(function () {
-
-            $.validator.addMethod('filesize', function (value, element, param) {
-                return this.optional(element) || (element.files[0].size <= param * 1024);
-            }, 'File size must be less than {0} KB.');
-
-            $('.form').validate({
-                rules: {
-                    name: {
-                        required: true,
-                        maxlength: 50
-                    },
-                    surname: {
-                        required: true,
-                        maxlength: 50
-                    },
-                    birthdate: {
-                        required: true,
-                        date: true
-                    },
-                    status: {
-                        required: true
-                    },
-                    wedding_date: {
-                        required: {
-                            depends: function (element) {
-                                return $('input[name="status"]:checked').val() === 'married';
-                            }
-                        }
-                    },
-                    photo: {
-                        extension: "jpg|png",
-                        filesize: 2048
-                    }
-                },
-                messages: {
-                    name: {
-                        required: "Please enter a member name.",
-                        maxlength: "Name cannot exceed 50 characters."
-                    },
-                    surname: {
-                        required: "Please enter a member surname.",
-                        maxlength: "Name cannot exceed 50 characters."
-                    },
-                    birthdate: {
-                        required: "Please enter the birth date."
-                    },
-                    status: {
-                        required: "Please select a marital status."
-                    },
-                    wedding_date: {
-                        required: "Please enter a wedding date for married members."
-                    },
-                    photo: {
-                        extension: "Only JPG and PNG files are allowed.",
-                        filesize: "Photo size must be less than 2MB."
-                    }
-                },
-                errorPlacement: function (error, element) {
-                    if (element.attr("name") == "status") {
-                        error.appendTo("#marital-status-group");
-                    } else {
-                        error.insertAfter(element);
-                    }
-                }
-            });
+            var headId = "{{ $head_id }}";
 
             $('.WeddingDate').hide();
             $('input[name="status"]').on('change', function () {
@@ -310,8 +235,80 @@
                     $('.WeddingDate').hide();
                 }
             });
+
+
+            $.validator.addMethod("beforeToday", function (value, element) {
+                if (!value) return false;
+                let inputDate = new Date(value);
+                let today = new Date();
+                today.setHours(0, 0, 0, 0);
+                return inputDate < today;
+            }, "Birthdate must be before today.");
+
+            $.validator.addMethod("filesize", function (value, element, param) {
+                return this.optional(element) || (element.files[0].size <= param * 1024);
+            }, "File size must be less than {0} KB.");
+
+
+            $("#add-family-member-form").validate({
+                rules: {
+                    name: { required: true, maxlength: 50 },
+                    birthdate: { required: true, date: true, beforeToday: true },
+                    status: { required: true },
+                    wedding_date: {
+                        required: function () { return $('input[name="status"]:checked').val() === 'married'; }
+                    },
+                    relation: { required: true, maxlength: 100 },
+                    photo: { extension: "jpg|png", filesize: 2048 }
+                },
+                messages: {
+                    name: { required: "Please enter a member name.", maxlength: "Name cannot exceed 50 characters." },
+                    birthdate: { required: "Please enter birthdate.", beforeToday: "Birthdate must be earlier than today." },
+                    status: { required: "Please select a marital status." },
+                    wedding_date: { required: "Please enter wedding date for married members." },
+                    relation: { required: "Please enter relation." },
+                    photo: { extension: "Only JPG and PNG files allowed.", filesize: "Photo must be less than 2MB." }
+                },
+                errorPlacement: function (error, element) {
+                    if (element.attr("name") === "status") {
+                        error.appendTo("#marital-status-group");
+                    } else {
+                        error.insertAfter(element);
+                    }
+                },
+                submitHandler: function (form) {
+
+                    let formData = new FormData(form);
+                    $.ajax({
+                        url: $(form).attr('action'),
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            $(".error").remove();
+                            $("#success-message").text(response.message).show();
+                            form.reset();
+                            setTimeout(function () {
+                                window.location.href = '/view-family-details/' + headId;
+                            }, 1000);
+                        },
+                        error: function (xhr) {
+                            $(".error").remove();
+                            if (xhr.status === 422) {
+                                let errors = xhr.responseJSON.errors;
+                                $.each(errors, function (key, value) {
+                                    $("[name='" + key + "']").after('<p class="error" style="color:red;">' + value[0] + '</p>');
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                }
+            });
         });
     </script>
 </body>
+
 
 </html>

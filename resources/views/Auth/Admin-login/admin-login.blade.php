@@ -197,7 +197,6 @@
         }
       });
 
-      // Clear errors as user types
       $('#email').on('input', function () {
         $('.email-error').text('');
         $('.error-container').text('');
@@ -211,7 +210,6 @@
       $('#ajax-form').on('submit', function (e) {
         e.preventDefault();
 
-        // Clear errors on submit
         $('.error-message-style').text('');
         $('.error-container').text('');
 
