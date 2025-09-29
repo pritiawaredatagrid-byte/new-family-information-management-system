@@ -416,7 +416,7 @@
                                 <th class="px-1 py-1 text-center">Wedding Date</th>
                                 <th class="px-1 py-1 text-center">Education</th>
                                 <th class="px-1 py-1 text-center">Relation</th>
-                                <th class="px-1 py-1 text-center">Created at</th>
+                                <th class="px-1 py-1 text-center">Status</th>
                                 <th class="px-1 py-1 text-center">Action</th>
                             </tr>
                         </thead>
@@ -449,7 +449,13 @@
                                         {{ $member->relation}}
                                     </td>
                                     <td class="px-1 py-1 text-center">
-                                        {{ $member->created_at}}
+                                        <div class="flex justify-center gap-2">
+                                            @if($member->op_status==1)
+                                                 <h6>Active</h6>
+                                            @elseif ($member->op_status==0)
+                                                 <h6>Inctive</h6>
+                                            @endif
+                                    </div>
                                     </td>
                                     <td class="px-1 py-1 text-center">
                                         <div class="flex justify-center gap-2">

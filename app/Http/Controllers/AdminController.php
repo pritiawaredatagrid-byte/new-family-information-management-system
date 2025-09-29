@@ -278,14 +278,20 @@ class AdminController extends Controller
 
     public function familyList()
     {
-        $heads = UserRegistration::where('op_status', 1)->orderBy('id', 'desc')->paginate(5);
+        $heads = UserRegistration::withoutGlobalScopes()
+            ->whereIn('op_status', [0, 1])
+            ->orderBy('id', 'desc')
+            ->paginate(5);
 
         return view('Auth.Admin-login.family-list', ['heads' => $heads]);
     }
 
     public function memberList()
     {
-        $members = Member::where('op_status', 1)->orderBy('id', 'desc')->paginate(5);
+        $members = Member::withoutGlobalScopes()
+            ->whereIn('op_status', [0, 1])
+            ->orderBy('id', 'desc')
+            ->paginate(5);
 
         return view('Auth.Admin-login.member-list', ['members' => $members]);
     }
@@ -339,14 +345,20 @@ class AdminController extends Controller
 
     public function StateList()
     {
-        $states = State::where('op_status', 1)->orderBy('state_id', 'desc')->paginate(10);
+        $states = State::withoutGlobalScopes()
+            ->whereIn('op_status', [0, 1])
+            ->orderBy('state_id', 'desc')
+            ->paginate(10);
 
         return view('Auth.Admin-login.state-list', ['states' => $states]);
     }
 
     public function CityList()
     {
-        $cities = City::where('op_status', 1)->orderBy('city_id', 'desc')->paginate(5);
+        $cities = City::withoutGlobalScopes()
+            ->whereIn('op_status', [0, 1])
+            ->orderBy('city_id', 'desc')
+            ->paginate(10);
 
         return view('Auth.Admin-login.city-list', ['cities' => $cities]);
     }

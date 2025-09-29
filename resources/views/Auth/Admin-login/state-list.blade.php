@@ -351,6 +351,7 @@
                             <tr>
                                 <th class="px-1 py-3 text-center">Sr.No</th>
                                 <th class="px-1 py-3 text-left">State Name</th>
+                                <th class="px-1 py-3 text-center">Status</th>
                                 <th class="px-1 py-3 text-center">Action</th>
                             </tr>
                         </thead>
@@ -362,9 +363,16 @@
                                     </td>
 
                                     <td class="px-1 py-3 font-medium whitespace-nowrap">{{$state->state_name}}</td>
+                                     <td class="px-1 py-3 font-medium whitespace-nowrap text-center">
+                                        @if($state->op_status==1)
+                                                 <h6>Active</h6>
+                                            @elseif ($state->op_status==0)
+                                                 <h6>Inctive</h6>
+                                            @endif
+                                    </td>
                                     <td class="px-1 py-3 text-center">
                                         <div class="flex justify-center gap-2">
-                                        <a href="{{'view-state-details/' . $state->state_id}}">
+                                        <a href="{{ route('view-state-details', ['state_id' => $state->state_id]) }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                                 width="24px" fill="#1f1f1f">
                                                 <path
