@@ -424,7 +424,7 @@
                                 <th class="px-1 py-1 text-center">Marital Status</th>
                                 <th class="px-1 py-1 text-center">Wedding Date</th>
                                 <th class="px-1 py-1 text-center">Hobbies</th>
-                                <th class="px-1 py-1 text-center">Created at</th>
+                                <th class="px-1 py-1 text-center">Status</th>
                                 <th class="px-1 py-1 text-center">Action</th>
                             </tr>
                         </thead>
@@ -471,12 +471,20 @@
                                             <span class="text-gray-400">-</span>
                                         @endif
                                     </td>
-                                    <td class="px-1 py-1 text-center">
-                                        {{ $head->created_at}}
-                                    </td>
+                                   
                                     <td class="px-1 py-1 text-center">
                                         <div class="flex justify-center gap-2">
-
+                                            @if($head->op_status==1)
+                                                 <h6>Active</h6>
+                                            @elseif ($head->op_status==0)
+                                                 <h6>Inctive</h6>
+                                            @endif
+                                    </div>
+</div>
+                                    <td class="px-1 py-1 text-center">
+                                        <div class="flex justify-center gap-2">
+                                           
+                                            
                                             <a href="{{ 'view-family-details/' . $head->id }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                                     width="24px" fill="#1f1f1f">

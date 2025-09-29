@@ -345,6 +345,7 @@
                             <tr>
                                 <th class="px-1 py-3 text-center">Sr.No</th>
                                 <th class="px-1 py-3 text-left">City Name</th>
+                                 <th class="px-4 py-3 text-left">Status</th>
                                 <th class="px-1 py-3 text-center">Action</th>
                             </tr>
                         </thead>
@@ -356,6 +357,13 @@
                                     </td>
 
                                     <td class="px-1 py-1 font-medium whitespace-nowrap">{{$city->city_name}}</td>
+                                     <td class="px-1 py-3 font-medium whitespace-nowrap text-left">
+                                        @if($city->op_status==1)
+                                                 <h6>Active</h6>
+                                            @elseif ($city->op_status==0)
+                                                 <h6>Inctive</h6>
+                                            @endif
+                                    </td>
                                     <td class="px-1 py-3 text-center">
                                         <div class="flex justify-center gap-2">
                                             <a href="{{ '/edit-city-from-list/'. $city->city_id }}">
