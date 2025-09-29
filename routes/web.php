@@ -2,8 +2,6 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
-use App\Models\UserRegistration;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,11 +18,19 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::get('state-list', [AdminController::class, 'stateList']);
     Route::get('city-list', [AdminController::class, 'cityList']);
 
+    // search head
+    Route::get('search', [AdminController::class, 'redirectToEncryptedSearch'])->name('redirect-search');
     Route::get('search-head', [AdminController::class, 'searchHead'])->name('search-head');
+
+    Route::get('search-member-encrypt', [AdminController::class, 'redirectToEncryptedSearchMember'])->name('redirect-search');
     Route::get('search-member', [AdminController::class, 'searchMember'])->name('search-member');
 
+    Route::get('search-state-encrypt', [AdminController::class, 'redirectToEncryptedSearchState'])->name('redirect-search');
     Route::get('search-state', [AdminController::class, 'searchState'])->name('search-state');
+
+    Route::get('search-city-encrypt', [AdminController::class, 'redirectToEncryptedSearchCity'])->name('redirect-search');
     Route::get('search-city', [AdminController::class, 'searchCity'])->name('search-city');
+
     Route::get('admin-logout', [AdminController::class, 'logout']);
 
     // Edit family head
@@ -96,13 +102,11 @@ Route::middleware('CheckAdminAuth')->group(function () {
     // Route::post('/check-city', [AdminController::class, 'checkCity'])->name('check-city');
     // Route::get('/add-city/{state_id}', [AdminController::class, 'showAddCityForm'])->name('add-city-form');
 
-
     Route::get('/add-city', [AdminController::class, 'showAddCityForm'])->name('add-city-form');
 
     Route::post('/add-city', [AdminController::class, 'addCity'])->name('add-city');
 
     Route::post('/check-city', [AdminController::class, 'checkCity'])->name('check-city');
-
 
     // User Registration
     Route::view('user-registration-admin', '/Auth/Admin-login/user-registration-admin');
@@ -111,11 +115,9 @@ Route::middleware('CheckAdminAuth')->group(function () {
 
     Route::post('get-cities', [AdminController::class, 'getCities'])->name('get.cities');
 
-
     // Show Add Family Member Form
     Route::get('add-family-member-admin/{head_id}', [AdminController::class, 'addFamilyMemberFormAdmin'])
         ->name('add-member-form-admin');
-
 
     Route::post('add-family-member-admin', [AdminController::class, 'addFamilyMemberAdmin'])
         ->name('add-member-submit-admin');

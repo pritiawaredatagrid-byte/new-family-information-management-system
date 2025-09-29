@@ -364,8 +364,9 @@
 
 
             <div style="width: 50%;">
-                <form action="/search-member" class="search" method="get">
-                    <input type="text" name="search" placeholder="Search by Name, State, City, Mobile number">
+                <form action="{{ route('redirect-search') }}" class="search" method="get">
+                    <input type="text" name="search" placeholder="Search by Name, State, City, Mobile number"
+                    value="{{ old('search', $search ?? '') }}">
                     <button>
                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
                             fill="#1f1f1f">

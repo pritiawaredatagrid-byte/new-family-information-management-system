@@ -891,7 +891,7 @@
             <h3>Family Head Details</h3>
 
             <div class="form-grid">
-                <!-- Name -->
+                
                 <div class="form-group">
                     <label for="name">Family Head Name</label>
                     <input type="text" name="head[name]" id="head_name" placeholder="Family Head Name"
@@ -899,7 +899,7 @@
                     <span id="head_name-error" class="jquery-error"></span>
                 </div>
 
-                <!-- Surname -->
+         
                 <div class="form-group">
                     <label for="surname">Surname</label>
                     <input type="text" name="head[surname]" id="head_surname" placeholder="Family Head Surname"
@@ -907,14 +907,13 @@
                     <span id="head_surname-error" class="jquery-error"></span>
                 </div>
 
-                <!-- Birthdate -->
                 <div class="form-group">
                     <label for="birthdate">Birth Date</label>
                     <input type="date" name="head[birthdate]" id="head_birthdate" value="{{ $familyHead->birthdate }}">
                     <span id="head_birthdate-error" class="jquery-error"></span>
                 </div>
 
-                <!-- Mobile -->
+              
                 <div class="form-group">
                     <label for="mobile_number">Mobile Number</label>
                     <input type="tel" name="head[mobile_number]" id="head_mobile_number"
@@ -922,7 +921,7 @@
                     <span id="head_mobile_number-error" class="jquery-error"></span>
                 </div>
 
-                <!-- Address -->
+               
                 <div class="form-group full-width">
                     <label for="address">Address</label>
                     <textarea name="head[address]" id="head_address"
@@ -930,7 +929,7 @@
                     <span id="head_address-error" class="jquery-error"></span>
                 </div>
 
-                <!-- State -->
+
                 <div class="form-group">
                     <label for="state">State</label>
                     <select name="head[state]" id="head_state" class="state">
@@ -943,7 +942,6 @@
                     <span id="head_state-error" class="jquery-error"></span>
                 </div>
 
-                <!-- City -->
                 <div class="form-group">
                     <label for="city">City</label>
                     <select name="head[city]" id="head_city">
@@ -952,7 +950,7 @@
                     <span id="head_city-error" class="jquery-error"></span>
                 </div>
 
-                <!-- Pincode -->
+               
                 <div class="form-group">
                     <label for="pincode">Pincode</label>
                     <input type="tel" name="head[pincode]" id="head_pincode" maxlength="6"
@@ -960,7 +958,7 @@
                     <span id="head_pincode-error" class="jquery-error"></span>
                 </div>
 
-                <!-- Marital Status -->
+              
                 <div class="form-group">
                     <label>Marital Status</label>
                     <div class="radio-options">
@@ -972,7 +970,6 @@
                     <span id="head_status-error" class="jquery-error"></span>
                 </div>
 
-                <!-- Wedding Date -->
                 <div class="form-group @if($familyHead->status != 'married') hidden @endif" id="head_wedding_date_group">
                     <label>Wedding Date</label>
                     <input type="date" name="head[wedding_date]" id="head_wedding_date"
@@ -980,7 +977,7 @@
                     <span id="head_wedding_date-error" class="jquery-error"></span>
                 </div>
 
-                <!-- Hobbies -->
+      
                 <div class="form-group full-width">
                     <label>Hobbies</label>
                     <div id="hobbies-container"></div>
@@ -992,7 +989,7 @@
                     </div>
                 </div>
 
-                <!-- Profile Photo -->
+       
                 <div class="form-group full-width">
                     <label>Profile Photo</label>
                     <input type="file" name="head[photo]" id="head_photo">
@@ -1005,7 +1002,6 @@
 
             <hr>
 
-            <!-- Members -->
             <div id="member-section"></div>
             <button type="button" class="btn btn-add" id="addMemberBtn">➕ Add New Family Member</button>
 

@@ -326,8 +326,8 @@
                 <h1 class="text-2xl font-bold text-gray-600">States</h1>
             </div>
             <div style="width: 50%;">
-                <form action="/search-state" class="search" method="get">
-                    <input type="text" name="search" placeholder="Search State">
+                <form action="{{ route('redirect-search') }}" class="search" method="get">
+                    <input type="text" name="search" placeholder="Search State" value="{{ old('search', $search ?? '') }}">
                     <button>
                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
                             fill="#1f1f1f">

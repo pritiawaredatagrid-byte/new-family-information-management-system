@@ -14,6 +14,7 @@ use App\Models\UserRegistration;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
@@ -31,16 +32,8 @@ class AdminController extends Controller
         $cutDate = Carbon::now()->subYears(21);
 
         $rules = [
-            'head.name' => [
-                'required',
-                'max:50',
-                'regex:/^[A-Za-z]+$/',
-            ],
-            'head.surname' => [
-                'required',
-                'max:50',
-                'regex:/^[A-Za-z]+$/',
-            ],
+            'head.name' => ['required', 'max:50', 'regex:/^[A-Za-z]+$/'],
+            'head.surname' => ['required', 'max:50', 'regex:/^[A-Za-z]+$/'],
             'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
             'head.mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
             'head.address' => 'required',
@@ -50,6 +43,7 @@ class AdminController extends Controller
             'head.status' => 'required|in:married,unmarried',
             'hobbies.*' => 'required|string',
             'head.photo' => 'required|image|mimes:jpg,png|max:2048',
+
             'members.*.name' => 'required|max:50',
             'members.*.birthdate' => 'required|date',
             'members.*.status' => 'required|in:married,unmarried',
@@ -62,68 +56,83 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $headData = $request->input('head');
+        DB::beginTransaction();
 
-        $head = new UserRegistration;
-        $head->name = $headData['name'];
-        $head->surname = $headData['surname'];
-        $head->birthdate = $headData['birthdate'];
-        $head->mobile_number = $headData['mobile_number'];
-        $head->address = $headData['address'];
+        try {
 
-        $state = State::find($headData['state']);
-        $head->state = $state ? $state->state_name : null;
+            $headData = $request->input('head');
 
-        $head->city = $headData['city'];
-        $head->pincode = $headData['pincode'];
-        $head->status = $headData['status'];
-        $head->wedding_date = $headData['wedding_date'] ?? null;
+            $head = new UserRegistration;
+            $head->name = $headData['name'];
+            $head->surname = $headData['surname'];
+            $head->birthdate = $headData['birthdate'];
+            $head->mobile_number = $headData['mobile_number'];
+            $head->address = $headData['address'];
 
-        $hobbies = $request->input('hobbies');
-        if ($hobbies) {
-            $head->hobby = json_encode($hobbies);
-        }
+            $state = State::find($headData['state']);
+            $head->state = $state ? $state->state_name : null;
 
-        if ($request->hasFile('head.photo')) {
-            $head->photo = $request->file('head.photo')->store('photos', 'public');
-        }
+            $head->city = $headData['city'];
+            $head->pincode = $headData['pincode'];
+            $head->status = $headData['status'];
+            $head->wedding_date = $headData['wedding_date'] ?? null;
 
-        $head->save();
-
-        if ($request->has('members')) {
-            foreach ($request->members as $index => $memberData) {
-                $member = new Member;
-                $member->head_id = $head->id;
-                $member->name = $memberData['name'];
-                $member->birthdate = $memberData['birthdate'];
-                $member->status = $memberData['status'];
-                $member->wedding_date = $memberData['wedding_date'] ?? null;
-                $member->education = $memberData['education'] ?? null;
-                $member->relation = $memberData['relation'] ?? null;
-
-                if ($request->hasFile("members.$index.photo")) {
-                    $member->photo = $request->file("members.$index.photo")->store('photos', 'public');
-                }
-                $member->save();
+            $hobbies = $request->input('hobbies');
+            if ($hobbies) {
+                $head->hobby = json_encode($hobbies);
             }
+
+            if ($request->hasFile('head.photo')) {
+                $head->photo = $request->file('head.photo')->store('photos', 'public');
+            }
+
+            $head->save();
+
+            if ($request->has('members')) {
+                foreach ($request->members as $index => $memberData) {
+                    $member = new Member;
+                    $member->head_id = $head->id;
+                    $member->name = $memberData['name'];
+                    $member->birthdate = $memberData['birthdate'];
+                    $member->status = $memberData['status'];
+                    $member->wedding_date = $memberData['wedding_date'] ?? null;
+                    $member->education = $memberData['education'] ?? null;
+                    $member->relation = $memberData['relation'] ?? null;
+
+                    if ($request->hasFile("members.$index.photo")) {
+                        $member->photo = $request->file("members.$index.photo")->store('photos', 'public');
+                    }
+
+                    $member->save();
+                }
+            }
+
+            AdminAction::create([
+                'admin_id' => auth()->id(),
+                'action' => 'Head Added with Members',
+                'resource_type' => 'family',
+                'resource_id' => $head->id,
+                'details' => json_encode(['ip_address' => $request->ip()]),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Family Head and Members Added Successfully!',
+                'headId' => $head->id,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Something went wrong while saving the data.',
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        AdminAction::create([
-            'admin_id' => auth()->id(),
-            'action' => 'Head Added with Members',
-            'resource_type' => 'family',
-            'resource_id' => $head->id,
-            'details' => json_encode(['ip_address' => $request->ip()]),
-        ]);
-
-        return response()->json([
-            'message' => 'Family Head and Members Added Successfully!',
-            'headId' => $head->id,
-        ]);
     }
 
     public function checkMobileUniqueness(Request $request)
@@ -145,24 +154,33 @@ class AdminController extends Controller
             'password' => 'required',
         ]);
 
-        $admin = Admin::where('email', $request->email)->first();
+        try {
+            $admin = Admin::where('email', $request->email)->first();
 
-        if (! $admin || ! Hash::check($request->password, $admin->password)) {
-            if ($request->ajax()) {
+            if (! $admin || ! Hash::check($request->password, $admin->password)) {
+                if ($request->ajax()) {
+                    return response()->json(['message' => 'Invalid credentials.'], 401);
+                }
 
-                return response()->json(['message' => 'Invalid credentials.'], 401);
+                return back()->withErrors(['login' => 'Invalid credentials'])->withInput();
             }
 
-            return back()->withErrors(['login' => 'Invalid credentials'])->withInput();
+            Session::put('admin', $admin);
+
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Login successful'], 200);
+            }
+
+            return redirect('dashboard');
+        } catch (\Exception $e) {
+            \Log::error('Login error: '.$e->getMessage());
+
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
+            }
+
+            return back()->withErrors(['login' => 'Something went wrong. Please try again.']);
         }
-
-        Session::put('admin', $admin);
-
-        if ($request->ajax()) {
-            return response()->json(['message' => 'Login successful'], 200);
-        }
-
-        return redirect('dashboard');
     }
 
     public function AdminForgetPassword(Request $request)
@@ -206,16 +224,22 @@ class AdminController extends Controller
             'password' => 'required|min:3|confirmed',
         ]);
 
-        $admin = Admin::where('email', $request->email)->first();
+        try {
+            $admin = Admin::where('email', $request->email)->first();
 
-        if ($admin) {
+            if (! $admin) {
+                return redirect()->back()->withErrors(['email' => 'Something went wrong.']);
+            }
+
             $admin->password = Hash::make($request->password);
             $admin->save();
 
             return redirect('admin-login')->with('success', 'Password reset successfully.');
-        }
+        } catch (\Exception $e) {
+            Log::error('Admin password reset failed: '.$e->getMessage());
 
-        return redirect()->back()->withErrors(['email' => 'Something went wrong.']);
+            return redirect()->back()->withErrors(['email' => 'An unexpected error occurred.']);
+        }
     }
 
     public function dashboard()
@@ -363,57 +387,177 @@ class AdminController extends Controller
         return view('Auth.Admin-login.city-list', ['cities' => $cities]);
     }
 
-    public function searchHead(Request $request)
+    public function redirectToEncryptedSearch(Request $request)
     {
         $request->validate([
-            'search' => 'nullable|string|max:255',
+            'search' => 'required|string|max:255',
         ]);
 
         $search = $request->input('search');
+        $encryptedSearch = Crypt::encryptString($search);
 
-        $searchData = UserRegistration::where('name', 'like', '%'.$request->search.'%')
-            ->orWhere('mobile_number', 'like', '%'.$request->search.'%')->orWhere('state', 'like', '%'.$request->search.'%')->orWhere('city', 'like', '%'.$request->search.'%')->whereIn('op_status', [0, 1])
-            ->paginate(5)->appends(['search' => $search]);
+        return redirect()->route('search-head', ['query' => $encryptedSearch]);
+    }
 
-        return view('Auth.Admin-login.search-head', ['searchData' => $searchData]);
+    public function searchHead(Request $request)
+    {
+
+        if ($request->has('search')) {
+            $search = $request->query('search');
+            $encryptedSearch = Crypt::encryptString($search);
+
+            return redirect()->route('search-head', ['query' => $encryptedSearch]);
+        }
+
+        $encryptedSearch = $request->query('query');
+
+        try {
+            $search = $encryptedSearch ? Crypt::decryptString($encryptedSearch) : null;
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['search' => 'Invalid search parameter.']);
+        }
+
+        $searchData = UserRegistration::where(function ($query) use ($search) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('mobile_number', 'like', "%{$search}%")
+                ->orWhere('state', 'like', "%{$search}%")
+                ->orWhere('city', 'like', "%{$search}%");
+        })
+            ->whereIn('op_status', [0, 1])
+            ->paginate(5)
+            ->appends(['query' => $encryptedSearch]);
+
+        return view('Auth.Admin-login.search-head', [
+            'searchData' => $searchData,
+            'search' => $search,
+        ]);
+    }
+
+    public function redirectToEncryptedSearchMember(Request $request)
+    {
+        $request->validate([
+            'search' => 'required|string|max:255',
+        ]);
+
+        $search = $request->input('search');
+        $encryptedSearch = Crypt::encryptString($search);
+
+        return redirect()->route('search-member', ['query' => $encryptedSearch]);
     }
 
     public function searchMember(Request $request)
     {
+
+        if ($request->has('search')) {
+            $search = $request->query('search');
+            $encryptedSearch = Crypt::encryptString($search);
+
+            return redirect()->route('search-member', ['query' => $encryptedSearch]);
+        }
+
+        $encryptedSearch = $request->query('query');
+
+        try {
+            $search = $encryptedSearch ? Crypt::decryptString($encryptedSearch) : null;
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['search' => 'Invalid search parameter.']);
+        }
+
+        $searchData = Member::where(function ($query) use ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        })
+            ->whereIn('op_status', [0, 1])
+            ->paginate(5)
+            ->appends(['query' => $encryptedSearch]);
+
+        return view('Auth.Admin-login.search-member', [
+            'searchData' => $searchData,
+            'search' => $search,
+        ]);
+    }
+
+    public function redirectToEncryptedSearchState(Request $request)
+    {
         $request->validate([
-            'search' => 'nullable|string|max:255',
+            'search' => 'required|string|max:255',
         ]);
 
         $search = $request->input('search');
-        $searchData = Member::where('name', 'like', '%'.$request->search.'%')->paginate(5)->appends(['search' => $search]);
+        $encryptedSearch = Crypt::encryptString($search);
 
-        return view('Auth.Admin-login.search-member', ['searchData' => $searchData]);
+        return redirect()->route('search-state', ['query' => $encryptedSearch]);
     }
 
     public function searchState(Request $request)
     {
+        if ($request->has('search')) {
+            $search = $request->query('search');
+            $encryptedSearch = Crypt::encryptString($search);
+
+            return redirect()->route('search-state', ['query' => $encryptedSearch]);
+        }
+
+        $encryptedSearch = $request->query('query');
+
+        try {
+            $search = $encryptedSearch ? Crypt::decryptString($encryptedSearch) : null;
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['search' => 'Invalid search parameter.']);
+        }
+
+        $searchData = State::where(function ($query) use ($search) {
+            $query->where('state_name', 'like', "%{$search}%");
+        })
+            ->whereIn('op_status', [0, 1])
+            ->paginate(5)
+            ->appends(['query' => $encryptedSearch]);
+
+        return view('Auth.Admin-login.search-state', [
+            'searchData' => $searchData,
+            'search' => $search,
+        ]);
+    }
+
+    public function redirectToEncryptedSearchCity(Request $request)
+    {
         $request->validate([
-            'search' => 'nullable|string|max:255',
+            'search' => 'required|string|max:255',
         ]);
 
         $search = $request->input('search');
-        $searchData = State::where('state_name', 'like', '%'.$request->search.'%')
-            ->paginate(5)->appends(['search' => $search]);
+        $encryptedSearch = Crypt::encryptString($search);
 
-        return view('Auth.Admin-login.search-state', ['searchData' => $searchData]);
+        return redirect()->route('search-city', ['query' => $encryptedSearch]);
     }
 
     public function searchCity(Request $request)
     {
-        $request->validate([
-            'search' => 'nullable|string|max:255',
+        if ($request->has('search')) {
+            $search = $request->query('search');
+            $encryptedSearch = Crypt::encryptString($search);
+
+            return redirect()->route('search-city', ['query' => $encryptedSearch]);
+        }
+
+        $encryptedSearch = $request->query('query');
+
+        try {
+            $search = $encryptedSearch ? Crypt::decryptString($encryptedSearch) : null;
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['search' => 'Invalid search parameter.']);
+        }
+
+        $searchData = City::where(function ($query) use ($search) {
+            $query->where('city_name', 'like', "%{$search}%");
+        })
+            ->whereIn('op_status', [0, 1])
+            ->paginate(5)
+            ->appends(['query' => $encryptedSearch]);
+
+        return view('Auth.Admin-login.search-city', [
+            'searchData' => $searchData,
+            'search' => $search,
         ]);
-
-        $search = $request->input('search');
-        $searchData = City::where('city_name', 'like', '%'.$request->search.'%')
-            ->paginate(5)->appends(['search' => $search]);
-
-        return view('Auth.Admin-login.search-city', ['searchData' => $searchData]);
     }
 
     public function logout()
