@@ -423,7 +423,7 @@
                                 <th class="px-1 py-1 text-center">Marital Status</th>
                                 <th class="px-1 py-1 text-center">Wedding Date</th>
                                 <th class="px-1 py-1 text-center">Hobbies</th>
-                                <th class="px-1 py-1 text-center">Created at</th>
+                                <th class="px-1 py-1 text-center">Status</th>
                                 <th class="px-1 py-1 text-center">Action</th>
                             </tr>
                         </thead>
@@ -471,7 +471,13 @@
                                         @endif
                                     </td>
                                     <td class="px-1 py-1 text-center">
-                                        {{ $sd->created_at}}
+                                       <div class="flex justify-center gap-2">
+                                            @if($sd->op_status==1)
+                                                 <h6>Active</h6>
+                                            @elseif ($sd->op_status==0)
+                                                 <h6>Inctive</h6>
+                                            @endif
+                                    </div>
                                     </td>
                                     <td class="px-1 py-1 text-center">
                                         <div class="flex justify-center gap-2">

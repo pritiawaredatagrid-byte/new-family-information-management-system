@@ -480,7 +480,7 @@
                                                  <h6>Inctive</h6>
                                             @endif
                                     </div>
-</div>
+</div>               
                                     <td class="px-1 py-1 text-center">
                                         <div class="flex justify-center gap-2">
                                            

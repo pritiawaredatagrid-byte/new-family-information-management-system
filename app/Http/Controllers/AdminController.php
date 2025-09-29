@@ -365,32 +365,53 @@ class AdminController extends Controller
 
     public function searchHead(Request $request)
     {
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+        ]);
+
+        $search = $request->input('search');
+
         $searchData = UserRegistration::where('name', 'like', '%'.$request->search.'%')
-            ->orWhere('mobile_number', 'like', '%'.$request->search.'%')->orWhere('state', 'like', '%'.$request->search.'%')->orWhere('city', 'like', '%'.$request->search.'%')
-            ->paginate(5);
+            ->orWhere('mobile_number', 'like', '%'.$request->search.'%')->orWhere('state', 'like', '%'.$request->search.'%')->orWhere('city', 'like', '%'.$request->search.'%')->whereIn('op_status', [0, 1])
+            ->paginate(5)->appends(['search' => $search]);
 
         return view('Auth.Admin-login.search-head', ['searchData' => $searchData]);
     }
 
     public function searchMember(Request $request)
     {
-        $searchData = Member::where('name', 'like', '%'.$request->search.'%')->paginate(5);
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+        ]);
+
+        $search = $request->input('search');
+        $searchData = Member::where('name', 'like', '%'.$request->search.'%')->paginate(5)->appends(['search' => $search]);
 
         return view('Auth.Admin-login.search-member', ['searchData' => $searchData]);
     }
 
     public function searchState(Request $request)
     {
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+        ]);
+
+        $search = $request->input('search');
         $searchData = State::where('state_name', 'like', '%'.$request->search.'%')
-            ->paginate(5);
+            ->paginate(5)->appends(['search' => $search]);
 
         return view('Auth.Admin-login.search-state', ['searchData' => $searchData]);
     }
 
     public function searchCity(Request $request)
     {
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+        ]);
+
+        $search = $request->input('search');
         $searchData = City::where('city_name', 'like', '%'.$request->search.'%')
-            ->paginate(5);
+            ->paginate(5)->appends(['search' => $search]);
 
         return view('Auth.Admin-login.search-city', ['searchData' => $searchData]);
     }
