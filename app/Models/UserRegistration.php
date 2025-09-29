@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\File;
+
 class UserRegistration extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $table = 'UserRegistration';
+
     protected $guarded = [];
 
     public function members()
@@ -22,15 +24,14 @@ class UserRegistration extends Model
     {
         static::deleted(function (UserRegistration $user) {
 
-            if ($user->photo && File::exists(public_path('uploads/' . $user->photo))) {
-                File::delete(public_path('uploads/' . $user->photo));
+            if ($user->photo && File::exists(public_path('uploads/'.$user->photo))) {
+                File::delete(public_path('uploads/'.$user->photo));
             }
-
 
             $user->members()->each(function ($member) {
 
-                if ($member->photo && File::exists(public_path('uploads/' . $member->photo))) {
-                    File::delete(public_path('uploads/' . $member->photo));
+                if ($member->photo && File::exists(public_path('uploads/'.$member->photo))) {
+                    File::delete(public_path('uploads/'.$member->photo));
                 }
 
                 $member->op_status = 9;

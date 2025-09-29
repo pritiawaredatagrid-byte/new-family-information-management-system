@@ -1023,7 +1023,6 @@
             let memberIndex = 0;
             const hobbiesContainer = $('#hobbies-container');
 
-            // --- City Load ---
             function loadCities(stateId, selectedCity = '') {
                 const citySelect = $('#head_city');
                 if (!stateId) { citySelect.html('<option value="">Select State First</option>'); return; }
@@ -1037,13 +1036,12 @@
                 }, 'json');
             }
 
-            // Initial city load
+ 
             const initialState = $('#head_state').val();
             if (initialState) loadCities(initialState, headData.city);
 
             $('#head_state').change(function () { loadCities($(this).val()); });
 
-            // --- Hobbies ---
             function getHobbyRow(value = '') {
                 return `<div class="hobby-row">
                             <input type="text" name="hobbies[]" class="hobby-input" placeholder="Enter hobby" value="${value}">
@@ -1060,7 +1058,6 @@
             $('#removeAllHobbiesBtn').click(() => { hobbiesContainer.empty(); addHobbyRow(); });
             hobbiesContainer.on('click', '.btn-remove-hobby', function () { $(this).closest('.hobby-row').remove(); });
 
-            // --- Member Form ---
             function getMemberForm(index, member = {}) {
                 const isMarried = member.status === 'married';
                 return `<div class="member-form" data-index="${index}">
@@ -1105,7 +1102,6 @@
                 form.remove();
             });
 
-            // Toggle wedding date based on marital status
             $(document).on('change', 'input[name="head[status]"]', function () {
                 if ($(this).val() == 'married') { $('#head_wedding_date_group').removeClass('hidden'); }
                 else { $('#head_wedding_date_group').addClass('hidden'); $('#head_wedding_date').val(''); }
@@ -1116,7 +1112,6 @@
                 if ($(this).val() == 'married') group.removeClass('hidden'); else { group.addClass('hidden'); group.find('input').val(''); }
             });
 
-            // --- AJAX Submission ---
             $('#registrationForm').submit(function (e) {
                 e.preventDefault();
                 $('#loading-spinner').show();
