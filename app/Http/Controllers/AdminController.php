@@ -19,12 +19,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Mail;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Validator;
-
-
 
 class AdminController extends Controller
 {
@@ -43,7 +41,7 @@ class AdminController extends Controller
                 'max:50',
                 'regex:/^[A-Za-z]+$/',
             ],
-            'head.birthdate' => 'required|date|before_or_equal:' . $cutDate,
+            'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
             'head.mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
             'head.address' => 'required',
             'head.state' => 'required',
@@ -106,6 +104,7 @@ class AdminController extends Controller
                 $member->wedding_date = $memberData['wedding_date'] ?? null;
                 $member->education = $memberData['education'] ?? null;
                 $member->relation = $memberData['relation'] ?? null;
+
                 if ($request->hasFile("members.$index.photo")) {
                     $member->photo = $request->file("members.$index.photo")->store('photos', 'public');
                 }
@@ -148,7 +147,7 @@ class AdminController extends Controller
 
         $admin = Admin::where('email', $request->email)->first();
 
-        if (!$admin || !Hash::check($request->password, $admin->password)) {
+        if (! $admin || ! Hash::check($request->password, $admin->password)) {
             if ($request->ajax()) {
 
                 return response()->json(['message' => 'Invalid credentials.'], 401);
@@ -174,7 +173,7 @@ class AdminController extends Controller
 
         $admin = Admin::where('email', $request->email)->first();
 
-        if (!$admin) {
+        if (! $admin) {
             return redirect()->back()->withErrors(['email' => 'Please enter valid email.'])->withInput();
         }
 
@@ -193,7 +192,7 @@ class AdminController extends Controller
     {
         $admin = Admin::where('email', $email)->first();
 
-        if (!$admin) {
+        if (! $admin) {
             abort(404);
         }
 
@@ -354,8 +353,8 @@ class AdminController extends Controller
 
     public function searchHead(Request $request)
     {
-        $searchData = UserRegistration::where('name', 'like', '%' . $request->search . '%')
-            ->orWhere('mobile_number', 'like', '%' . $request->search . '%')->orWhere('state', 'like', '%' . $request->search . '%')->orWhere('city', 'like', '%' . $request->search . '%')
+        $searchData = UserRegistration::where('name', 'like', '%'.$request->search.'%')
+            ->orWhere('mobile_number', 'like', '%'.$request->search.'%')->orWhere('state', 'like', '%'.$request->search.'%')->orWhere('city', 'like', '%'.$request->search.'%')
             ->paginate(5);
 
         return view('Auth.Admin-login.search-head', ['searchData' => $searchData]);
@@ -363,14 +362,14 @@ class AdminController extends Controller
 
     public function searchMember(Request $request)
     {
-        $searchData = Member::where('name', 'like', '%' . $request->search . '%')->paginate(5);
+        $searchData = Member::where('name', 'like', '%'.$request->search.'%')->paginate(5);
 
         return view('Auth.Admin-login.search-member', ['searchData' => $searchData]);
     }
 
     public function searchState(Request $request)
     {
-        $searchData = State::where('state_name', 'like', '%' . $request->search . '%')
+        $searchData = State::where('state_name', 'like', '%'.$request->search.'%')
             ->paginate(5);
 
         return view('Auth.Admin-login.search-state', ['searchData' => $searchData]);
@@ -378,7 +377,7 @@ class AdminController extends Controller
 
     public function searchCity(Request $request)
     {
-        $searchData = City::where('city_name', 'like', '%' . $request->search . '%')
+        $searchData = City::where('city_name', 'like', '%'.$request->search.'%')
             ->paginate(5);
 
         return view('Auth.Admin-login.search-city', ['searchData' => $searchData]);
@@ -401,7 +400,6 @@ class AdminController extends Controller
             'state_name' => $request->state_name,
         ]);
 
-
         AdminAction::create([
             'admin_id' => auth()->id(),
             'action' => 'State Added',
@@ -416,7 +414,6 @@ class AdminController extends Controller
             'state_name' => $state->state_name,
         ]);
     }
-
 
     public function addStates()
     {
@@ -450,6 +447,7 @@ class AdminController extends Controller
 
         return view('add-city', compact('state_id', 'state_name'));
     }
+
     public function addCity(Request $request)
     {
         $request->validate([
@@ -482,7 +480,6 @@ class AdminController extends Controller
             ->with('city', 'City added successfully!');
     }
 
-
     public function checkCity(Request $request)
     {
         $exists = City::where('state_id', $request->state_id)
@@ -490,7 +487,7 @@ class AdminController extends Controller
             ->exists();
 
         if ($exists) {
-            return response()->json("This city name already exists in the selected state");
+            return response()->json('This city name already exists in the selected state');
         } else {
             return response()->json(true);
         }
@@ -518,8 +515,8 @@ class AdminController extends Controller
         $request->validate([
             'head.name' => 'required|max:50',
             'head.surname' => 'required|max:50',
-            'head.birthdate' => 'required|date|before_or_equal:' . $cutDate,
-            'head.mobile_number' => 'required|numeric|digits:10|unique:UserRegistration,mobile_number,' . $id,
+            'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
+            'head.mobile_number' => 'required|numeric|digits:10|unique:UserRegistration,mobile_number,'.$id,
             'head.address' => 'required',
             'head.state' => 'required',
             'head.city' => 'required',
@@ -574,14 +571,14 @@ class AdminController extends Controller
                 Storage::disk('public')->delete($heads->photo);
             }
 
-            $path = $file->store('photos/heads', 'public');
+            $path = $file->store('photos', 'public');
             $heads->photo = $path;
         }
 
         if ($heads->save()) {
 
             $membersToDelete = $request->input('members_to_delete', []);
-            if (!empty($membersToDelete)) {
+            if (! empty($membersToDelete)) {
                 $deletedMembers = Member::whereIn('id', $membersToDelete)->get();
                 foreach ($deletedMembers as $member) {
                     if ($member->photo) {
@@ -614,7 +611,7 @@ class AdminController extends Controller
                         if ($member->photo) {
                             Storage::disk('public')->delete($member->photo);
                         }
-                        $path = $file->store('photos/members', 'public');
+                        $path = $file->store('photos', 'public');
                         $member->photo = $path;
                     }
 
@@ -638,14 +635,11 @@ class AdminController extends Controller
         }
     }
 
-
-
     public function addFamilyMemberFormAdmin($head_id)
     {
 
         return view('/Auth/Admin-login/add-family-member-admin', compact('head_id'));
     }
-
 
     public function addFamilyMemberAdmin(Request $request)
     {
@@ -663,7 +657,7 @@ class AdminController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $member = new Member();
+        $member = new Member;
         $member->head_id = $request->head_id;
         $member->name = $request->name;
         $member->birthdate = $request->birthdate;
@@ -673,7 +667,7 @@ class AdminController extends Controller
         $member->relation = $request->relation;
 
         if ($request->hasFile('photo')) {
-            $filename = time() . '.' . $request->photo->extension();
+            $filename = time().'.'.$request->photo->extension();
             $request->photo->move(public_path('uploads/'), $filename);
             $member->photo = $filename;
         }
@@ -682,8 +676,6 @@ class AdminController extends Controller
 
         return response()->json(['message' => 'Family member added successfully!']);
     }
-
-
 
     public function editFamilyMember($head_id, $id)
     {
@@ -813,7 +805,7 @@ class AdminController extends Controller
         ]);
 
         return redirect('/family-list')
-            ->with('success', $head->name . "'s Family details successfully deleted.");
+            ->with('success', $head->name."'s Family details successfully deleted.");
     }
 
     public function deleteFamilyMember($id, Request $request)
@@ -832,7 +824,7 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('view-family-details', ['id' => $head_id])
-            ->with('success', $member->name . ' successfully deleted.');
+            ->with('success', $member->name.' successfully deleted.');
     }
 
     public function viewStateDetails($state_id, Request $request)
@@ -848,11 +840,10 @@ class AdminController extends Controller
 
     }
 
-
-
     public function editState($state_id)
     {
         $stateDetails = State::findOrFail($state_id);
+
         return view('Auth.Admin-login.edit-state', ['stateDetails' => $stateDetails]);
     }
 
@@ -863,7 +854,7 @@ class AdminController extends Controller
         $validator = \Validator::make($request->all(), [
             'state_name' => [
                 'required',
-                Rule::unique('states')->ignore($state_id, 'state_id')
+                Rule::unique('states')->ignore($state_id, 'state_id'),
             ],
         ]);
 
@@ -872,6 +863,7 @@ class AdminController extends Controller
             if ($request->ajax()) {
                 return response()->json(['errors' => $validator->errors()], 422);
             }
+
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
@@ -891,11 +883,13 @@ class AdminController extends Controller
             }
 
             Session::flash('$stateDetails', 'State updated Successfully.');
+
             return redirect()->route('view-state-details', ['state_id' => $state_id]);
         } else {
             if ($request->ajax()) {
                 return response()->json(['message' => 'Something went wrong'], 500);
             }
+
             return redirect()->back()->with('error', 'Something went wrong');
         }
     }
@@ -907,7 +901,7 @@ class AdminController extends Controller
 
         return view('Auth.Admin-login.edit-city', [
             'city' => $city,
-            'state' => $state
+            'state' => $state,
         ]);
     }
 
@@ -919,7 +913,7 @@ class AdminController extends Controller
         $validator = \Validator::make($request->all(), [
             'city_name' => [
                 'required',
-                Rule::unique('cities')->where(fn($query) => $query->where('state_id', $state_id))->ignore($city_id, 'city_id')
+                Rule::unique('cities')->where(fn ($query) => $query->where('state_id', $state_id))->ignore($city_id, 'city_id'),
             ],
         ]);
 
@@ -927,6 +921,7 @@ class AdminController extends Controller
             if ($request->ajax()) {
                 return response()->json(['errors' => $validator->errors()], 422);
             }
+
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
@@ -946,6 +941,7 @@ class AdminController extends Controller
             }
 
             Session::flash('city', 'City updated Successfully.');
+
             return redirect()->route('view-state-details', ['state_id' => $state_id]);
         }
 
@@ -955,6 +951,7 @@ class AdminController extends Controller
 
         return redirect()->back()->with('error', 'Something went wrong');
     }
+
     public function deleteStateDetails($state_id, Request $request)
     {
         $state = State::findOrFail($state_id);
@@ -969,13 +966,13 @@ class AdminController extends Controller
         ]);
 
         return redirect('/state-list')
-            ->with('success', $state->state_name . ' successfully deleted.');
+            ->with('success', $state->state_name.' successfully deleted.');
     }
-
 
     public function editCityFromList($city_id)
     {
         $city = City::findOrFail($city_id);
+
         return view('Auth.Admin-login.edit-city-from-list', ['city' => $city]);
     }
 
@@ -983,11 +980,10 @@ class AdminController extends Controller
     {
         $city = City::findOrFail($city_id);
 
-
         $validator = \Validator::make($request->all(), [
             'city_name' => [
                 'required',
-                Rule::unique('cities')->ignore($city_id, 'city_id')
+                Rule::unique('cities')->ignore($city_id, 'city_id'),
             ],
         ]);
 
@@ -996,6 +992,7 @@ class AdminController extends Controller
             if ($request->ajax()) {
                 return response()->json(['errors' => $validator->errors()], 422);
             }
+
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
@@ -1015,15 +1012,16 @@ class AdminController extends Controller
             }
 
             Session::flash('city', 'City updated Successfully.');
+
             return redirect('city-list');
         } else {
             if ($request->ajax()) {
                 return response()->json(['message' => 'Something went wrong'], 500);
             }
+
             return redirect()->back()->with('error', 'Something went wrong');
         }
     }
-
 
     public function deleteCity($city_id, Request $request)
     {
@@ -1042,10 +1040,8 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('view-state-details', ['state_id' => $state_id])
-            ->with('success', $city->city_name . ' successfully deleted.');
+            ->with('success', $city->city_name.' successfully deleted.');
     }
-
-
 
     public function index()
     {
