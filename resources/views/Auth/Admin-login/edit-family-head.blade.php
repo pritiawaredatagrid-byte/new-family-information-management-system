@@ -883,8 +883,7 @@
         <div id="loading-spinner">Updating form...</div>
         <div id="success-message"></div>
 
-        <form id="registrationForm" action="{{ route('edit-family-head-data', ['id' => $familyHead->id]) }}"
-            method="POST" enctype="multipart/form-data">
+       <form id="registrationForm" action="{{ route('edit-family-head-data', ['id' => $familyHead->encrypted_id]) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 

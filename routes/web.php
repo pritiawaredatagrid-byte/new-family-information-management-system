@@ -19,17 +19,19 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::get('city-list', [AdminController::class, 'cityList']);
 
     // search head
-    Route::get('search', [AdminController::class, 'redirectToEncryptedSearch'])->name('redirect-search');
-    Route::get('search-head', [AdminController::class, 'searchHead'])->name('search-head');
 
-    Route::get('search-member-encrypt', [AdminController::class, 'redirectToEncryptedSearchMember'])->name('redirect-search');
-    Route::get('search-member', [AdminController::class, 'searchMember'])->name('search-member');
+    // routes/web.php
+    Route::get('redirect-search/{type}', [AdminController::class, 'redirectToEncryptedSearch'])->name('redirect-search');
+    Route::get('search-head/{search?}', [AdminController::class, 'searchHead'])->name('search-head');
 
-    Route::get('search-state-encrypt', [AdminController::class, 'redirectToEncryptedSearchState'])->name('redirect-search');
-    Route::get('search-state', [AdminController::class, 'searchState'])->name('search-state');
+    Route::get('redirect-search-member/{type}', [AdminController::class, 'redirectToEncryptedSearch'])->name('redirect-search-member');
+    Route::get('search-member/{search?}', [AdminController::class, 'searchMember'])->name('search-member');
 
-    Route::get('search-city-encrypt', [AdminController::class, 'redirectToEncryptedSearchCity'])->name('redirect-search');
-    Route::get('search-city', [AdminController::class, 'searchCity'])->name('search-city');
+    Route::get('redirect-search-state/{type}', [AdminController::class, 'redirectToEncryptedSearch'])->name('redirect-search-state');
+    Route::get('search-state/{search?}', [AdminController::class, 'searchState'])->name('search-state');
+
+    Route::get('redirect-search-city/{type}', [AdminController::class, 'redirectToEncryptedSearch'])->name('redirect-search-city');
+    Route::get('search-city/{search?}', [AdminController::class, 'searchCity'])->name('search-city');
 
     Route::get('admin-logout', [AdminController::class, 'logout']);
 
@@ -77,7 +79,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
 
     // Edit state
     Route::view('edit-state', '/Auth/Admin-login/edit-state');
-    Route::get('edit-state/{state_id}', [AdminController::class, 'editState']);
+    Route::get('edit-state/{encrypted_state_id}', [AdminController::class, 'editState']);
     Route::put('edit-state-data/{state_id}', [AdminController::class, 'editStateData']);
 
     // Edit City
@@ -87,7 +89,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
 
     // edit city from list
     Route::view('edit-city-from-list', '/Auth/Admin-login/edit-city-from-list');
-    Route::get('edit-city-from-list/{city_id}', [AdminController::class, 'editCityFromList']);
+    Route::get('/edit-city-from-list/{encrypted_city_id}', [AdminController::class, 'editCityFromList'])->name('edit-city-from-list');
     Route::put('edit-city-data-from-list/{city_id}', [AdminController::class, 'editCityDataFromList']);
 
     // new state add
@@ -127,11 +129,12 @@ Route::view('admin-login', '/Auth/Admin-login/admin-login');
 Route::view('admin-forget-password', '/Auth/Admin-login/admin-forget-password');
 Route::post('admin-forget-password', [AdminController::class, 'AdminForgetPassword']);
 // Route::get('admin-forget-password/{email}', [AdminController::class, 'AdminResetForgetPassword']);
-Route::get('/admin-forget-password/{email}', [AdminController::class, 'AdminResetForgetPassword'])
+Route::get('/admin-forget-password/{encrypted}', [AdminController::class, 'AdminResetForgetPassword'])
     ->name('admin.reset-password')
     ->middleware('signed');
 
 Route::post('admin-set-forget-password', [AdminController::class, 'AdminSetForgetPassword']);
+
 Route::post('admin-login', [AdminController::class, 'login']);
 
 // Route::get('member-list', [AdminController::class, 'memberList']);

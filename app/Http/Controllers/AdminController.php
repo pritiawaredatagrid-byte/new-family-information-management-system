@@ -192,29 +192,35 @@ class AdminController extends Controller
         $admin = Admin::where('email', $request->email)->first();
 
         if (! $admin) {
-            return redirect()->back()->withErrors(['email' => 'Please enter valid email.'])->withInput();
+            return response()->json([
+                'errors' => ['email' => ['Please enter a valid email.']],
+            ], 422);
         }
+        $encryptedEmail = Crypt::encryptString($request->email);
 
         $link = URL::temporarySignedRoute(
             'admin.reset-password',
             now()->addMinutes(15),
-            ['email' => $request->email]
+            ['encrypted' => $encryptedEmail]
         );
 
         Mail::to($request->email)->send(new AdminForgotPassword($link));
 
-        return redirect('/')->with('status', 'Password reset link sent to your email.');
+        return response()->json(['message' => 'Password reset link sent to your email.']);
     }
 
-    public function AdminResetForgetPassword($email)
+    public function AdminResetForgetPassword($encrypted)
     {
-        $admin = Admin::where('email', $email)->first();
+        try {
+            $email = Crypt::decryptString($encrypted);
 
-        if (! $admin) {
-            abort(404);
+            $admin = Admin::where('email', $email)->firstOrFail();
+
+            return view('admin.reset-password', ['email' => $email]);
+
+        } catch (\Exception $e) {
+            abort(403, 'Invalid or expired link.');
         }
-
-        return view('admin-set-forget-password', ['email' => $email]);
     }
 
     public function AdminSetForgetPassword(Request $request)
@@ -300,24 +306,38 @@ class AdminController extends Controller
         return view('admin', $admin);
     }
 
-    public function familyList()
+    public function familyList(Request $request)
     {
         $heads = UserRegistration::withoutGlobalScopes()
             ->whereIn('op_status', [0, 1])
             ->orderBy('id', 'desc')
-            ->paginate(5);
+            ->paginate(10);
+        foreach ($heads as $head) {
+            $head->encrypted_id = urlencode(Crypt::encrypt($head->id));
+        }
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.family-table', compact('heads'))->render();
+        }
 
-        return view('Auth.Admin-login.family-list', ['heads' => $heads]);
+        return view('Auth.Admin-login.family-list', compact('heads'));
     }
 
-    public function memberList()
+    public function memberList(Request $request)
     {
         $members = Member::withoutGlobalScopes()
             ->whereIn('op_status', [0, 1])
             ->orderBy('id', 'desc')
-            ->paginate(5);
+            ->paginate(10);
 
-        return view('Auth.Admin-login.member-list', ['members' => $members]);
+        foreach ($members as $member) {
+            $member->encrypted_id = urlencode(Crypt::encrypt($member->id));
+        }
+
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.member-table', compact('members'))->render();
+        }
+
+        return view('Auth.Admin-login.member-list', compact('members'));
     }
 
     public function exportPDF()
@@ -367,54 +387,64 @@ class AdminController extends Controller
         return Excel::download(new SearchFamilyDetailsExcel($families), 'Filtered_Family_Details.xlsx');
     }
 
-    public function StateList()
+    public function StateList(Request $request)
     {
         $states = State::withoutGlobalScopes()
             ->whereIn('op_status', [0, 1])
             ->orderBy('state_id', 'desc')
             ->paginate(10);
 
-        return view('Auth.Admin-login.state-list', ['states' => $states]);
+        foreach ($states as $state) {
+            $state->encrypted_id = urlencode(Crypt::encrypt($state->state_id));
+        }
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.state-table', compact('states'))->render();
+        }
+
+        return view('Auth.Admin-login.state-list', compact('states'));
     }
 
-    public function CityList()
+    public function CityList(Request $request)
     {
         $cities = City::withoutGlobalScopes()
             ->whereIn('op_status', [0, 1])
             ->orderBy('city_id', 'desc')
             ->paginate(10);
 
-        return view('Auth.Admin-login.city-list', ['cities' => $cities]);
-    }
-
-    public function redirectToEncryptedSearch(Request $request)
-    {
-        $request->validate([
-            'search' => 'required|string|max:255',
-        ]);
-
-        $search = $request->input('search');
-        $encryptedSearch = Crypt::encryptString($search);
-
-        return redirect()->route('search-head', ['query' => $encryptedSearch]);
-    }
-
-    public function searchHead(Request $request)
-    {
-
-        if ($request->has('search')) {
-            $search = $request->query('search');
-            $encryptedSearch = Crypt::encryptString($search);
-
-            return redirect()->route('search-head', ['query' => $encryptedSearch]);
+        foreach ($cities as $city) {
+            $city->encrypted_city_id = urlencode(Crypt::encrypt($city->city_id));
         }
 
-        $encryptedSearch = $request->query('query');
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.city-table', compact('cities'))->render();
+        }
 
-        try {
-            $search = $encryptedSearch ? Crypt::decryptString($encryptedSearch) : null;
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['search' => 'Invalid search parameter.']);
+        return view('Auth.Admin-login.city-list', compact('cities'));
+    }
+
+    public function redirectToEncryptedSearch(Request $request, $type)
+    {
+        $search = $request->input('search');
+
+        if (! $search) {
+            return redirect()->route('search-'.$type);
+        }
+
+        $encryptedSearch = base64_encode(Crypt::encryptString($search));
+
+        return redirect()->route('search-'.$type, ['search' => $encryptedSearch]);
+    }
+
+    public function searchHead(Request $request, $encrypted = null)
+    {
+        $search = '';
+
+        if ($encrypted) {
+            try {
+                $search = Crypt::decryptString(base64_decode($encrypted));
+            } catch (DecryptException $e) {
+                $search = '';
+            }
         }
 
         $searchData = UserRegistration::where(function ($query) use ($search) {
@@ -424,8 +454,12 @@ class AdminController extends Controller
                 ->orWhere('city', 'like', "%{$search}%");
         })
             ->whereIn('op_status', [0, 1])
-            ->paginate(5)
-            ->appends(['query' => $encryptedSearch]);
+            ->paginate(10)
+            ->appends(['search' => $encrypted]);
+
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.searchHead-table', compact('searchData'))->render();
+        }
 
         return view('Auth.Admin-login.search-head', [
             'searchData' => $searchData,
@@ -433,42 +467,28 @@ class AdminController extends Controller
         ]);
     }
 
-    public function redirectToEncryptedSearchMember(Request $request)
+    public function searchMember(Request $request, $encrypted = null)
     {
-        $request->validate([
-            'search' => 'required|string|max:255',
-        ]);
+        $search = '';
 
-        $search = $request->input('search');
-        $encryptedSearch = Crypt::encryptString($search);
-
-        return redirect()->route('search-member', ['query' => $encryptedSearch]);
-    }
-
-    public function searchMember(Request $request)
-    {
-
-        if ($request->has('search')) {
-            $search = $request->query('search');
-            $encryptedSearch = Crypt::encryptString($search);
-
-            return redirect()->route('search-member', ['query' => $encryptedSearch]);
-        }
-
-        $encryptedSearch = $request->query('query');
-
-        try {
-            $search = $encryptedSearch ? Crypt::decryptString($encryptedSearch) : null;
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['search' => 'Invalid search parameter.']);
+        if ($encrypted) {
+            try {
+                $search = Crypt::decryptString(base64_decode($encrypted));
+            } catch (DecryptException $e) {
+                $search = '';
+            }
         }
 
         $searchData = Member::where(function ($query) use ($search) {
             $query->where('name', 'like', "%{$search}%");
         })
             ->whereIn('op_status', [0, 1])
-            ->paginate(5)
-            ->appends(['query' => $encryptedSearch]);
+            ->paginate(10)
+            ->appends(['search' => $encrypted]);
+
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.searchMember-table', compact('searchData'))->render();
+        }
 
         return view('Auth.Admin-login.search-member', [
             'searchData' => $searchData,
@@ -476,41 +496,28 @@ class AdminController extends Controller
         ]);
     }
 
-    public function redirectToEncryptedSearchState(Request $request)
+    public function searchState(Request $request, $encrypted = null)
     {
-        $request->validate([
-            'search' => 'required|string|max:255',
-        ]);
+        $search = '';
 
-        $search = $request->input('search');
-        $encryptedSearch = Crypt::encryptString($search);
-
-        return redirect()->route('search-state', ['query' => $encryptedSearch]);
-    }
-
-    public function searchState(Request $request)
-    {
-        if ($request->has('search')) {
-            $search = $request->query('search');
-            $encryptedSearch = Crypt::encryptString($search);
-
-            return redirect()->route('search-state', ['query' => $encryptedSearch]);
-        }
-
-        $encryptedSearch = $request->query('query');
-
-        try {
-            $search = $encryptedSearch ? Crypt::decryptString($encryptedSearch) : null;
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['search' => 'Invalid search parameter.']);
+        if ($encrypted) {
+            try {
+                $search = Crypt::decryptString(base64_decode($encrypted));
+            } catch (DecryptException $e) {
+                $search = '';
+            }
         }
 
         $searchData = State::where(function ($query) use ($search) {
             $query->where('state_name', 'like', "%{$search}%");
         })
             ->whereIn('op_status', [0, 1])
-            ->paginate(5)
-            ->appends(['query' => $encryptedSearch]);
+            ->paginate(10)
+            ->appends(['search' => $encrypted]);
+
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.searchState-table', compact('searchData'))->render();
+        }
 
         return view('Auth.Admin-login.search-state', [
             'searchData' => $searchData,
@@ -518,41 +525,28 @@ class AdminController extends Controller
         ]);
     }
 
-    public function redirectToEncryptedSearchCity(Request $request)
+    public function searchCity(Request $request, $encrypted = null)
     {
-        $request->validate([
-            'search' => 'required|string|max:255',
-        ]);
+        $search = '';
 
-        $search = $request->input('search');
-        $encryptedSearch = Crypt::encryptString($search);
-
-        return redirect()->route('search-city', ['query' => $encryptedSearch]);
-    }
-
-    public function searchCity(Request $request)
-    {
-        if ($request->has('search')) {
-            $search = $request->query('search');
-            $encryptedSearch = Crypt::encryptString($search);
-
-            return redirect()->route('search-city', ['query' => $encryptedSearch]);
-        }
-
-        $encryptedSearch = $request->query('query');
-
-        try {
-            $search = $encryptedSearch ? Crypt::decryptString($encryptedSearch) : null;
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['search' => 'Invalid search parameter.']);
+        if ($encrypted) {
+            try {
+                $search = Crypt::decryptString(base64_decode($encrypted));
+            } catch (DecryptException $e) {
+                $search = '';
+            }
         }
 
         $searchData = City::where(function ($query) use ($search) {
             $query->where('city_name', 'like', "%{$search}%");
         })
             ->whereIn('op_status', [0, 1])
-            ->paginate(5)
-            ->appends(['query' => $encryptedSearch]);
+            ->paginate(10)
+            ->appends(['search' => $encrypted]);
+
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.searchCity-table', compact('searchData'))->render();
+        }
 
         return view('Auth.Admin-login.search-city', [
             'searchData' => $searchData,
@@ -670,12 +664,15 @@ class AdminController extends Controller
         }
     }
 
-    public function editFamilyHead($id)
+    public function editFamilyHead($encrypted_id)
     {
+        $id = Crypt::decrypt(urldecode($encrypted_id));
         $familyHead = UserRegistration::with('members')->findOrFail($id);
         $states = State::select('state_id', 'state_name')->get();
 
         $hobbies = json_decode($familyHead->hobby ?? '[]', true);
+
+        $familyHead->encrypted_id = urlencode(Crypt::encrypt($familyHead->id));
 
         return view('/Auth/Admin-login/edit-family-head', [
             'familyHead' => $familyHead,
@@ -854,15 +851,25 @@ class AdminController extends Controller
         return response()->json(['message' => 'Family member added successfully!']);
     }
 
-    public function editFamilyMember($head_id, $id)
+    public function editFamilyMember($encrypted_head_id, $id)
     {
+        try {
+            $head_id = Crypt::decrypt(urldecode($encrypted_head_id));
+        } catch (\Exception $e) {
+            abort(404, 'Invalid ID.');
+        }
+
         $member = Member::where('head_id', $head_id)->findOrFail($id);
 
-        return view('/Auth/Admin-login/edit-family-member', ['member' => $member]);
+        return view('Auth.Admin-login.edit-family-member', [
+            'member' => $member,
+            'encrypted_head_id' => $encrypted_head_id,
+        ]);
     }
 
-    public function editFamilyMemberData(Request $request, $head_id, $id)
+    public function editFamilyMemberData(Request $request, $encrypted_head_id, $id)
     {
+        $head_id = Crypt::decrypt(urldecode($encrypted_head_id));
         $member = Member::where('head_id', $head_id)->findOrFail($id);
         $cutDate = Carbon::now()->subYears(21);
         $validation = $request->validate([
@@ -900,18 +907,22 @@ class AdminController extends Controller
             return 'Something went wrong';
         }
 
-        return redirect()->route('view-family-details', ['id' => $head_id]);
+        return redirect()->route('view-family-details', [
+            'id' => urlencode(Crypt::encrypt($head_id)),
+        ]);
     }
 
-    public function editFamilyMemberFromList($id)
+    public function editFamilyMemberFromList($encrypted_id)
     {
+        $id = Crypt::decrypt(urldecode($encrypted_id));
         $member = Member::findOrFail($id);
 
         return view('/Auth/Admin-login/edit-family-member', ['member' => $member]);
     }
 
-    public function editFamilyMemberDataFromList(Request $request, $id)
+    public function editFamilyMemberDataFromList(Request $request, $encrypted_id)
     {
+        $id = Crypt::decrypt(urldecode($encrypted_id));
         $member = Member::findOrFail($id);
         $cutDate = Carbon::now()->subYears(21);
         $validation = $request->validate([
@@ -955,15 +966,18 @@ class AdminController extends Controller
         return redirect()->route('view-family-details', ['id' => $id]);
     }
 
-    public function viewFamilyDetails($id, Request $request)
+    public function viewFamilyDetails($encrypted_id, Request $request)
     {
+        $id = Crypt::decrypt(urldecode($encrypted_id));
         $head = UserRegistration::findOrFail($id);
         $members = $head->members()->paginate(10);
+
+        $head->encrypted_id = urlencode(Crypt::encrypt($head->id));
 
         return view('Auth.Admin-login.view-family-details', [
             'head' => $head,
             'members' => $members,
-            'head_id' => $id,
+            'head_id' => $encrypted_id,
         ]);
 
     }
@@ -1004,28 +1018,36 @@ class AdminController extends Controller
             ->with('success', $member->name.' successfully deleted.');
     }
 
-    public function viewStateDetails($state_id, Request $request)
+    public function viewStateDetails($encrypted_id, Request $request)
     {
-        $state = State::findOrFail($state_id);
+        $id = Crypt::decrypt(urldecode($encrypted_id));
+        $state = State::findOrFail($id);
         $cities = $state->cities()->paginate(10);
 
         return view('Auth.Admin-login.view-state-details', [
             'state' => $state,
             'cities' => $cities,
-            'stateId' => $state_id,
+            'stateId' => $encrypted_id,
         ]);
 
     }
 
-    public function editState($state_id)
+    public function editState($encrypted_state_id)
     {
-        $stateDetails = State::findOrFail($state_id);
+        try {
+            $state_id = Crypt::decrypt(urldecode($encrypted_state_id));
+            $stateDetails = State::findOrFail($state_id);
 
-        return view('Auth.Admin-login.edit-state', ['stateDetails' => $stateDetails]);
+            return view('Auth.Admin-login.edit-state', ['stateDetails' => $stateDetails]);
+
+        } catch (\Exception $e) {
+            return redirect()->route('view-state-details')->with('error', 'Invalid State ID or State not found.');
+        }
     }
 
-    public function editStateData(Request $request, $state_id)
+    public function editStateData(Request $request, $encrypted_state_id)
     {
+        $state_id = Crypt::decrypt(urldecode($encrypted_id));
         $stateDetails = State::findOrFail($state_id);
 
         $validator = \Validator::make($request->all(), [
@@ -1061,7 +1083,7 @@ class AdminController extends Controller
 
             Session::flash('$stateDetails', 'State updated Successfully.');
 
-            return redirect()->route('view-state-details', ['state_id' => $state_id]);
+            return redirect()->route('view-state-details', ['state_id' => $encrypted_state_id]);
         } else {
             if ($request->ajax()) {
                 return response()->json(['message' => 'Something went wrong'], 500);
@@ -1086,7 +1108,6 @@ class AdminController extends Controller
     {
         $city = City::where('state_id', $state_id)->findOrFail($city_id);
 
-        // Validation
         $validator = \Validator::make($request->all(), [
             'city_name' => [
                 'required',
@@ -1146,8 +1167,9 @@ class AdminController extends Controller
             ->with('success', $state->state_name.' successfully deleted.');
     }
 
-    public function editCityFromList($city_id)
+    public function editCityFromList($encrypted_city_id)
     {
+        $city_id = Crypt::decrypt(urldecode($encrypted_city_id));
         $city = City::findOrFail($city_id);
 
         return view('Auth.Admin-login.edit-city-from-list', ['city' => $city]);

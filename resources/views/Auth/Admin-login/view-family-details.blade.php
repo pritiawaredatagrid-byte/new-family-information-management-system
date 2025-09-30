@@ -232,7 +232,8 @@
                         </div>
                     </div>
                     <div class="flex space-x-2">
-                        <a href="{{ '/edit-family-head/' . $head->id }}" class="text-gray-600 hover:text-gray-800">
+                       <a href="{{ url('/edit-family-head/' . $head->encrypted_id) }}" class="text-gray-600 hover:text-gray-800">
+
                             Edit
                         </a>
                         <form method="POST" action="{{ route('delete-family-details', $head->id) }}"
@@ -287,7 +288,7 @@
                                 </div>
 
                                 <div class="mt-4 flex justify-end space-x-3">
-                                    <a href="{{ '/edit-family-member/' . $head->id . '/' . $member->id }}"
+                                   <a href="{{ url('/edit-family-member/' . urlencode(Crypt::encrypt($head->id)) . '/' . $member->id) }}"
                                         class="text-blue-600 hover:text-blue-800 text-sm">
                                         Edit
                                     </a>
