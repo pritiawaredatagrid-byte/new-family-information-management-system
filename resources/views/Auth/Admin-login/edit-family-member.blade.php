@@ -269,7 +269,8 @@ background-color: #F5F5F5;
             <p class="text-red-500 text-sm mt-1 py-2">{{ $message }}</p>
         @enderror
    
-        <form action="{{ '/edit-family-member-data/' . $member->head_id . '/' . $member->id }}" method="post" class="space-y-4 form" enctype="multipart/form-data">
+        <form action="{{ url('/edit-family-member-data/' . urlencode(Crypt::encrypt($member->head_id)) . '/' . $member->id) }}" method="post" class="space-y-4 form" enctype="multipart/form-data">
+
             @csrf
             <input type="hidden" name="_method" value="put">
             <div>

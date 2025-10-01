@@ -838,6 +838,7 @@
                                 .hide()
                                 .html(`<p>${response.message}</p>`)
                                 .fadeIn();
+                             window.scrollTo({ top: 0, behavior: 'smooth' });
 
                             setTimeout(function () {
                                 console.log('Resetting form after success');
@@ -848,8 +849,11 @@
                                 addHobbyRow();
                                 $('.city').html('<option value="">Select City</option>');
                                 $('#success-message').fadeOut();
+                                setTimeout(function () {
+                                window.location.href = '/dashboard'; 
+                            }, 1000);
                                 memberIndex = 0;
-                            }, 3000);
+                            }, 100);
                         },
                         error: function (xhr) {
                             console.log('AJAX error:', xhr);

@@ -14,6 +14,7 @@ use App\Models\UserRegistration;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
@@ -31,16 +32,8 @@ class AdminController extends Controller
         $cutDate = Carbon::now()->subYears(21);
 
         $rules = [
-            'head.name' => [
-                'required',
-                'max:50',
-                'regex:/^[A-Za-z]+$/',
-            ],
-            'head.surname' => [
-                'required',
-                'max:50',
-                'regex:/^[A-Za-z]+$/',
-            ],
+            'head.name' => ['required', 'max:50', 'regex:/^[A-Za-z]+$/'],
+            'head.surname' => ['required', 'max:50', 'regex:/^[A-Za-z]+$/'],
             'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
             'head.mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
             'head.address' => 'required',
@@ -50,6 +43,7 @@ class AdminController extends Controller
             'head.status' => 'required|in:married,unmarried',
             'hobbies.*' => 'required|string',
             'head.photo' => 'required|image|mimes:jpg,png|max:2048',
+
             'members.*.name' => 'required|max:50',
             'members.*.birthdate' => 'required|date',
             'members.*.status' => 'required|in:married,unmarried',
@@ -62,68 +56,83 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $headData = $request->input('head');
+        DB::beginTransaction();
 
-        $head = new UserRegistration;
-        $head->name = $headData['name'];
-        $head->surname = $headData['surname'];
-        $head->birthdate = $headData['birthdate'];
-        $head->mobile_number = $headData['mobile_number'];
-        $head->address = $headData['address'];
+        try {
 
-        $state = State::find($headData['state']);
-        $head->state = $state ? $state->state_name : null;
+            $headData = $request->input('head');
 
-        $head->city = $headData['city'];
-        $head->pincode = $headData['pincode'];
-        $head->status = $headData['status'];
-        $head->wedding_date = $headData['wedding_date'] ?? null;
+            $head = new UserRegistration;
+            $head->name = $headData['name'];
+            $head->surname = $headData['surname'];
+            $head->birthdate = $headData['birthdate'];
+            $head->mobile_number = $headData['mobile_number'];
+            $head->address = $headData['address'];
 
-        $hobbies = $request->input('hobbies');
-        if ($hobbies) {
-            $head->hobby = json_encode($hobbies);
-        }
+            $state = State::find($headData['state']);
+            $head->state = $state ? $state->state_name : null;
 
-        if ($request->hasFile('head.photo')) {
-            $head->photo = $request->file('head.photo')->store('photos', 'public');
-        }
+            $head->city = $headData['city'];
+            $head->pincode = $headData['pincode'];
+            $head->status = $headData['status'];
+            $head->wedding_date = $headData['wedding_date'] ?? null;
 
-        $head->save();
-
-        if ($request->has('members')) {
-            foreach ($request->members as $index => $memberData) {
-                $member = new Member;
-                $member->head_id = $head->id;
-                $member->name = $memberData['name'];
-                $member->birthdate = $memberData['birthdate'];
-                $member->status = $memberData['status'];
-                $member->wedding_date = $memberData['wedding_date'] ?? null;
-                $member->education = $memberData['education'] ?? null;
-                $member->relation = $memberData['relation'] ?? null;
-
-                if ($request->hasFile("members.$index.photo")) {
-                    $member->photo = $request->file("members.$index.photo")->store('photos', 'public');
-                }
-                $member->save();
+            $hobbies = $request->input('hobbies');
+            if ($hobbies) {
+                $head->hobby = json_encode($hobbies);
             }
+
+            if ($request->hasFile('head.photo')) {
+                $head->photo = $request->file('head.photo')->store('photos', 'public');
+            }
+
+            $head->save();
+
+            if ($request->has('members')) {
+                foreach ($request->members as $index => $memberData) {
+                    $member = new Member;
+                    $member->head_id = $head->id;
+                    $member->name = $memberData['name'];
+                    $member->birthdate = $memberData['birthdate'];
+                    $member->status = $memberData['status'];
+                    $member->wedding_date = $memberData['wedding_date'] ?? null;
+                    $member->education = $memberData['education'] ?? null;
+                    $member->relation = $memberData['relation'] ?? null;
+
+                    if ($request->hasFile("members.$index.photo")) {
+                        $member->photo = $request->file("members.$index.photo")->store('photos', 'public');
+                    }
+
+                    $member->save();
+                }
+            }
+
+            AdminAction::create([
+                'admin_id' => auth()->id(),
+                'action' => 'Head Added with Members',
+                'resource_type' => 'family',
+                'resource_id' => $head->id,
+                'details' => json_encode(['ip_address' => $request->ip()]),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Family Head and Members Added Successfully!',
+                'headId' => $head->id,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Something went wrong while saving the data.',
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        AdminAction::create([
-            'admin_id' => auth()->id(),
-            'action' => 'Head Added with Members',
-            'resource_type' => 'family',
-            'resource_id' => $head->id,
-            'details' => json_encode(['ip_address' => $request->ip()]),
-        ]);
-
-        return response()->json([
-            'message' => 'Family Head and Members Added Successfully!',
-            'headId' => $head->id,
-        ]);
     }
 
     public function checkMobileUniqueness(Request $request)
@@ -145,24 +154,33 @@ class AdminController extends Controller
             'password' => 'required',
         ]);
 
-        $admin = Admin::where('email', $request->email)->first();
+        try {
+            $admin = Admin::where('email', $request->email)->first();
 
-        if (! $admin || ! Hash::check($request->password, $admin->password)) {
-            if ($request->ajax()) {
+            if (! $admin || ! Hash::check($request->password, $admin->password)) {
+                if ($request->ajax()) {
+                    return response()->json(['message' => 'Invalid credentials.'], 401);
+                }
 
-                return response()->json(['message' => 'Invalid credentials.'], 401);
+                return back()->withErrors(['login' => 'Invalid credentials'])->withInput();
             }
 
-            return back()->withErrors(['login' => 'Invalid credentials'])->withInput();
+            Session::put('admin', $admin);
+
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Login successful'], 200);
+            }
+
+            return redirect('dashboard');
+        } catch (\Exception $e) {
+            \Log::error('Login error: '.$e->getMessage());
+
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
+            }
+
+            return back()->withErrors(['login' => 'Something went wrong. Please try again.']);
         }
-
-        Session::put('admin', $admin);
-
-        if ($request->ajax()) {
-            return response()->json(['message' => 'Login successful'], 200);
-        }
-
-        return redirect('dashboard');
     }
 
     public function AdminForgetPassword(Request $request)
@@ -174,29 +192,35 @@ class AdminController extends Controller
         $admin = Admin::where('email', $request->email)->first();
 
         if (! $admin) {
-            return redirect()->back()->withErrors(['email' => 'Please enter valid email.'])->withInput();
+            return response()->json([
+                'errors' => ['email' => ['Please enter a valid email.']],
+            ], 422);
         }
+        $encryptedEmail = Crypt::encryptString($request->email);
 
         $link = URL::temporarySignedRoute(
             'admin.reset-password',
             now()->addMinutes(15),
-            ['email' => $request->email]
+            ['encrypted' => $encryptedEmail]
         );
 
         Mail::to($request->email)->send(new AdminForgotPassword($link));
 
-        return redirect('/')->with('status', 'Password reset link sent to your email.');
+        return response()->json(['message' => 'Password reset link sent to your email.']);
     }
 
-    public function AdminResetForgetPassword($email)
+    public function AdminResetForgetPassword($encrypted)
     {
-        $admin = Admin::where('email', $email)->first();
+        try {
+            $email = Crypt::decryptString($encrypted);
 
-        if (! $admin) {
-            abort(404);
+            $admin = Admin::where('email', $email)->firstOrFail();
+
+            return view('admin.reset-password', ['email' => $email]);
+
+        } catch (\Exception $e) {
+            abort(403, 'Invalid or expired link.');
         }
-
-        return view('admin-set-forget-password', ['email' => $email]);
     }
 
     public function AdminSetForgetPassword(Request $request)
@@ -206,16 +230,22 @@ class AdminController extends Controller
             'password' => 'required|min:3|confirmed',
         ]);
 
-        $admin = Admin::where('email', $request->email)->first();
+        try {
+            $admin = Admin::where('email', $request->email)->first();
 
-        if ($admin) {
+            if (! $admin) {
+                return redirect()->back()->withErrors(['email' => 'Something went wrong.']);
+            }
+
             $admin->password = Hash::make($request->password);
             $admin->save();
 
             return redirect('admin-login')->with('success', 'Password reset successfully.');
-        }
+        } catch (\Exception $e) {
+            Log::error('Admin password reset failed: '.$e->getMessage());
 
-        return redirect()->back()->withErrors(['email' => 'Something went wrong.']);
+            return redirect()->back()->withErrors(['email' => 'An unexpected error occurred.']);
+        }
     }
 
     public function dashboard()
@@ -276,24 +306,38 @@ class AdminController extends Controller
         return view('admin', $admin);
     }
 
-    public function familyList()
+    public function familyList(Request $request)
     {
         $heads = UserRegistration::withoutGlobalScopes()
             ->whereIn('op_status', [0, 1])
             ->orderBy('id', 'desc')
-            ->paginate(5);
+            ->paginate(10);
+        foreach ($heads as $head) {
+            $head->encrypted_id = Crypt::encrypt($head->id);
+        }
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.family-table', compact('heads'))->render();
+        }
 
-        return view('Auth.Admin-login.family-list', ['heads' => $heads]);
+        return view('Auth.Admin-login.family-list', compact('heads'));
     }
 
-    public function memberList()
+    public function memberList(Request $request)
     {
         $members = Member::withoutGlobalScopes()
             ->whereIn('op_status', [0, 1])
             ->orderBy('id', 'desc')
-            ->paginate(5);
+            ->paginate(10);
 
-        return view('Auth.Admin-login.member-list', ['members' => $members]);
+        foreach ($members as $member) {
+            $member->encrypted_id = urlencode(Crypt::encrypt($member->id));
+        }
+
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.member-table', compact('members'))->render();
+        }
+
+        return view('Auth.Admin-login.member-list', compact('members'));
     }
 
     public function exportPDF()
@@ -343,56 +387,171 @@ class AdminController extends Controller
         return Excel::download(new SearchFamilyDetailsExcel($families), 'Filtered_Family_Details.xlsx');
     }
 
-    public function StateList()
+    public function StateList(Request $request)
     {
         $states = State::withoutGlobalScopes()
             ->whereIn('op_status', [0, 1])
             ->orderBy('state_id', 'desc')
             ->paginate(10);
 
-        return view('Auth.Admin-login.state-list', ['states' => $states]);
+        foreach ($states as $state) {
+            $state->encrypted_id = urlencode(Crypt::encrypt($state->state_id));
+        }
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.state-table', compact('states'))->render();
+        }
+
+        return view('Auth.Admin-login.state-list', compact('states'));
     }
 
-    public function CityList()
+    public function CityList(Request $request)
     {
         $cities = City::withoutGlobalScopes()
             ->whereIn('op_status', [0, 1])
             ->orderBy('city_id', 'desc')
             ->paginate(10);
 
-        return view('Auth.Admin-login.city-list', ['cities' => $cities]);
+        foreach ($cities as $city) {
+            $city->encrypted_city_id = urlencode(Crypt::encrypt($city->city_id));
+        }
+
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.city-table', compact('cities'))->render();
+        }
+
+        return view('Auth.Admin-login.city-list', compact('cities'));
     }
 
-    public function searchHead(Request $request)
+    public function redirectToEncryptedSearch(Request $request, $type)
     {
-        $searchData = UserRegistration::where('name', 'like', '%'.$request->search.'%')
-            ->orWhere('mobile_number', 'like', '%'.$request->search.'%')->orWhere('state', 'like', '%'.$request->search.'%')->orWhere('city', 'like', '%'.$request->search.'%')
-            ->paginate(5);
+        $search = $request->input('search');
 
-        return view('Auth.Admin-login.search-head', ['searchData' => $searchData]);
+        if (! $search) {
+            return redirect()->route('search-'.$type);
+        }
+
+        $encryptedSearch = base64_encode(Crypt::encryptString($search));
+
+        return redirect()->route('search-'.$type, ['search' => $encryptedSearch]);
     }
 
-    public function searchMember(Request $request)
+    public function searchHead(Request $request, $encrypted = null)
     {
-        $searchData = Member::where('name', 'like', '%'.$request->search.'%')->paginate(5);
+        $search = '';
 
-        return view('Auth.Admin-login.search-member', ['searchData' => $searchData]);
+        if ($encrypted) {
+            try {
+                $search = Crypt::decryptString(base64_decode($encrypted));
+            } catch (DecryptException $e) {
+                $search = '';
+            }
+        }
+
+        $searchData = UserRegistration::where(function ($query) use ($search) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('mobile_number', 'like', "%{$search}%")
+                ->orWhere('state', 'like', "%{$search}%")
+                ->orWhere('city', 'like', "%{$search}%");
+        })
+            ->whereIn('op_status', [0, 1])
+            ->paginate(10)
+            ->appends(['search' => $encrypted]);
+
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.searchHead-table', compact('searchData'))->render();
+        }
+
+        return view('Auth.Admin-login.search-head', [
+            'searchData' => $searchData,
+            'search' => $search,
+        ]);
     }
 
-    public function searchState(Request $request)
+    public function searchMember(Request $request, $encrypted = null)
     {
-        $searchData = State::where('state_name', 'like', '%'.$request->search.'%')
-            ->paginate(5);
+        $search = '';
 
-        return view('Auth.Admin-login.search-state', ['searchData' => $searchData]);
+        if ($encrypted) {
+            try {
+                $search = Crypt::decryptString(base64_decode($encrypted));
+            } catch (DecryptException $e) {
+                $search = '';
+            }
+        }
+
+        $searchData = Member::where(function ($query) use ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        })
+            ->whereIn('op_status', [0, 1])
+            ->paginate(10)
+            ->appends(['search' => $encrypted]);
+
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.searchMember-table', compact('searchData'))->render();
+        }
+
+        return view('Auth.Admin-login.search-member', [
+            'searchData' => $searchData,
+            'search' => $search,
+        ]);
     }
 
-    public function searchCity(Request $request)
+    public function searchState(Request $request, $encrypted = null)
     {
-        $searchData = City::where('city_name', 'like', '%'.$request->search.'%')
-            ->paginate(5);
+        $search = '';
 
-        return view('Auth.Admin-login.search-city', ['searchData' => $searchData]);
+        if ($encrypted) {
+            try {
+                $search = Crypt::decryptString(base64_decode($encrypted));
+            } catch (DecryptException $e) {
+                $search = '';
+            }
+        }
+
+        $searchData = State::where(function ($query) use ($search) {
+            $query->where('state_name', 'like', "%{$search}%");
+        })
+            ->whereIn('op_status', [0, 1])
+            ->paginate(10)
+            ->appends(['search' => $encrypted]);
+
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.searchState-table', compact('searchData'))->render();
+        }
+
+        return view('Auth.Admin-login.search-state', [
+            'searchData' => $searchData,
+            'search' => $search,
+        ]);
+    }
+
+    public function searchCity(Request $request, $encrypted = null)
+    {
+        $search = '';
+
+        if ($encrypted) {
+            try {
+                $search = Crypt::decryptString(base64_decode($encrypted));
+            } catch (DecryptException $e) {
+                $search = '';
+            }
+        }
+
+        $searchData = City::where(function ($query) use ($search) {
+            $query->where('city_name', 'like', "%{$search}%");
+        })
+            ->whereIn('op_status', [0, 1])
+            ->paginate(10)
+            ->appends(['search' => $encrypted]);
+
+        if ($request->ajax()) {
+            return view('Auth.Admin-login.searchCity-table', compact('searchData'))->render();
+        }
+
+        return view('Auth.Admin-login.search-city', [
+            'searchData' => $searchData,
+            'search' => $search,
+        ]);
     }
 
     public function logout()
@@ -505,22 +664,26 @@ class AdminController extends Controller
         }
     }
 
-    public function editFamilyHead($id)
+    public function editFamilyHead($encrypted_id)
     {
+        $id = Crypt::decrypt(urldecode($encrypted_id));
         $familyHead = UserRegistration::with('members')->findOrFail($id);
         $states = State::select('state_id', 'state_name')->get();
 
         $hobbies = json_decode($familyHead->hobby ?? '[]', true);
 
-        return view('/Auth/Admin-login/edit-family-head', [
+        $familyHead->encrypted_id = urlencode(Crypt::encrypt($familyHead->id));
+
+        return view('Auth.Admin-login.edit-family-head', [
             'familyHead' => $familyHead,
             'states' => $states,
             'hobbies' => $hobbies,
         ]);
     }
 
-    public function editFamilyHeadData(Request $request, $id)
+    public function editFamilyHeadData(Request $request, $encrypted_id)
     {
+        $id = Crypt::decrypt(urldecode($encrypted_id));
         $heads = UserRegistration::findOrFail($id);
         $cutDate = Carbon::now()->subYears(21)->format('Y-m-d');
 
@@ -640,7 +803,7 @@ class AdminController extends Controller
                 'details' => json_encode(['ip_address' => $request->ip()]),
             ]);
 
-            return response()->json(['message' => 'Update successful', 'redirect_url' => route('view-family-details', ['id' => $id])], 200);
+            return response()->json(['message' => 'Update successful', 'redirect_url' => route('view-family-details', ['encrypted_id' => $encrypted_id])], 200);
 
         } else {
             return response()->json(['message' => 'Something went wrong while saving head data.'], 500);
@@ -689,15 +852,25 @@ class AdminController extends Controller
         return response()->json(['message' => 'Family member added successfully!']);
     }
 
-    public function editFamilyMember($head_id, $id)
+    public function editFamilyMember($encrypted_head_id, $id)
     {
+        try {
+            $head_id = Crypt::decrypt(urldecode($encrypted_head_id));
+        } catch (\Exception $e) {
+            abort(404, 'Invalid ID.');
+        }
+
         $member = Member::where('head_id', $head_id)->findOrFail($id);
 
-        return view('/Auth/Admin-login/edit-family-member', ['member' => $member]);
+        return view('Auth.Admin-login.edit-family-member', [
+            'member' => $member,
+            'encrypted_head_id' => $encrypted_head_id,
+        ]);
     }
 
-    public function editFamilyMemberData(Request $request, $head_id, $id)
+    public function editFamilyMemberData(Request $request, $encrypted_head_id, $id)
     {
+        $head_id = Crypt::decrypt(urldecode($encrypted_head_id));
         $member = Member::where('head_id', $head_id)->findOrFail($id);
         $cutDate = Carbon::now()->subYears(21);
         $validation = $request->validate([
@@ -735,18 +908,22 @@ class AdminController extends Controller
             return 'Something went wrong';
         }
 
-        return redirect()->route('view-family-details', ['id' => $head_id]);
+        return redirect()->route('view-family-details', [
+            'encrypted_id' => $encrypted_head_id,
+        ]);
     }
 
-    public function editFamilyMemberFromList($id)
+    public function editFamilyMemberFromList($encrypted_id)
     {
+        $id = Crypt::decrypt(urldecode($encrypted_id));
         $member = Member::findOrFail($id);
 
         return view('/Auth/Admin-login/edit-family-member', ['member' => $member]);
     }
 
-    public function editFamilyMemberDataFromList(Request $request, $id)
+    public function editFamilyMemberDataFromList(Request $request, $encrypted_id)
     {
+        $id = Crypt::decrypt(urldecode($encrypted_id));
         $member = Member::findOrFail($id);
         $cutDate = Carbon::now()->subYears(21);
         $validation = $request->validate([
@@ -754,7 +931,7 @@ class AdminController extends Controller
             'birthdate' => 'required|date',
             'status' => 'required',
             'education' => 'nullable',
-            'relation' => 'requird',
+            'relation' => 'required',
             'photo' => 'nullable|image|mimes:jpg,png|max:2048',
         ], [
             'birthdate.before_or_equal' => 'Family member must be 21 years or older',
@@ -787,20 +964,27 @@ class AdminController extends Controller
             return 'Something went wrong';
         }
 
-        return redirect()->route('view-family-details', ['id' => $id]);
+        return redirect()->route('view-family-details', ['id' => $encrypted_id]);
     }
 
-    public function viewFamilyDetails($id, Request $request)
+    public function viewFamilyDetails($encrypted_id, Request $request)
     {
+        try {
+            $id = Crypt::decrypt($encrypted_id);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            abort(403, 'Invalid encrypted ID.');
+        }
+
         $head = UserRegistration::findOrFail($id);
         $members = $head->members()->paginate(10);
+
+        $head->encrypted_id = Crypt::encrypt($head->id);
 
         return view('Auth.Admin-login.view-family-details', [
             'head' => $head,
             'members' => $members,
-            'head_id' => $id,
+            'head_id' => $encrypted_id,
         ]);
-
     }
 
     public function deleteFamilyDetails($id, Request $request)
@@ -839,28 +1023,36 @@ class AdminController extends Controller
             ->with('success', $member->name.' successfully deleted.');
     }
 
-    public function viewStateDetails($state_id, Request $request)
+    public function viewStateDetails($encrypted_state_id, Request $request)
     {
-        $state = State::findOrFail($state_id);
+        $id = Crypt::decrypt(urldecode($encrypted_state_id));
+        $state = State::findOrFail($id);
         $cities = $state->cities()->paginate(10);
 
         return view('Auth.Admin-login.view-state-details', [
             'state' => $state,
             'cities' => $cities,
-            'stateId' => $state_id,
+            'encrypted_state_id' => $encrypted_state_id,
         ]);
 
     }
 
-    public function editState($state_id)
+    public function editState($encrypted_state_id)
     {
-        $stateDetails = State::findOrFail($state_id);
+        try {
+            $state_id = Crypt::decrypt(urldecode($encrypted_state_id));
+            $stateDetails = State::findOrFail($state_id);
 
-        return view('Auth.Admin-login.edit-state', ['stateDetails' => $stateDetails]);
+            return view('Auth.Admin-login.edit-state', ['stateDetails' => $stateDetails]);
+
+        } catch (\Exception $e) {
+            return redirect()->route('view-state-details')->with('error', 'Invalid State ID or State not found.');
+        }
     }
 
-    public function editStateData(Request $request, $state_id)
+    public function editStateData(Request $request, $encrypted_state_id)
     {
+        $state_id = Crypt::decrypt(urldecode($encrypted_state_id));
         $stateDetails = State::findOrFail($state_id);
 
         $validator = \Validator::make($request->all(), [
@@ -896,7 +1088,7 @@ class AdminController extends Controller
 
             Session::flash('$stateDetails', 'State updated Successfully.');
 
-            return redirect()->route('view-state-details', ['state_id' => $state_id]);
+            return redirect()->route('view-state-details', ['encrypted_state_id' => $encrypted_state_id]);
         } else {
             if ($request->ajax()) {
                 return response()->json(['message' => 'Something went wrong'], 500);
@@ -921,7 +1113,6 @@ class AdminController extends Controller
     {
         $city = City::where('state_id', $state_id)->findOrFail($city_id);
 
-        // Validation
         $validator = \Validator::make($request->all(), [
             'city_name' => [
                 'required',
@@ -981,8 +1172,9 @@ class AdminController extends Controller
             ->with('success', $state->state_name.' successfully deleted.');
     }
 
-    public function editCityFromList($city_id)
+    public function editCityFromList($encrypted_city_id)
     {
+        $city_id = Crypt::decrypt(urldecode($encrypted_city_id));
         $city = City::findOrFail($city_id);
 
         return view('Auth.Admin-login.edit-city-from-list', ['city' => $city]);

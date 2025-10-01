@@ -103,10 +103,7 @@
             </button>
             <h1 class="text-2xl font-bold text-gray-600">State Details</h1>
             <div class="flex items-center space-x-4">
-                <!-- <a href="/add-city?state_id={{ $stateId ?? '' }}"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
-                    Add City
-                </a> -->
+               
                 <a href="{{ route('add-city') }}?state_name={{ $state->state_name }}&state_id={{ $state->state_id }}"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
                     Add City
@@ -133,7 +130,7 @@
                             <td class="px-3 py-3 text-left font-medium whitespace-nowrap">{{$state->state_name}}</td>
                             <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center gap-2">
-                                    <a href="{{ '/edit-state/' . $state->state_id }}">
+                                    <a href="{{ route('edit-state', ['encrypted_state_id' => urlencode(Crypt::encrypt($state->encrypted_state_id))]) }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                             width="24px" fill="#1f1f1f">
                                             <path
