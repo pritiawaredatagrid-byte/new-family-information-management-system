@@ -28,8 +28,9 @@
                                     </td>
                                     <td class="px-1 py-3 text-center">
                                         <div class="flex justify-center gap-2">
-                                        <a href="{{ route('view-state-details', ['state_id' => urlencode(Crypt::encrypt($state->state_id))]) }}">
 
+                                        <a href="{{ url('view-state-details/' . $state->encrypted_state_id) }}">
+                                         
                                             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                                 width="24px" fill="#1f1f1f">
                                                 <path
@@ -37,8 +38,9 @@
                                             </svg>
                                         </a>
                                         
-                                         <a href="{{ url('/edit-state/' . urlencode(Crypt::encrypt($state->state_id))) }}">
 
+
+                                        <a href="{{ url('edit-state/' . $state->encrypted_state_id) }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                             width="24px" fill="#1f1f1f">
                                             <path

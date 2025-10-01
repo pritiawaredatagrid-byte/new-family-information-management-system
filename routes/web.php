@@ -33,12 +33,11 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::get('redirect-search-city/{type}', [AdminController::class, 'redirectToEncryptedSearch'])->name('redirect-search-city');
     Route::get('search-city/{search?}', [AdminController::class, 'searchCity'])->name('search-city');
 
-    Route::get('admin-logout', [AdminController::class, 'logout']);
-
     // Edit family head
-    Route::view('edit-family-head', '/Auth/Admin-login/edit-family-head');
-    Route::get('edit-family-head/{id}', [AdminController::class, 'editFamilyHead']);
-    Route::put('edit-family-head-data/{id}', [AdminController::class, 'editFamilyHeadData'])->name('edit-family-head-data');
+
+    Route::get('edit-family-head/{encrypted_id}', [AdminController::class, 'editFamilyHead'])->name('edit-family-head');
+    Route::put('edit-family-head-data/{encrypted_id}', [AdminController::class, 'editFamilyHeadData'])
+        ->name('edit-family-head-data');
 
     // Edit family member
     Route::view('edit-family-member', '/Auth/Admin-login/edit-family-member');
@@ -46,13 +45,17 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::put('edit-family-member-data/{head_id}/{id}', [AdminController::class, 'editFamilyMemberData']);
 
     // Edit member from member list
-    Route::get('edit-family-member/{id}', [AdminController::class, 'editFamilyMemberFromList']);
-    Route::put('edit-family-member-data/{id}', [AdminController::class, 'editFamilyMemberDataFromList']);
+    Route::get('edit-family-member/{encrypted_id}', [AdminController::class, 'editFamilyMemberFromList']);
+    Route::put('edit-family-member-data/{encrypted_id}', [AdminController::class, 'editFamilyMemberDataFromList']);
+
+    Route::view('edit-city-from-list', '/Auth/Admin-login/edit-city-from-list');
+    Route::get('/edit-city-from-list/{encrypted_city_id}', [AdminController::class, 'editCityFromList'])->name('edit-city-from-list');
+    Route::put('edit-city-data-from-list/{encrypted_city_id}', [AdminController::class, 'editCityDataFromList']);
 
     Route::post('/check-mobile-uniqueness', [AdminController::class, 'checkMobileUniqueness'])->name('check.mobile.uniqueness');
     // View family Details
     Route::view('view-family-details', '/Auth/Admin-login/view-family-details');
-    Route::get('view-family-details/{id}', [AdminController::class, 'viewFamilyDetails'])->name('view-family-details');
+    Route::get('view-family-details/{encrypted_id}', [AdminController::class, 'viewFamilyDetails'])->name('view-family-details');
 
     // delete family details
     Route::delete('delete-family-details/{id}', [AdminController::class, 'deleteFamilyDetails'])->name('delete-family-details');
@@ -70,7 +73,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
 
     // View state Details
     Route::view('view-state-details', '/Auth/Admin-login/view-state-details');
-    Route::get('view-state-details/{state_id}', [AdminController::class, 'viewStateDetails'])->name('view-state-details');
+    Route::get('view-state-details/{encrypted_state_id}', [AdminController::class, 'viewStateDetails'])->name('view-state-details');
 
     // delete state details
     Route::delete('delete-state-details/{state_id}', [AdminController::class, 'deleteStateDetails'])->name('delete-state-details');
@@ -78,9 +81,9 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::delete('delete-city/{city_id}', [AdminController::class, 'deleteCity'])->name('delete-city');
 
     // Edit state
-    Route::view('edit-state', '/Auth/Admin-login/edit-state');
-    Route::get('edit-state/{encrypted_state_id}', [AdminController::class, 'editState']);
-    Route::put('edit-state-data/{state_id}', [AdminController::class, 'editStateData']);
+
+    Route::get('edit-state/{encrypted_state_id}', [AdminController::class, 'editState'])->name('edit-state');
+    Route::put('edit-state-data/{encrypted_state_id}', [AdminController::class, 'editStateData']);
 
     // Edit City
     Route::view('edit-city', '/Auth/Admin-login/edit-city');
@@ -90,7 +93,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
     // edit city from list
     Route::view('edit-city-from-list', '/Auth/Admin-login/edit-city-from-list');
     Route::get('/edit-city-from-list/{encrypted_city_id}', [AdminController::class, 'editCityFromList'])->name('edit-city-from-list');
-    Route::put('edit-city-data-from-list/{city_id}', [AdminController::class, 'editCityDataFromList']);
+    Route::put('edit-city-data-from-list/{encrypted_city_id}', [AdminController::class, 'editCityDataFromList']);
 
     // new state add
     Route::view('add-state', 'add-state');
@@ -136,7 +139,7 @@ Route::get('/admin-forget-password/{encrypted}', [AdminController::class, 'Admin
 Route::post('admin-set-forget-password', [AdminController::class, 'AdminSetForgetPassword']);
 
 Route::post('admin-login', [AdminController::class, 'login']);
-
+Route::get('admin-logout', [AdminController::class, 'logout']);
 // Route::get('member-list', [AdminController::class, 'memberList']);
 
 // User Registration

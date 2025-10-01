@@ -313,7 +313,7 @@ class AdminController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(10);
         foreach ($heads as $head) {
-            $head->encrypted_id = urlencode(Crypt::encrypt($head->id));
+            $head->encrypted_id = Crypt::encrypt($head->id);
         }
         if ($request->ajax()) {
             return view('Auth.Admin-login.family-table', compact('heads'))->render();
@@ -674,15 +674,16 @@ class AdminController extends Controller
 
         $familyHead->encrypted_id = urlencode(Crypt::encrypt($familyHead->id));
 
-        return view('/Auth/Admin-login/edit-family-head', [
+        return view('Auth.Admin-login.edit-family-head', [
             'familyHead' => $familyHead,
             'states' => $states,
             'hobbies' => $hobbies,
         ]);
     }
 
-    public function editFamilyHeadData(Request $request, $id)
+    public function editFamilyHeadData(Request $request, $encrypted_id)
     {
+        $id = Crypt::decrypt(urldecode($encrypted_id));
         $heads = UserRegistration::findOrFail($id);
         $cutDate = Carbon::now()->subYears(21)->format('Y-m-d');
 
@@ -802,7 +803,7 @@ class AdminController extends Controller
                 'details' => json_encode(['ip_address' => $request->ip()]),
             ]);
 
-            return response()->json(['message' => 'Update successful', 'redirect_url' => route('view-family-details', ['id' => $id])], 200);
+            return response()->json(['message' => 'Update successful', 'redirect_url' => route('view-family-details', ['encrypted_id' => $encrypted_id])], 200);
 
         } else {
             return response()->json(['message' => 'Something went wrong while saving head data.'], 500);
@@ -908,7 +909,7 @@ class AdminController extends Controller
         }
 
         return redirect()->route('view-family-details', [
-            'id' => urlencode(Crypt::encrypt($head_id)),
+            'encrypted_id' => $encrypted_head_id,
         ]);
     }
 
@@ -930,7 +931,7 @@ class AdminController extends Controller
             'birthdate' => 'required|date',
             'status' => 'required',
             'education' => 'nullable',
-            'relation' => 'requird',
+            'relation' => 'required',
             'photo' => 'nullable|image|mimes:jpg,png|max:2048',
         ], [
             'birthdate.before_or_equal' => 'Family member must be 21 years or older',
@@ -963,23 +964,27 @@ class AdminController extends Controller
             return 'Something went wrong';
         }
 
-        return redirect()->route('view-family-details', ['id' => $id]);
+        return redirect()->route('view-family-details', ['id' => $encrypted_id]);
     }
 
     public function viewFamilyDetails($encrypted_id, Request $request)
     {
-        $id = Crypt::decrypt(urldecode($encrypted_id));
+        try {
+            $id = Crypt::decrypt($encrypted_id);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            abort(403, 'Invalid encrypted ID.');
+        }
+
         $head = UserRegistration::findOrFail($id);
         $members = $head->members()->paginate(10);
 
-        $head->encrypted_id = urlencode(Crypt::encrypt($head->id));
+        $head->encrypted_id = Crypt::encrypt($head->id);
 
         return view('Auth.Admin-login.view-family-details', [
             'head' => $head,
             'members' => $members,
             'head_id' => $encrypted_id,
         ]);
-
     }
 
     public function deleteFamilyDetails($id, Request $request)
@@ -1018,16 +1023,16 @@ class AdminController extends Controller
             ->with('success', $member->name.' successfully deleted.');
     }
 
-    public function viewStateDetails($encrypted_id, Request $request)
+    public function viewStateDetails($encrypted_state_id, Request $request)
     {
-        $id = Crypt::decrypt(urldecode($encrypted_id));
+        $id = Crypt::decrypt(urldecode($encrypted_state_id));
         $state = State::findOrFail($id);
         $cities = $state->cities()->paginate(10);
 
         return view('Auth.Admin-login.view-state-details', [
             'state' => $state,
             'cities' => $cities,
-            'stateId' => $encrypted_id,
+            'encrypted_state_id' => $encrypted_state_id,
         ]);
 
     }
@@ -1047,7 +1052,7 @@ class AdminController extends Controller
 
     public function editStateData(Request $request, $encrypted_state_id)
     {
-        $state_id = Crypt::decrypt(urldecode($encrypted_id));
+        $state_id = Crypt::decrypt(urldecode($encrypted_state_id));
         $stateDetails = State::findOrFail($state_id);
 
         $validator = \Validator::make($request->all(), [
@@ -1083,7 +1088,7 @@ class AdminController extends Controller
 
             Session::flash('$stateDetails', 'State updated Successfully.');
 
-            return redirect()->route('view-state-details', ['state_id' => $encrypted_state_id]);
+            return redirect()->route('view-state-details', ['encrypted_state_id' => $encrypted_state_id]);
         } else {
             if ($request->ajax()) {
                 return response()->json(['message' => 'Something went wrong'], 500);
