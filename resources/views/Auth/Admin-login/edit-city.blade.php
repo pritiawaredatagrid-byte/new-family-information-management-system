@@ -255,8 +255,9 @@
 <body>
     <div class="main">
         <h2>Update City</h2>
-        <form id="updateCityForm" action="{{ '/edit-city-data/' . $city->state_id . '/' . $city->city_id }}"
-            method="post">
+        <form id="updateCityForm"
+            action="{{ url('/edit-city-data/' . urlencode(Crypt::encrypt($city->state_id)) . '/' . $city->city_id) }}"
+            method="POST">
             @csrf
             <input type="hidden" name="_method" value="put">
 
@@ -280,7 +281,7 @@
 
     <script>
         $(document).ready(function () {
-            var stateId = {{ $city->state_id  }};
+            var stateId = {{ $city->encrypted_state_id  }};
             $('#city_name_input').on('input', function () {
                 $('#city_name_error').text('');
                 $('#success-message').hide();

@@ -16,7 +16,7 @@ class City extends Model
     protected $guarded = [];
 
     protected $primaryKey = 'city_id';
-
+    protected $fillable = ['state_id', 'city_name'];
     public function state()
     {
         return $this->belongsTo(State::class, 'state_id');

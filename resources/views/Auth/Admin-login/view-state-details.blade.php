@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>States</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -85,29 +86,18 @@
     </aside>
 
     <div class="page-wrapper">
-        <!-- <header class="main-header">
-            <h1 class="text-2xl font-bold text-gray-600">State Details</h1>
-            <div class="flex items-center space-x-4">
-                <a href="/add-city"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
-                    Add City
-                </a>
-            </div>
-        </header> -->
+
         <header class="main-header">
-            <!-- <button id="sidebarToggle" class="p-2 text-gray-400 hover:text-white focus:outline-none">
-  
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-    </svg> -->
-            </button>
+
+
             <h1 class="text-2xl font-bold text-gray-600">State Details</h1>
             <div class="flex items-center space-x-4">
-               
-                <a href="{{ route('add-city') }}?state_name={{ $state->state_name }}&state_id={{ $state->state_id }}"
+
+                <a href="{{ route('add-city-form') }}?state_name={{ urlencode(Crypt::encrypt($state->state_name)) }}&state_id={{ urlencode(Crypt::encrypt($state->state_id)) }}"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
                     Add City
                 </a>
+
             </div>
         </header>
         <div class="mx-auto p-6">
@@ -130,7 +120,8 @@
                             <td class="px-3 py-3 text-left font-medium whitespace-nowrap">{{$state->state_name}}</td>
                             <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center gap-2">
-                                    <a href="{{ route('edit-state', ['encrypted_state_id' => urlencode(Crypt::encrypt($state->encrypted_state_id))]) }}">
+                                    <a
+                                        href="{{ route('edit-state', ['encrypted_state_id' => urlencode(Crypt::encrypt($state->state_id))]) }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                             width="24px" fill="#1f1f1f">
                                             <path
@@ -181,7 +172,8 @@
                                     <td class="px-3 py-3 font-medium text-left whitespace-nowrap">{{ $city->city_name }}</td>
                                     <td class="px-4 py-3 text-center">
                                         <div class="flex justify-center gap-2">
-                                            <a href="{{ '/edit-city/' . $state->state_id . '/' . $city->city_id }}">
+                                            <a href="{{ url('/edit-city/' . urlencode(Crypt::encrypt($state->state_id)) . '/' . $city->city_id) }}"
+                                                class="text-blue-600 hover:text-blue-800 text-sm">
                                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                                     width="24px" fill="#1f1f1f">
                                                     <path

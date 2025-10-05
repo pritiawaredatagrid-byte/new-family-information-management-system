@@ -108,9 +108,9 @@
 <body>
     <div class="main">
         <h2>Update State</h2>
-        <form id="updateStateForm" action="/edit-state-data/{{$stateDetails->state_id}}" method="post">
+        <form action="{{ url('edit-state-data/' . urlencode(Crypt::encrypt($stateDetails->state_id))) }}" method="POST">
             @csrf
-            <input type="hidden" name="_method" value="put">
+            @method('PUT')
 
             <div id="success-message" class="success-text" style="display:none;"></div>
 
@@ -127,7 +127,7 @@
 
     <script>
         $(document).ready(function () {
-            var stateId = {{ $stateDetails->state_id }};
+            var stateId = {{ $stateDetails->encrypted_state_id }};
             $('#state_name_input').on('input', function () {
                 $('#state_name_error').text('');
                 $('#success-message').hide();

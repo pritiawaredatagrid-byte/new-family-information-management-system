@@ -165,8 +165,8 @@
                 <h1 class="text-2xl font-bold text-gray-600">Family Details</h1>
 
                 <div class="flex items-center space-x-4">
-                    <a href="{{ route('add-member-form-admin', ['head_id' => $head_id]) }}"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                    <a href="{{ route('add-member-form-admin', ['encrypted_id' => $encrypted_id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition
+                        duration-300">
                         Add Family Member
                     </a>
                 </div>
@@ -232,7 +232,8 @@
                         </div>
                     </div>
                     <div class="flex space-x-2">
-                       <a href="{{ url('/edit-family-head/' . $head->encrypted_id) }}" class="text-gray-600 hover:text-gray-800">
+                        <a href="{{ url('/edit-family-head/' . $head->encrypted_id) }}"
+                            class="text-gray-600 hover:text-gray-800">
 
                             Edit
                         </a>
@@ -288,7 +289,7 @@
                                 </div>
 
                                 <div class="mt-4 flex justify-end space-x-3">
-                                   <a href="{{ url('/edit-family-member/' . urlencode(Crypt::encrypt($head->id)) . '/' . $member->id) }}"
+                                    <a href="{{ url('/edit-family-member/' . urlencode(Crypt::encrypt($head->id)) . '/' . $member->id) }}"
                                         class="text-blue-600 hover:text-blue-800 text-sm">
                                         Edit
                                     </a>

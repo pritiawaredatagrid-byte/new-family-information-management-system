@@ -34,7 +34,7 @@ class AdminController extends Controller
         $rules = [
             'head.name' => ['required', 'max:50', 'regex:/^[A-Za-z]+$/'],
             'head.surname' => ['required', 'max:50', 'regex:/^[A-Za-z]+$/'],
-            'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
+            'head.birthdate' => 'required|date|before_or_equal:' . $cutDate,
             'head.mobile_number' => 'required|unique:UserRegistration,mobile_number|numeric|digits:10',
             'head.address' => 'required',
             'head.state' => 'required',
@@ -157,7 +157,7 @@ class AdminController extends Controller
         try {
             $admin = Admin::where('email', $request->email)->first();
 
-            if (! $admin || ! Hash::check($request->password, $admin->password)) {
+            if (!$admin || !Hash::check($request->password, $admin->password)) {
                 if ($request->ajax()) {
                     return response()->json(['message' => 'Invalid credentials.'], 401);
                 }
@@ -173,7 +173,7 @@ class AdminController extends Controller
 
             return redirect('dashboard');
         } catch (\Exception $e) {
-            \Log::error('Login error: '.$e->getMessage());
+            \Log::error('Login error: ' . $e->getMessage());
 
             if ($request->ajax()) {
                 return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
@@ -191,7 +191,7 @@ class AdminController extends Controller
 
         $admin = Admin::where('email', $request->email)->first();
 
-        if (! $admin) {
+        if (!$admin) {
             return response()->json([
                 'errors' => ['email' => ['Please enter a valid email.']],
             ], 422);
@@ -233,7 +233,7 @@ class AdminController extends Controller
         try {
             $admin = Admin::where('email', $request->email)->first();
 
-            if (! $admin) {
+            if (!$admin) {
                 return redirect()->back()->withErrors(['email' => 'Something went wrong.']);
             }
 
@@ -242,7 +242,7 @@ class AdminController extends Controller
 
             return redirect('admin-login')->with('success', 'Password reset successfully.');
         } catch (\Exception $e) {
-            Log::error('Admin password reset failed: '.$e->getMessage());
+            Log::error('Admin password reset failed: ' . $e->getMessage());
 
             return redirect()->back()->withErrors(['email' => 'An unexpected error occurred.']);
         }
@@ -426,13 +426,13 @@ class AdminController extends Controller
     {
         $search = $request->input('search');
 
-        if (! $search) {
-            return redirect()->route('search-'.$type);
+        if (!$search) {
+            return redirect()->route('search-' . $type);
         }
 
         $encryptedSearch = base64_encode(Crypt::encryptString($search));
 
-        return redirect()->route('search-'.$type, ['search' => $encryptedSearch]);
+        return redirect()->route('search-' . $type, ['search' => $encryptedSearch]);
     }
 
     public function searchHead(Request $request, $encrypted = null)
@@ -613,11 +613,28 @@ class AdminController extends Controller
 
     public function showAddCityForm(Request $request)
     {
-        $state_id = $request->query('state_id');
-        $state_name = $request->query('state_name');
+        $encryptedStateName = $request->query('state_name');
+        $encryptedStateId = $request->query('state_id');
 
-        return view('add-city', compact('state_id', 'state_name'));
+        if (!$encryptedStateName || !$encryptedStateId) {
+            return redirect()->back()->with('error', 'Missing state details.');
+        }
+
+        try {
+            $stateName = Crypt::decrypt(urldecode($encryptedStateName));
+            $stateId = Crypt::decrypt(urldecode($encryptedStateId));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Invalid or expired state details.');
+        }
+
+        return view('add-city', [
+            'state_name' => $stateName,
+            'state_id' => $stateId,
+            'encrypted_state_id' => $encryptedStateId,
+            'encrypted_state_name' => $encryptedStateName,
+        ]);
     }
+
 
     public function addCity(Request $request)
     {
@@ -625,9 +642,7 @@ class AdminController extends Controller
             'state_id' => 'required|exists:states,state_id',
             'city_name' => [
                 'required',
-                Rule::unique('cities')->where(function ($query) use ($request) {
-                    return $query->where('state_id', $request->state_id);
-                }),
+                Rule::unique('cities')->where(fn($q) => $q->where('state_id', $request->state_id)),
             ],
         ], [
             'city_name.required' => 'City name is required.',
@@ -647,9 +662,12 @@ class AdminController extends Controller
             'details' => json_encode(['ip_address' => $request->ip()]),
         ]);
 
-        return redirect()->route('view-state-details', ['state_id' => $request->state_id])
-            ->with('city', 'City added successfully!');
+        return redirect()->route('view-state-details', [
+            'encrypted_state_id' => urlencode(Crypt::encrypt($request->state_id))
+        ])->with('city', 'City added successfully!');
     }
+
+
 
     public function checkCity(Request $request)
     {
@@ -690,8 +708,8 @@ class AdminController extends Controller
         $request->validate([
             'head.name' => 'required|max:50',
             'head.surname' => 'required|max:50',
-            'head.birthdate' => 'required|date|before_or_equal:'.$cutDate,
-            'head.mobile_number' => 'required|numeric|digits:10|unique:UserRegistration,mobile_number,'.$id,
+            'head.birthdate' => 'required|date|before_or_equal:' . $cutDate,
+            'head.mobile_number' => 'required|numeric|digits:10|unique:UserRegistration,mobile_number,' . $id,
             'head.address' => 'required',
             'head.state' => 'required',
             'head.city' => 'required',
@@ -753,7 +771,7 @@ class AdminController extends Controller
         if ($heads->save()) {
 
             $membersToDelete = $request->input('members_to_delete', []);
-            if (! empty($membersToDelete)) {
+            if (!empty($membersToDelete)) {
                 $deletedMembers = Member::whereIn('id', $membersToDelete)->get();
                 foreach ($deletedMembers as $member) {
                     if ($member->photo) {
@@ -810,11 +828,19 @@ class AdminController extends Controller
         }
     }
 
-    public function addFamilyMemberFormAdmin($head_id)
+    public function addFamilyMemberFormAdmin($encrypted_id)
     {
+        try {
+            $head_id = Crypt::decrypt($encrypted_id);
+        } catch (\Exception $e) {
+            abort(404, 'Invalid ID.');
+        }
 
-        return view('/Auth/Admin-login/add-family-member-admin', compact('head_id'));
+        return view('Auth.Admin-login.add-family-member-admin', [
+            'encrypted_id' => $encrypted_id
+        ]);
     }
+
 
     public function addFamilyMemberAdmin(Request $request)
     {
@@ -822,18 +848,25 @@ class AdminController extends Controller
             'name' => 'required|string|max:50',
             'birthdate' => 'required|date|before:today',
             'status' => 'required|in:married,unmarried',
-            'wedding_date' => 'nullable|date|required_if:status,married',
+            'wedding_date' => 'nullable|date|required_if:status,married|before:today',
             'education' => 'nullable|string|max:100',
             'relation' => 'required|string|max:100',
             'photo' => 'nullable|image|mimes:jpg,png|max:2048',
+            'encrypted_id' => 'required'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        try {
+            $head_id = Crypt::decrypt($request->encrypted_id);
+        } catch (\Exception $e) {
+            return response()->json(['errors' => ['head_id' => ['Invalid Head ID']]], 422);
+        }
+
         $member = new Member;
-        $member->head_id = $request->head_id;
+        $member->head_id = $head_id;
         $member->name = $request->name;
         $member->birthdate = $request->birthdate;
         $member->status = $request->status;
@@ -842,7 +875,7 @@ class AdminController extends Controller
         $member->relation = $request->relation;
 
         if ($request->hasFile('photo')) {
-            $filename = time().'.'.$request->photo->extension();
+            $filename = time() . '.' . $request->photo->extension();
             $request->photo->move(public_path('uploads/'), $filename);
             $member->photo = $filename;
         }
@@ -852,25 +885,25 @@ class AdminController extends Controller
         return response()->json(['message' => 'Family member added successfully!']);
     }
 
-    public function editFamilyMember($encrypted_head_id, $id)
+    public function editFamilyMember($encrypted_id, $id)
     {
         try {
-            $head_id = Crypt::decrypt(urldecode($encrypted_head_id));
+            $head_id = Crypt::decrypt(urldecode($encrypted_id));
         } catch (\Exception $e) {
-            abort(404, 'Invalid ID.');
+            abort(404, 'Invalid encrypted ID.');
         }
 
         $member = Member::where('head_id', $head_id)->findOrFail($id);
 
         return view('Auth.Admin-login.edit-family-member', [
             'member' => $member,
-            'encrypted_head_id' => $encrypted_head_id,
+            'encrypted_id' => $encrypted_id
         ]);
     }
 
-    public function editFamilyMemberData(Request $request, $encrypted_head_id, $id)
+    public function editFamilyMemberData(Request $request, $encrypted_id, $id)
     {
-        $head_id = Crypt::decrypt(urldecode($encrypted_head_id));
+        $head_id = Crypt::decrypt(urldecode($encrypted_id));
         $member = Member::where('head_id', $head_id)->findOrFail($id);
         $cutDate = Carbon::now()->subYears(21);
         $validation = $request->validate([
@@ -909,7 +942,7 @@ class AdminController extends Controller
         }
 
         return redirect()->route('view-family-details', [
-            'encrypted_id' => $encrypted_head_id,
+            'encrypted_id' => $encrypted_id,
         ]);
     }
 
@@ -983,7 +1016,7 @@ class AdminController extends Controller
         return view('Auth.Admin-login.view-family-details', [
             'head' => $head,
             'members' => $members,
-            'head_id' => $encrypted_id,
+            'encrypted_id' => $encrypted_id,
         ]);
     }
 
@@ -1001,7 +1034,7 @@ class AdminController extends Controller
         ]);
 
         return redirect('/family-list')
-            ->with('success', $head->name."'s Family details successfully deleted.");
+            ->with('success', $head->name . "'s Family details successfully deleted.");
     }
 
     public function deleteFamilyMember($id, Request $request)
@@ -1020,7 +1053,7 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('view-family-details', ['id' => $head_id])
-            ->with('success', $member->name.' successfully deleted.');
+            ->with('success', $member->name . ' successfully deleted.');
     }
 
     public function viewStateDetails($encrypted_state_id, Request $request)
@@ -1098,62 +1131,81 @@ class AdminController extends Controller
         }
     }
 
-    public function editCity($state_id, $city_id)
+    public function editCity($encrypted_state_id, $city_id)
     {
-        $city = City::where('state_id', $state_id)->findOrFail($city_id);
-        $state = State::findOrFail($state_id);
+        try {
+            $state_id = Crypt::decrypt(urldecode($encrypted_state_id));
 
-        return view('Auth.Admin-login.edit-city', [
-            'city' => $city,
-            'state' => $state,
-        ]);
+            $city = City::where('state_id', $state_id)->findOrFail($city_id);
+            $state = State::findOrFail($state_id);
+
+            return view('Auth.Admin-login.edit-city', [
+                'city' => $city,
+                'state' => $state,
+                'encrypted_state_id' => $encrypted_state_id
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Invalid or expired state ID.');
+        }
     }
 
-    public function editCityData(Request $request, $state_id, $city_id)
+    public function editCityData(Request $request, $encrypted_state_id, $city_id)
     {
-        $city = City::where('state_id', $state_id)->findOrFail($city_id);
+        try {
+            $state_id = Crypt::decrypt(urldecode($encrypted_state_id));
 
-        $validator = \Validator::make($request->all(), [
-            'city_name' => [
-                'required',
-                Rule::unique('cities')->where(fn ($query) => $query->where('state_id', $state_id))->ignore($city_id, 'city_id'),
-            ],
-        ]);
+            $city = City::where('state_id', $state_id)->findOrFail($city_id);
 
-        if ($validator->fails()) {
-            if ($request->ajax()) {
-                return response()->json(['errors' => $validator->errors()], 422);
-            }
-
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        $city->city_name = $request->city_name;
-
-        if ($city->save()) {
-            AdminAction::create([
-                'admin_id' => auth()->id(),
-                'action' => 'City edited',
-                'resource_type' => 'city',
-                'resource_id' => $city->city_id,
-                'details' => json_encode(['ip_address' => $request->ip()]),
+            $validator = \Validator::make($request->all(), [
+                'city_name' => [
+                    'required',
+                    Rule::unique('cities')->where(
+                        fn($query) =>
+                        $query->where('state_id', $state_id)
+                    )->ignore($city_id, 'city_id'),
+                ],
             ]);
 
-            if ($request->ajax()) {
-                return response()->json(['message' => 'City updated successfully!']);
+            if ($validator->fails()) {
+                if ($request->ajax()) {
+                    return response()->json(['errors' => $validator->errors()], 422);
+                }
+
+                return redirect()->back()->withErrors($validator)->withInput();
             }
 
-            Session::flash('city', 'City updated Successfully.');
+            $city->city_name = $request->city_name;
 
-            return redirect()->route('view-state-details', ['state_id' => $state_id]);
+            if ($city->save()) {
+                AdminAction::create([
+                    'admin_id' => auth()->id(),
+                    'action' => 'City edited',
+                    'resource_type' => 'city',
+                    'resource_id' => $city->city_id,
+                    'details' => json_encode(['ip_address' => $request->ip()]),
+                ]);
+
+                if ($request->ajax()) {
+                    return response()->json(['message' => 'City updated successfully!']);
+                }
+
+                Session::flash('city', 'City updated successfully.');
+
+                return redirect()->route('view-state-details', [
+                    'encrypted_state_id' => $encrypted_state_id,
+                ]);
+            }
+
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Something went wrong'], 500);
+            }
+
+            return redirect()->back()->with('error', 'Something went wrong');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Invalid or expired state ID.');
         }
-
-        if ($request->ajax()) {
-            return response()->json(['message' => 'Something went wrong'], 500);
-        }
-
-        return redirect()->back()->with('error', 'Something went wrong');
     }
+
 
     public function deleteStateDetails($state_id, Request $request)
     {
@@ -1169,7 +1221,7 @@ class AdminController extends Controller
         ]);
 
         return redirect('/state-list')
-            ->with('success', $state->state_name.' successfully deleted.');
+            ->with('success', $state->state_name . ' successfully deleted.');
     }
 
     public function editCityFromList($encrypted_city_id)
@@ -1244,7 +1296,7 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('view-state-details', ['state_id' => $state_id])
-            ->with('success', $city->city_name.' successfully deleted.');
+            ->with('success', $city->city_name . ' successfully deleted.');
     }
 
     public function index()
