@@ -41,8 +41,8 @@ Route::middleware('CheckAdminAuth')->group(function () {
 
     // Edit family member
     Route::view('edit-family-member', '/Auth/Admin-login/edit-family-member');
-    Route::get('edit-family-member/{head_id}/{id}', [AdminController::class, 'editFamilyMember']);
-    Route::put('edit-family-member-data/{head_id}/{id}', [AdminController::class, 'editFamilyMemberData']);
+    Route::get('edit-family-member/{encrypted_id}/{id}', [AdminController::class, 'editFamilyMember']);
+    Route::put('edit-family-member-data/{encrypted_id}/{id}', [AdminController::class, 'editFamilyMemberData']);
 
     // Edit member from member list
     Route::get('edit-family-member/{encrypted_id}', [AdminController::class, 'editFamilyMemberFromList']);
@@ -72,7 +72,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::get('/search-view-family-details-excel', [AdminController::class, 'exportExcelSearchHead'])->name('search-view-family-details-excel');
 
     // View state Details
-    Route::view('view-state-details', '/Auth/Admin-login/view-state-details');
+
     Route::get('view-state-details/{encrypted_state_id}', [AdminController::class, 'viewStateDetails'])->name('view-state-details');
 
     // delete state details
@@ -86,9 +86,9 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::put('edit-state-data/{encrypted_state_id}', [AdminController::class, 'editStateData']);
 
     // Edit City
-    Route::view('edit-city', '/Auth/Admin-login/edit-city');
-    Route::get('edit-city/{state_id}/{city_id}', [AdminController::class, 'editCity']);
-    Route::put('edit-city-data/{state_id}/{city_id}', [AdminController::class, 'editCityData']);
+
+    Route::get('edit-city/{encrypted_state_id}/{city_id}', [AdminController::class, 'editCity']);
+    Route::put('edit-city-data/{encrypted_state_id}/{city_id}', [AdminController::class, 'editCityData']);
 
     // edit city from list
     Route::view('edit-city-from-list', '/Auth/Admin-login/edit-city-from-list');
@@ -121,7 +121,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::post('get-cities', [AdminController::class, 'getCities'])->name('get.cities');
 
     // Show Add Family Member Form
-    Route::get('add-family-member-admin/{head_id}', [AdminController::class, 'addFamilyMemberFormAdmin'])
+    Route::get('add-family-member-admin/{encrypted_id}', [AdminController::class, 'addFamilyMemberFormAdmin'])
         ->name('add-member-form-admin');
 
     Route::post('add-family-member-admin', [AdminController::class, 'addFamilyMemberAdmin'])

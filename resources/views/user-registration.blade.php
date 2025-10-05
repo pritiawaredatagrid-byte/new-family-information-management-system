@@ -717,12 +717,17 @@
                         'head[pincode]': { required: true, digits: true, minlength: 6, maxlength: 6 },
                         'head[status]': { required: true },
                         'head[wedding_date]': {
+
+
                             required: {
                                 depends: function (element) {
                                     return $('input[name="head[status]"]:checked').val() === 'married';
                                 }
                             },
+                            beforeToday: true,
                             date: true
+
+
                         },
                         'hobbies[]': { required: true },
                         'head[photo]': {
@@ -765,6 +770,8 @@
                         },
                         'head[wedding_date]': {
                             required: "Please select the Wedding date.",
+                            date: "Please enter a valid wedding date",
+                            beforeToday: "Wedding date must be before today"
                         },
                         'hobbies[]': {
                             required: "Please enter atleast one hobby.",
@@ -1067,12 +1074,23 @@
                             }
                         });
 
+                        jQuery.validator.addMethod("beforeToday", function (value, element) {
+                            if (!value) return false;
+                            var today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            var inputDate = new Date(value);
+                            return inputDate < today;
+                        }, "Date must be before today");
+
+
                         $(`input[name="members[${memberIndex}][birthdate]"]`).rules('add', {
                             required: true,
                             date: true,
+                            beforeToday: true,
                             messages: {
                                 required: "Please select the birth date",
-                                date: "Please enter a valid date"
+                                date: "Please enter a valid date",
+                                beforeToday: "Birth date must be before today"
                             }
                         });
 
@@ -1091,11 +1109,14 @@
                                     return $(`input[name="members[${memberIndex}][status]"]:checked`).val() === 'married';
                                 }
                             },
+                            beforeToday: true,
                             messages: {
                                 required: "Please select the wedding date",
-                                date: "Please enter a valid wedding date"
+                                date: "Please enter a valid wedding date",
+                                beforeToday: "Wedding date must be before today"
                             }
                         });
+
 
                         $(`input[name="members[${memberIndex}][relation]"]`).rules('add', {
                             required: true,

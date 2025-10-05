@@ -172,10 +172,10 @@
 
         <div id="success-message" style="color:green;display:none;padding:1rem 0;"></div>
 
-        <form id="add-family-member-form" action="{{ route('add-member-submit-admin') }}" method="post"
+        <form id="add-family-member-form" action="{{ route('add-member-submit-admin') }}" method="POST"
             enctype="multipart/form-data">
             @csrf
-            <input type="hidden" name="head_id" value="{{ $head_id }}">
+            <input type="hidden" name="encrypted_id" value="{{ $encrypted_id }}">
 
             <div>
                 <label for="name">Member Name</label>
@@ -225,7 +225,7 @@
 
     <script>
         $(document).ready(function () {
-            var headId = "{{ $head_id }}";
+            var headId = "{{ $encrypted_id }}";
 
             $('.WeddingDate').hide();
             $('input[name="status"]').on('change', function () {
@@ -286,7 +286,6 @@
                         processData: false,
                         contentType: false,
                         success: function (response) {
-                            $(".error").remove();
                             $("#success-message").text(response.message).show();
                             form.reset();
                             setTimeout(function () {
