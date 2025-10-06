@@ -1,12 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password</title>
-    <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
-
+    <title>Admin Reset Password</title>
+    <!-- Add your CSS here, e.g., <link rel="stylesheet" href="{{ asset('css/style.css') }}"> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/additional-methods.min.js"></script>
 
     <style>
         :root {
@@ -128,8 +128,9 @@
         <div class="success-message" id="success-message"></div>
 
         <form id="resetPasswordForm" method="POST" action="/admin-set-forget-password">
-            @csrf
-            <input type="hidden" name="email" value="{{ $email }}">
+    @csrf
+    <input type="hidden" name="email" value="{{ $email ?? '' }}">
+    <input type="hidden" name="token" value="{{ $token ?? '' }}">
 
             <div class="form-group">
                 <label for="password" class="label">Password</label>
@@ -151,9 +152,12 @@
     <script>
         $(document).ready(function () {
             $.ajaxSetup({
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') || '{{ csrf_token() }}' }
             });
 
+            if (!$('meta[name="csrf-token"]').length) {
+                $('head').append('<meta name="csrf-token" content="{{ csrf_token() }}">');
+            }
 
             $("#resetPasswordForm").validate({
                 rules: {
@@ -194,7 +198,9 @@
                         success: function (response) {
                             $("#success-message").text(response.message || "Password updated successfully!");
                             $(form).trigger("reset");
-                            window.location.href = "/admin-login";
+                            setTimeout(() => {
+                                window.location.href = "/admin-login";
+                            }, 2000); 
                         },
                         error: function (xhr) {
                             if (xhr.status === 422) {
@@ -210,7 +216,6 @@
                 }
             });
 
-
             $("input").on("input", function () {
                 let name = $(this).attr("name");
                 $("#error-" + name).text("");
@@ -219,3 +224,4 @@
         });
     </script>
 </body>
+</html>

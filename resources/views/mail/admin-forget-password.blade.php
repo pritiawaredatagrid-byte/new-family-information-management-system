@@ -1,6 +1,14 @@
-<div>
-    Hi User
-    <p>This mail from code step by step</p>
-    <p>Please  click on link to reset password</p>
-    <a href="{{$link}}">Click Here</a>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Forgot Password</title>
+</head>
+<body>
+    <h2>Hi User,</h2>
+
+    <p>Please click on the link below to reset your password:</p>
+    <p><a href="{{ $link }}" style="color: #007bff; text-decoration: none;">Click Here</a></p>
+    <p>If you didn't request this, please ignore this email.</p>
+
+</body>
+</html>

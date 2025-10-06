@@ -4,17 +4,15 @@
                 @else
                     <table class="w-full text-sm text-gray-700">
                         <thead class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider sticky top-0">
-                            <tr>
+                           <tr>
                                 <th class="px-1 py-1 text-center">Sr.No</th>
                                 <th class="text-center">Photo</th>
                                 <th class="px-1 py-1 text-center">Name</th>
                                 <th class="px-1 py-1 text-center">Birth Date</th>
-                                <th class="px-1 py-1 text-center">Mobile</th>
-                                <th class="px-1 py-1 text-center">Address</th>
-
                                 <th class="px-1 py-1 text-center">Marital Status</th>
                                 <th class="px-1 py-1 text-center">Wedding Date</th>
-                                <th class="px-1 py-1 text-center">Hobbies</th>
+                                <th class="px-1 py-1 text-center">Education</th>
+                                <th class="px-1 py-1 text-center">Relation</th>
                                 <th class="px-1 py-1 text-center">Status</th>
                                 <th class="px-1 py-1 text-center">Action</th>
                             </tr>
@@ -33,66 +31,37 @@
                                             <span class="text-gray-400 text-xs">No photo</span>
                                         @endif
                                     </td>
-                                    <td class="px-1 py-1 font-medium whitespace-nowrap">{{ $sd->name }} {{ $sd->surname }}
+                                    <td class="px-1 py-1 font-medium whitespace-nowrap">{{ $sd->name }}
                                     </td>
-                                    <td class="px-1 py-1 text-center whitespace-nowrap">{{ \Carbon\Carbon::parse($sd->birthdate)->format('d-m-Y') ?? '-' }}</td>
-                                    <td class="px-1 py-1 text-center whitespace-nowrap">{{ $sd->mobile_number ?? '-' }}</td>
-                                    <td class="px-1 py-1 truncate max-w-[150px]">{{ $sd->address ?? '-' }}</td>
-
+                                    <td class="px-1 py-1 text-center whitespace-nowrap">{{ $sd->birthdate ?? '-' }}</td>
+                             
                                     <td class="px-1 py-1 text-center">{{ $sd->status ?? '-' }}</td>
                                     <td class="px-1 py-1 text-center">
                                         {{ $sd->status == 'married' ? ($sd->wedding_date ?? '-') : '-' }}
                                     </td>
-                                    <td class="px-1 py-1">
-                                        @php
-                                            $string = $sd->hobby;
-                                            $hobbies = [];
-                                            preg_match_all('/"(.*?)"/', $string, $matches);
-                                            if (!empty($matches[1]))
-                                                $hobbies = $matches[1];
-                                        @endphp
-                                        @if (!empty($hobbies))
-                                            <div class="flex flex-wrap gap-1">
-                                                @foreach ($hobbies as $hobby)
-                                                    <span
-                                                        class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-lg">{{ $hobby }}</span>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <span class="text-gray-400">-</span>
-                                        @endif
+                                   
+                                     </td>
+            <td class="px-1 py-1 text-center">
+                                        {{ $sd->education}}
                                     </td>
                                     <td class="px-1 py-1 text-center">
-                                       <div class="flex justify-center gap-2">
+                                        {{ $sd->relation}}
+                                    </td>
+                                    <td class="px-1 py-1 text-center">
+                                       
+                                        <div class="flex justify-center gap-2">
                                             @if($sd->op_status==1)
                                                  <h6>Active</h6>
                                             @elseif ($sd->op_status==0)
-                                                 <h6>Inactive</h6>
+                                                 <h6>Inctive</h6>
                                             @endif
                                     </div>
+                                    
                                     </td>
                                     <td class="px-1 py-1 text-center">
                                         <div class="flex justify-center gap-2">
 
-                           
-
-                               @if ($sd->op_status == 1)
-    <a href="{{ url('view-family-details/' . urlencode(Crypt::encrypt($sd->id))) }}" title="View Family">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f">
-            <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
-        </svg>
-    </a>
-@else ($sd->op_status==0)
- 
-    <a href="javascript:void(0)" onclick="alert('This user is inactive and cannot be viewed.')" title="User Inactive">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#9ca3af">
-            <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
-        </svg>
-    </a>
-@endif
-                                       
-                                 
-                                    <a href="{{ '/edit-family-head/' . urlencode(Crypt::encrypt($sd->id)) }}">
+                                    <a href="{{ '/edit-family-member-from-list/' .urlencode(Crypt::encrypt($sd->id)) }}}}">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                             width="24px" fill="#1f1f1f">
                                             <path
@@ -115,7 +84,6 @@
                                      </div>
                                     </div>
                                 </div>
-</td>
                                 </tr>
                             @endforeach
                         </tbody>

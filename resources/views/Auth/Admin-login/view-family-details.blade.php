@@ -176,7 +176,6 @@
         <div class="mx-auto p-6">
 
 
-            {{-- Family Head Card --}}
             <div class="bg-white rounded-xl shadow p-6 mb-8">
                 <div class="flex items-center space-x-6">
                     <div>

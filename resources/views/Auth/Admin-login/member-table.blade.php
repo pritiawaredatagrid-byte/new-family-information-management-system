@@ -57,7 +57,7 @@
                                     <td class="px-1 py-1 text-center">
                                         <div class="flex justify-center gap-2">
 
-                                    <a href="{{ url('/edit-family-member/' . $member->encrypted_id) }}">
+                                    <a href="{{ url('/edit-family-member-from-list/' . urlencode(Crypt::encrypt($member->id))) }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                             width="24px" fill="#1f1f1f">
                                             <path
