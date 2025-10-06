@@ -23,12 +23,12 @@
                             @if($state->op_status == 1)
                                 <h6>Active</h6>
                             @elseif ($state->op_status == 0)
-                                <h6>Inctive</h6>
+                                <h6>Inactive</h6>
                             @endif
                         </td>
                         <td class="px-1 py-3 text-center">
                             <div class="flex justify-center gap-2">
-
+                               @if ($state->op_status == 1)
                                 <a
                                     href="{{ route('view-state-details', ['encrypted_state_id' => urlencode(Crypt::encrypt($state->state_id))]) }}">
 
@@ -38,8 +38,16 @@
                                             d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
                                     </svg>
                                 </a>
+                                @else ($state->op_status==0)
+                                <a href="javascript:void(0)" onclick="alert('This state is inactive and cannot be viewed.')" title="State Inactive">
 
-
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+            width="24px" fill="#9ca3af"> 
+                                        <path
+                                            d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
+                                    </svg>
+                                </a>
+                                @endif
 
                                 <a
                                     href="{{ route('edit-state', ['encrypted_state_id' => urlencode(Crypt::encrypt($state->state_id))]) }}">

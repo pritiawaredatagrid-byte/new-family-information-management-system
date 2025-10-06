@@ -363,7 +363,7 @@
 
 
             <div style="width: 50%;">
-                <form action="{{ route('redirect-search-city', ['type' => 'city']) }}" method="GET" class="search">
+                <form action="{{ route('redirect-search-member', ['type' => 'member']) }}" method="GET" class="search">
     <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Search by Name">
     <button type="submit">
         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f">

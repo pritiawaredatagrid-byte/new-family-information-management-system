@@ -45,8 +45,8 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::put('edit-family-member-data/{encrypted_id}/{id}', [AdminController::class, 'editFamilyMemberData']);
 
     // Edit member from member list
-    Route::get('edit-family-member/{encrypted_id}', [AdminController::class, 'editFamilyMemberFromList']);
-    Route::put('edit-family-member-data/{encrypted_id}', [AdminController::class, 'editFamilyMemberDataFromList']);
+    Route::get('edit-family-member-from-list/{encrypted_id}', [AdminController::class, 'editFamilyMemberFromList']);
+    Route::put('edit-family-member-data-from-list/{encrypted_id}', [AdminController::class, 'editFamilyMemberDataFromList']);
 
     Route::view('edit-city-from-list', '/Auth/Admin-login/edit-city-from-list');
     Route::get('/edit-city-from-list/{encrypted_city_id}', [AdminController::class, 'editCityFromList'])->name('edit-city-from-list');
@@ -129,18 +129,20 @@ Route::middleware('CheckAdminAuth')->group(function () {
 });
 
 Route::view('admin-login', '/Auth/Admin-login/admin-login');
-Route::view('admin-forget-password', '/Auth/Admin-login/admin-forget-password');
-Route::post('admin-forget-password', [AdminController::class, 'AdminForgetPassword']);
-// Route::get('admin-forget-password/{email}', [AdminController::class, 'AdminResetForgetPassword']);
-Route::get('/admin-forget-password/{encrypted}', [AdminController::class, 'AdminResetForgetPassword'])
-    ->name('admin.reset-password')
-    ->middleware('signed');
-
-Route::post('admin-set-forget-password', [AdminController::class, 'AdminSetForgetPassword']);
+// Request reset link
 
 Route::post('admin-login', [AdminController::class, 'login']);
 Route::get('admin-logout', [AdminController::class, 'logout']);
-// Route::get('member-list', [AdminController::class, 'memberList']);
+
+Route::get('/admin-forget-password', function () {
+    return view('Auth.Admin-login.admin-forget-password');
+});
+
+Route::post('/admin-forget-password', [AdminController::class, 'AdminForgetPassword'])->name('admin-forget-password');
+
+Route::get('/admin-reset-password', [AdminController::class, 'AdminResetForgetPassword'])->name('admin-reset-password');
+
+Route::post('/admin-set-forget-password', [AdminController::class, 'AdminSetForgetPassword'])->name('admin-set-password');
 
 // User Registration
 Route::get('user-registration', [UserController::class, 'addStates']);
