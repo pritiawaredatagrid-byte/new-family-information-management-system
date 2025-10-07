@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
 use App\Models\AdminAction;
 use App\Models\City;
 use App\Models\Member;
@@ -45,63 +45,76 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $headData = $request->input('head');
+        DB::beginTransaction();
 
-        $head = new UserRegistration;
-        $head->name = $headData['name'];
-        $head->surname = $headData['surname'];
-        $head->birthdate = $headData['birthdate'];
-        $head->mobile_number = $headData['mobile_number'];
-        $head->address = $headData['address'];
+        try {
+            $headData = $request->input('head');
 
-        $state = State::find($headData['state']);
-        $head->state = $state ? $state->state_name : null;
+            $head = new UserRegistration;
+            $head->name = $headData['name'];
+            $head->surname = $headData['surname'];
+            $head->birthdate = $headData['birthdate'];
+            $head->mobile_number = $headData['mobile_number'];
+            $head->address = $headData['address'];
 
-        $head->city = $headData['city'];
-        $head->pincode = $headData['pincode'];
-        $head->status = $headData['status'];
-        $head->wedding_date = $headData['wedding_date'] ?? null;
+            $state = State::find($headData['state']);
+            $head->state = $state ? $state->state_name : null;
 
-        $hobbies = $request->input('hobbies');
-        if ($hobbies) {
-            $head->hobby = json_encode($hobbies);
-        }
+            $head->city = $headData['city'];
+            $head->pincode = $headData['pincode'];
+            $head->status = $headData['status'];
+            $head->wedding_date = $headData['wedding_date'] ?? null;
 
-        if ($request->hasFile('head.photo')) {
-            $head->photo = $request->file('head.photo')->store('photos', 'public');
-        }
-
-        $head->save();
-
-        if ($request->has('members')) {
-            foreach ($request->members as $index => $memberData) {
-                $member = new Member;
-                $member->head_id = $head->id;
-                $member->name = $memberData['name'];
-                $member->birthdate = $memberData['birthdate'];
-                $member->status = $memberData['status'];
-                $member->wedding_date = $memberData['wedding_date'] ?? null;
-                $member->education = $memberData['education'] ?? null;
-                $member->relation = $memberData['relation'] ?? null;
-                if ($request->hasFile("members.$index.photo")) {
-                    $member->photo = $request->file("members.$index.photo")->store('photos', 'public');
-                }
-                $member->save();
+            $hobbies = $request->input('hobbies');
+            if ($hobbies) {
+                $head->hobby = json_encode($hobbies);
             }
+
+            if ($request->hasFile('head.photo')) {
+                $head->photo = $request->file('head.photo')->store('photos', 'public');
+            }
+
+            $head->save();
+
+            if ($request->has('members')) {
+                foreach ($request->members as $index => $memberData) {
+                    $member = new Member;
+                    $member->head_id = $head->id;
+                    $member->name = $memberData['name'];
+                    $member->birthdate = $memberData['birthdate'];
+                    $member->status = $memberData['status'];
+                    $member->wedding_date = $memberData['wedding_date'] ?? null;
+                    $member->education = $memberData['education'] ?? null;
+                    $member->relation = $memberData['relation'] ?? null;
+                    if ($request->hasFile("members.$index.photo")) {
+                        $member->photo = $request->file("members.$index.photo")->store('photos', 'public');
+                    }
+                    $member->save();
+                }
+            }
+
+            AdminAction::create([
+                'admin_id' => auth()->id(),
+                'action' => 'Head Added with Members',
+                'resource_type' => 'family',
+                'resource_id' => $head->id,
+                'details' => json_encode(['ip_address' => $request->ip()]),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Family Head and Members Added Successfully!',
+                'headId' => $head->id,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Something went wrong while saving the data.',
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        AdminAction::create([
-            'admin_id' => auth()->id(),
-            'action' => 'Head Added with Members',
-            'resource_type' => 'family',
-            'resource_id' => $head->id,
-            'details' => json_encode(['ip_address' => $request->ip()]),
-        ]);
-
-        return response()->json([
-            'message' => 'Family Head and Members Added Successfully!',
-            'headId' => $head->id,
-        ]);
     }
 
     public function checkMobileUniqueness(Request $request)
