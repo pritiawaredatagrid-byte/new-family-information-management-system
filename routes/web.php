@@ -61,7 +61,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
     Route::delete('delete-family-details/{id}', [AdminController::class, 'deleteFamilyDetails'])->name('delete-family-details');
 
     // delete family member
-    Route::delete('delete-family-member/{id}', [AdminController::class, 'deleteFamilyMember'])->name('delete-family-member');
+    Route::delete('delete-family-member/{encrypted_id}', [AdminController::class, 'deleteFamilyMember'])->name('delete-family-member');
 
     // family details data download
     Route::get('/view-family-details-pdf', [AdminController::class, 'exportPDF'])->name('view-family-details-pdf');
@@ -78,7 +78,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
     // delete state details
     Route::delete('delete-state-details/{state_id}', [AdminController::class, 'deleteStateDetails'])->name('delete-state-details');
     // delete city
-    Route::delete('delete-city/{city_id}', [AdminController::class, 'deleteCity'])->name('delete-city');
+    Route::delete('delete-city/{encrypted_city_id}', [AdminController::class, 'deleteCity'])->name('delete-city');
 
     // Edit state
 

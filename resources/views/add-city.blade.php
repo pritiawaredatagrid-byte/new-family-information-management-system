@@ -181,7 +181,7 @@
     <div class="main">
         <h2>Add City</h2>
 
-        <form id="add-city-form" method="POST" action="{{ route('add-city') }}">
+        <form id="add-city-form" method="POST">
             @csrf
             <input type="hidden" name="state_id" value="{{ $state_id }}">
 

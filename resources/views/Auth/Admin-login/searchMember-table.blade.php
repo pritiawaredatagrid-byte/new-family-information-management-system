@@ -69,7 +69,7 @@
                                         </svg>
                                     </a>
                                     
-                                    <form method="POST" action="{{ route('delete-family-details', $sd->id) }}"
+                                    <form method="POST" action="{{ route('delete-family-member', encrypt($sd->id)) }}"
                                         onsubmit="return confirm('Are you sure?')" class="inline">
                                         @csrf
                                         @method('DELETE')

@@ -1024,22 +1024,25 @@ class AdminController extends Controller
             ->with('success', $head->name."'s Family details successfully deleted.");
     }
 
-    public function deleteFamilyMember($id, Request $request)
+    public function deleteFamilyMember($encrypted_id, Request $request)
     {
+        $id = Crypt::decrypt($encrypted_id);
         $member = Member::findOrFail($id);
 
         $head_id = $member->head_id;
+
         $member->update(['op_status' => 9]);
         $member->delete();
+
         AdminAction::create([
             'admin_id' => auth()->id(),
             'action' => 'Member deleted',
             'resource_type' => 'member',
-            'resource_id' => $member->id,
+            'resource_id' => $id,
             'details' => json_encode(['ip_address' => $request->ip()]),
         ]);
 
-        return redirect()->route('view-family-details', ['id' => $head_id])
+        return redirect('/member-list')
             ->with('success', $member->name.' successfully deleted.');
     }
 
@@ -1264,23 +1267,27 @@ class AdminController extends Controller
         }
     }
 
-    public function deleteCity($city_id, Request $request)
+    public function deleteCity($encrypted_city_id, Request $request)
     {
+        $city_id = Crypt::decrypt($encrypted_city_id);
         $city = City::findOrFail($city_id);
 
         $state_id = $city->state_id;
-        $city->update(['op_status' => 9]);
+
+        $city->op_status = 9;
+        $city->save();
+
         $city->delete();
 
         AdminAction::create([
             'admin_id' => auth()->id(),
             'action' => 'City deleted',
             'resource_type' => 'city',
-            'resource_id' => $city->city_id,
+            'resource_id' => $city_id,
             'details' => json_encode(['ip_address' => $request->ip()]),
         ]);
 
-        return redirect()->route('view-state-details', ['state_id' => $state_id])
+        return redirect('/city-list')
             ->with('success', $city->city_name.' successfully deleted.');
     }
 

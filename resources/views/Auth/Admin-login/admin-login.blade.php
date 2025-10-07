@@ -167,7 +167,7 @@
 
     <div class="error-container"></div>
 
-    <form action="/admin-login" method="POST" id="ajax-form">
+    <form method="POST" id="ajax-form">
       @csrf
       <div class="form-group">
         <label for="email">Admin Email</label>

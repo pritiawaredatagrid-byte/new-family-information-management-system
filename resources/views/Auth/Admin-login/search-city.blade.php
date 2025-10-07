@@ -335,7 +335,7 @@
         </header>
 
         <div class="p-6">
-            <div class="bg-white rounded-xl shadow" id="familySearchTableWrapper">
+            <div class="bg-white rounded-xl shadow" id="citySearchTableWrapper">
                 @include('Auth.Admin-login.searchCity-table')
             </div>
         </div>
