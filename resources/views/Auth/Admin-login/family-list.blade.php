@@ -290,7 +290,7 @@
                 <circle cx="50" cy="30" r="20" fill="currentColor" />
                 <path d="M25 70 Q50 40 75 70 L75 80 Q50 110 25 80 Z" fill="currentColor" />
             </svg>
-            <h1 class="text-3xl font-bold text-gray-200 sidebar-text">FIMS Admin</h1>
+            <h1 class="text-2xl font-bold text-gray-200 sidebar-text">FIMS Admin</h1>
         </div>
         <nav class="flex-1 space-y-2">
             <a href="/dashboard" class="sidebar-link active">

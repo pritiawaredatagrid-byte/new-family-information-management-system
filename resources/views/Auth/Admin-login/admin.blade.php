@@ -26,7 +26,7 @@
     }
 
     .sidebar {
-      width: 350px;
+      width: 280px;
       background-color: #1F2937;
       color: #d1d5db;
       padding: 1.5rem 1rem;
@@ -69,7 +69,7 @@
     }
 
     .page-wrapper {
-      margin-left: 350px;
+      margin-left: 300px;
       transition: margin-left 0.3s ease;
       min-height: 100vh;
     }
@@ -121,7 +121,6 @@
     .header-text #sidebarToggle {
       display: none;
     }
-
 
     @media (max-width: 1024px) {
       .sidebar {
