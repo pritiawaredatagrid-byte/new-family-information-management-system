@@ -446,7 +446,7 @@
             <p>Family Head and Members Added Successfully!</p>
         </div>
 
-        <form action="/user-registration-admin" method="POST" enctype="multipart/form-data" id="registrationForm">
+        <form  method="POST" enctype="multipart/form-data" id="registrationForm">
 
             @csrf
 
