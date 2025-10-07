@@ -1,4 +1,5 @@
-<div class="bg-white rounded-xl shadow">
+<div 
+class="bg-white rounded-xl shadow">
                 @if ($searchData->isEmpty())
                     <p class="text-center text-gray-500 text-sm py-10">No data available.</p>
                 @else

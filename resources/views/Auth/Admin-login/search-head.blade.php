@@ -187,6 +187,11 @@
             display: none;
         }
 
+        .alert-danger{
+            color:red;
+            margin-bottom:1rem;
+        }
+
         @media (max-width: 1024px) {
             .sidebar {
                 width: 280px;
@@ -385,7 +390,13 @@
         </header>
 
         <div class="p-6">
+            @if (session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
             <div class="flex justify-between items-center mb-6">
+                
                 <h1 class="text-2xl font-bold text-gray-600">Family Heads</h1>
                  <div class="flex justify-between items-center">
                 <a href="{{ route('search-view-family-details-pdf', ['search' => request('search')]) }}"

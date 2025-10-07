@@ -362,6 +362,10 @@ class AdminController extends Controller
             ->orWhere('city', 'like', "%$search%")
             ->get();
 
+        if ($families->isEmpty()) {
+            return back()->with('error', 'No family data found for the given search criteria.');
+        }
+
         $pdf = PDF::loadView($this->baseViewPath.'.search-view-family-details-pdf', compact('families'));
 
         return $pdf->download('Filtered_Family_Details.pdf');
@@ -377,6 +381,10 @@ class AdminController extends Controller
             ->orWhere('state', 'like', "%$search%")
             ->orWhere('city', 'like', "%$search%")
             ->get();
+
+        if ($families->isEmpty()) {
+            return back()->with('error', 'No family data found for the given search criteria.');
+        }
 
         return Excel::download(new SearchFamilyDetailsExcel($families), 'Filtered_Family_Details.xlsx');
     }
