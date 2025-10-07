@@ -28,6 +28,8 @@ use Mail;
 
 class AdminController extends Controller
 {
+    protected $baseViewPath = 'Auth.Admin-login';
+
     public function userRegistrationAdmin(Request $request)
     {
         $cutDate = Carbon::now()->subYears(21);
@@ -276,7 +278,7 @@ class AdminController extends Controller
         }
 
         if ($admin) {
-            return view('Auth.Admin-login.admin', [
+            return view($this->baseViewPath.'.admin', [
                 'name' => $admin->name,
                 'totalFamilies' => $totalFamilies,
                 'totalMembers' => $totalMembers,
@@ -308,10 +310,10 @@ class AdminController extends Controller
             $head->encrypted_id = Crypt::encrypt($head->id);
         }
         if ($request->ajax()) {
-            return view('Auth.Admin-login.family-table', compact('heads'))->render();
+            return view($this->baseViewPath.'.family-table', compact('heads'))->render();
         }
 
-        return view('Auth.Admin-login.family-list', compact('heads'));
+        return view($this->baseViewPath.'.family-list', compact('heads'));
     }
 
     public function memberList(Request $request)
@@ -326,10 +328,10 @@ class AdminController extends Controller
         }
 
         if ($request->ajax()) {
-            return view('Auth.Admin-login.member-table', compact('members'))->render();
+            return view($this->baseViewPath.'.member-table', compact('members'))->render();
         }
 
-        return view('Auth.Admin-login.member-list', compact('members'));
+        return view($this->baseViewPath.'.member-list', compact('members'));
     }
 
     public function exportPDF()
@@ -337,7 +339,7 @@ class AdminController extends Controller
 
         $families = UserRegistration::with('members')->get();
 
-        $pdf = PDF::loadView('Auth.Admin-login.view-family-details-pdf', compact('families'));
+        $pdf = PDF::loadView($this->baseViewPath.'.view-family-details-pdf', compact('families'));
 
         return $pdf->download('All_Family_Details.pdf');
 
@@ -360,7 +362,7 @@ class AdminController extends Controller
             ->orWhere('city', 'like', "%$search%")
             ->get();
 
-        $pdf = PDF::loadView('Auth.Admin-login.search-view-family-details-pdf', compact('families'));
+        $pdf = PDF::loadView($this->baseViewPath.'.search-view-family-details-pdf', compact('families'));
 
         return $pdf->download('Filtered_Family_Details.pdf');
     }
@@ -390,10 +392,10 @@ class AdminController extends Controller
             $state->encrypted_id = urlencode(Crypt::encrypt($state->state_id));
         }
         if ($request->ajax()) {
-            return view('Auth.Admin-login.state-table', compact('states'))->render();
+            return view($this->baseViewPath.'.state-table', compact('states'))->render();
         }
 
-        return view('Auth.Admin-login.state-list', compact('states'));
+        return view($this->baseViewPath.'.state-list', compact('states'));
     }
 
     public function CityList(Request $request)
@@ -408,10 +410,10 @@ class AdminController extends Controller
         }
 
         if ($request->ajax()) {
-            return view('Auth.Admin-login.city-table', compact('cities'))->render();
+            return view($this->baseViewPath.'.city-table', compact('cities'))->render();
         }
 
-        return view('Auth.Admin-login.city-list', compact('cities'));
+        return view($this->baseViewPath.'.city-list', compact('cities'));
     }
 
     public function redirectToEncryptedSearch(Request $request, $type)
@@ -453,10 +455,10 @@ class AdminController extends Controller
         $searchData = $query->paginate(10)->appends(['search' => $encrypted]);
 
         if ($request->ajax()) {
-            return view('Auth.Admin-login.searchHead-table', compact('searchData'))->render();
+            return view($this->baseViewPath.'.searchHead-table', compact('searchData'))->render();
         }
 
-        return view('Auth.Admin-login.search-head', [
+        return view($this->baseViewPath.'.search-head', [
             'searchData' => $searchData,
             'search' => $search,
         ]);
@@ -485,10 +487,10 @@ class AdminController extends Controller
         $searchData = $query->paginate(10)->appends(['search' => $encrypted]);
 
         if ($request->ajax()) {
-            return view('Auth.Admin-login.searchMember-table', compact('searchData'))->render();
+            return view($this->baseViewPath.'.searchMember-table', compact('searchData'))->render();
         }
 
-        return view('Auth.Admin-login.search-member', [
+        return view($this->baseViewPath.'.search-member', [
             'searchData' => $searchData,
             'search' => $search,
         ]);
@@ -515,10 +517,10 @@ class AdminController extends Controller
         $searchData = $query->paginate(10)->appends(['search' => $encrypted]);
 
         if ($request->ajax()) {
-            return view('Auth.Admin-login.searchState-table', compact('searchData'))->render();
+            return view($this->baseViewPath.'.searchState-table', compact('searchData'))->render();
         }
 
-        return view('Auth.Admin-login.search-state', [
+        return view($this->baseViewPath.'.search-state', [
             'searchData' => $searchData,
             'search' => $search,
         ]);
@@ -544,10 +546,10 @@ class AdminController extends Controller
             ->appends(['search' => $encrypted]);
 
         if ($request->ajax()) {
-            return view('Auth.Admin-login.searchCity-table', compact('searchData'))->render();
+            return view($this->baseViewPath.'.searchCity-table', compact('searchData'))->render();
         }
 
-        return view('Auth.Admin-login.search-city', [
+        return view($this->baseViewPath.'.search-city', [
             'searchData' => $searchData,
             'search' => $search,
         ]);
@@ -604,7 +606,7 @@ class AdminController extends Controller
     {
         $states = State::select('state_id', 'state_name')->get();
 
-        return view('/Auth/Admin-login/user-registration-admin', compact('states'));
+        return view($this->baseViewPath.'.user-registration-admin', compact('states'));
     }
 
     public function addStates_state()
@@ -715,7 +717,7 @@ class AdminController extends Controller
 
         $familyHead->encrypted_id = urlencode(Crypt::encrypt($familyHead->id));
 
-        return view('Auth.Admin-login.edit-family-head', [
+        return view($this->baseViewPath.'.edit-family-head', [
             'familyHead' => $familyHead,
             'states' => $states,
             'hobbies' => $hobbies,
@@ -871,7 +873,7 @@ class AdminController extends Controller
             abort(404, 'Invalid ID.');
         }
 
-        return view('Auth.Admin-login.add-family-member-admin', [
+        return view($this->baseViewPath.'.add-family-member-admin', [
             'encrypted_id' => $encrypted_id,
         ]);
     }
@@ -945,7 +947,7 @@ class AdminController extends Controller
 
         $member = Member::where('head_id', $head_id)->findOrFail($id);
 
-        return view('Auth.Admin-login.edit-family-member', [
+        return view($this->baseViewPath.'.edit-family-member', [
             'member' => $member,
             'encrypted_id' => $encrypted_id,
         ]);
@@ -1018,7 +1020,7 @@ class AdminController extends Controller
         $id = Crypt::decrypt(urldecode($encrypted_id));
         $member = Member::findOrFail($id);
 
-        return view('/Auth/Admin-login/edit-family-member', ['member' => $member]);
+        return view($this->baseViewPath.'.edit-family-member', ['member' => $member]);
     }
 
     public function editFamilyMemberDataFromList(Request $request, $encrypted_id)
@@ -1096,7 +1098,7 @@ class AdminController extends Controller
 
         $head->encrypted_id = Crypt::encrypt($head->id);
 
-        return view('Auth.Admin-login.view-family-details', [
+        return view($this->baseViewPath.'.view-family-details', [
             'head' => $head,
             'members' => $members,
             'encrypted_id' => $encrypted_id,
@@ -1187,7 +1189,7 @@ class AdminController extends Controller
         $state = State::findOrFail($id);
         $cities = $state->cities()->paginate(10);
 
-        return view('Auth.Admin-login.view-state-details', [
+        return view($this->baseViewPath.'.view-state-details', [
             'state' => $state,
             'cities' => $cities,
             'encrypted_state_id' => $encrypted_state_id,
@@ -1201,7 +1203,7 @@ class AdminController extends Controller
             $state_id = Crypt::decrypt(urldecode($encrypted_state_id));
             $stateDetails = State::findOrFail($state_id);
 
-            return view('Auth.Admin-login.edit-state', ['stateDetails' => $stateDetails]);
+            return view($this->baseViewPath.'.edit-state', ['stateDetails' => $stateDetails]);
 
         } catch (\Exception $e) {
             return redirect()->route('view-state-details')->with('error', 'Invalid State ID or State not found.');
@@ -1274,7 +1276,7 @@ class AdminController extends Controller
             $city = City::where('state_id', $state_id)->findOrFail($city_id);
             $state = State::findOrFail($state_id);
 
-            return view('Auth.Admin-login.edit-city', [
+            return view($this->baseViewPath.'.edit-city', [
                 'city' => $city,
                 'state' => $state,
                 'encrypted_state_id' => $encrypted_state_id,
@@ -1382,7 +1384,7 @@ class AdminController extends Controller
         $city_id = Crypt::decrypt(urldecode($encrypted_city_id));
         $city = City::findOrFail($city_id);
 
-        return view('Auth.Admin-login.edit-city-from-list', ['city' => $city]);
+        return view($this->baseViewPath.'.edit-city-from-list', ['city' => $city]);
     }
 
     public function editCityDataFromList(Request $request, $city_id)

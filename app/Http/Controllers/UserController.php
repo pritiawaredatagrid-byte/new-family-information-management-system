@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\DB;
+
 use App\Models\AdminAction;
 use App\Models\City;
 use App\Models\Member;
@@ -9,6 +9,7 @@ use App\Models\State;
 use App\Models\UserRegistration;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
