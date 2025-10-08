@@ -354,17 +354,17 @@ class AdminController extends Controller
 
     public function exportPDFSearchHead(Request $request)
     {
-        $search = $request->query('search');
-        $families = UserRegistration::with('members')
-            ->where('name', 'like', "%$search%")
-            ->orWhere('mobile_number', 'like', "%$search%")
-            ->orWhere('state', 'like', "%$search%")
-            ->orWhere('city', 'like', "%$search%")
-            ->get();
 
-        if ($families->isEmpty()) {
-            return back()->with('error', 'No family data found for the given search criteria.');
-        }
+        $search = $request->query('search');
+
+        $families = UserRegistration::with('members')
+            ->where(function ($query) use ($search) {
+                $query->where('name', 'like', "%$search%")
+                    ->orWhere('mobile_number', 'like', "%$search%")
+                    ->orWhere('state', 'like', "%$search%")
+                    ->orWhere('city', 'like', "%$search%");
+            })
+            ->get();
 
         $pdf = PDF::loadView($this->baseViewPath.'.search-view-family-details-pdf', compact('families'));
 
@@ -381,10 +381,6 @@ class AdminController extends Controller
             ->orWhere('state', 'like', "%$search%")
             ->orWhere('city', 'like', "%$search%")
             ->get();
-
-        if ($families->isEmpty()) {
-            return back()->with('error', 'No family data found for the given search criteria.');
-        }
 
         return Excel::download(new SearchFamilyDetailsExcel($families), 'Filtered_Family_Details.xlsx');
     }

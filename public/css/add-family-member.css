@@ -1,0 +1,150 @@
+:root {
+            --primary-color: #2196F3;
+            --secondary-color: #f44336;
+            --tertiary-color: #ffc107;
+            --text-color: #424242;
+            --border-color: #bdbdbd;
+            --bg-color: #F5F5F5;
+            --card-bg: #FFFFFF;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body.Family-Member-body {
+            font-family: sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 3rem 1rem;
+        }
+
+        .main {
+            background-color: var(--card-bg);
+            padding: 2.5rem 3rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .alert.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .alert.error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+
+        label {
+            font-weight: 300;
+            color: #616161;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            margin-bottom: 1rem;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+        }
+
+        .marital-status {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .marital-status label {
+            margin: 0;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .marital-status input[type="radio"] {
+            margin: 0;
+            accent-color: #e91e63;
+        }
+
+        .WeddingDate {
+            margin-bottom: 1rem;
+        }
+
+        .error {
+            color: var(--secondary-color);
+            font-size: 0.875rem;
+            margin-top: 0.3rem;
+            margin-bottom: 1rem;
+            display: block;
+            font-weight: 100;
+        }
+
+
+        .admin-login {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .admin-login:hover {
+            background-color: #1976D2;
+        }
+
+        .btn.back {
+            display: inline-block;
+            background-color: #616161;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 1rem;
+            width: 100%;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .btn.back:hover {
+            background-color: #424242;
+        }

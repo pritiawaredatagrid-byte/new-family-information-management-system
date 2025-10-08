@@ -3,40 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>All Family Details</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 20px;
-        }
-
-        h2 {
-            /* margin-top: 40px; */
-            color: #2c3e50;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 25px;
-            font-size: 12px;
-        }
-
-        th, td {
-            border: 1px solid #d1d5db;
-            padding: 6px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #f3f4f6;
-            font-weight: bold;
-        }
-
-        .section-divider {
-            border-top: 2px solid #9ca3af;
-            margin: 30px 0;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/search-view-family-details-excel.css">
 </head>
 <body>
 

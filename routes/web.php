@@ -88,7 +88,7 @@ Route::middleware('CheckAdminAuth')->group(function () {
     // Edit City
 
     Route::get('edit-city/{encrypted_state_id}/{city_id}', [AdminController::class, 'editCity']);
-    Route::put('edit-city-data/{encrypted_state_id}/{city_id}', [AdminController::class, 'editCityData']);
+    Route::put('edit-city-data/{encrypted_state_id}/{city_id}', [AdminController::class, 'editCityData'])->name('edit-city-data');
 
     // edit city from list
     Route::view('edit-city-from-list', '/Auth/Admin-login/edit-city-from-list');
