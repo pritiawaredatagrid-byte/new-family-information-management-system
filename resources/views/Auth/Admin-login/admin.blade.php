@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,211 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #e5e7eb;
-    }
-
-    .page-container {
-      display: flex;
-      min-height: 100vh;
-      width: 100%;
-    }
-
-    .sidebar {
-      width: 280px;
-      background-color: #1F2937;
-      color: #d1d5db;
-      padding: 1.5rem 1rem;
-      transition: all 0.3s ease;
-      position: fixed;
-      height: 100%;
-      top: 0;
-      left: 0;
-      z-index: 10;
-    }
-
-    .sidebar.collapsed {
-      width: 100px;
-    }
-
-    .sidebar.collapsed .sidebar-text,
-    .sidebar.collapsed .sidebar-header h1 {
-      display: none;
-    }
-
-    .sidebar-link {
-      display: flex;
-      align-items: center;
-      padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
-      transition: background-color 0.2s, color 0.2s;
-      text-decoration: none;
-      color: #d1d5db;
-    }
-
-    .sidebar-link:hover {
-      background-color: #374151;
-      color: #ffffff;
-    }
-
-    .sidebar-link.active {
-      background-color: #2563eb;
-      color: #ffffff;
-      font-weight: 600;
-    }
-
-    .page-wrapper {
-      margin-left: 300px;
-      transition: margin-left 0.3s ease;
-      min-height: 100vh;
-    }
-
-    .page-wrapper.collapsed {
-      margin-left: 100px;
-    }
-
-    .stats-card {
-      background-color: #ffffff;
-      border-radius: 0.75rem;
-      padding: 2rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .graph-card {
-      background-color: #ffffff;
-      border-radius: 0.75rem;
-      padding: 1rem 7rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .stats-card:hover,
-    .graph-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .main-header {
-      display: flex;
-      text-align: left;
-      align-items: center;
-      padding: 1.5rem;
-      background-color: #ffffff;
-      border-bottom: 1px solid #e5e7eb;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      gap: 2rem;
-    }
-
-    .header-text {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      align-items: center;
-    }
-
-    .header-text #sidebarToggle {
-      display: none;
-    }
-
-    @media (max-width: 1024px) {
-      .sidebar {
-        width: 280px;
-        height: auto;
-        top: -100%;
-        left: 0;
-        padding: 1rem;
-        transition: top 0.3s ease;
-      }
-
-      .sidebar.active {
-        top: 0;
-        width: 100%;
-        height: auto;
-        position: fixed;
-      }
-
-      .sidebar.collapsed {
-        top: -100%;
-        width: 100%;
-      }
-
-      .sidebar.collapsed .sidebar-text,
-      .sidebar.collapsed .sidebar-header h1 {
-        display: initial;
-      }
-
-      .page-wrapper {
-        margin-left: 280px;
-      }
-
-      .page-wrapper.collapsed {
-        margin-left: 100px;
-      }
-
-      .main-header {
-        display: flex;
-        text-align: left;
-        padding: 1.5rem;
-        background-color: #ffffff;
-        border-bottom: 1px solid #e5e7eb;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        gap: 2rem;
-      }
-
-      .header-text {
-        display: flex;
-        justify-content: space-between;
-        gap: 0.5rem;
-
-      }
-
-      .header-text #sidebarToggle {
-        display: initial;
-      }
-
-    }
-
-    @media (max-width: 768px) {
-      .sidebar {
-        display: block;
-        top: -100%;
-        width: 100%;
-        padding: 1rem;
-      }
-
-      .sidebar.active {
-        top: 0;
-        width: 100%;
-        height: auto;
-      }
-
-      .page-wrapper {
-        margin-left: 0;
-      }
-
-      .page-wrapper.collapsed {
-        margin-left: 0;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .sidebar {
-        padding: 0.5rem;
-      }
-
-      .main-header {
-        padding: 1rem;
-      }
-
-      .header-text h1 {
-        font-size: 1.5rem;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="/css/admin.css">
 </head>
 
 <body class="flex">
@@ -260,7 +55,7 @@
         </svg>
         <span class="sidebar-text">State Management</span>
       </a>
-       <a href="/city-list" class="sidebar-link">
+      <a href="/city-list" class="sidebar-link">
         <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
           <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7z" />
           <path fill-rule="evenodd"
@@ -378,155 +173,23 @@
   </div>
 
   <script>
-    Chart.register(ChartDataLabels);
-
-    const ctx1 = document.getElementById('marital_status');
-    new Chart(ctx1, {
-      type: 'pie',
-      data: {
-        labels: ['Married', 'Unmarried'],
-        datasets: [{
-          label: '# of Family Heads',
-          data: [{{ $marriedHeads }}, {{ $unmarriedHeads }}],
-          backgroundColor: [
-            '#3B82F6',
-            'rgba(34, 197, 94, 0.6)'
-          ],
-          borderColor: [
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 99, 132, 1)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-        datalabels: {
-        color: '#fff',
-        formatter: (value, ctx) => {
-          let label = ctx.chart.data.labels[ctx.dataIndex];
-          return `${value}`;
-        }
-      },
-          legend: { position: 'top' },
-          title: { display: true, text: 'Marital Status of Family Heads' }
-        }
-      }
-    });
-
-    const ctx2 = document.getElementById('familiesPerState');
-    new Chart(ctx2, {
-      type: 'bar',
-      data: {
-        labels: Object.keys(@json($familiesPerState)),
-        datasets: [{
-          label: 'Number of Families',
-          data: Object.values(@json($familiesPerState)),
-          backgroundColor: '#3B82F6',
-          borderColor: '#1D4ED8',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        datalabels: {
-        anchor: 'end',
-        align: 'top',
-        color: '#fff',
-        font: {
-          weight: 'bold'
-        }
-      },
-        plugins: {
-          legend: { display: false },
-          title: { display: true, text: 'Families Per State' }
-        },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-      }
-    });
-
-    const ctx3 = document.getElementById('member_marital_status');
-    new Chart(ctx3, {
-      type: 'doughnut',
-      data: {
-        labels: ['Married', 'Unmarried'],
-        datasets: [{
-          label: '# of Family Members',
-          data: [{{ $marriedMembers }}, {{ $unmarriedMembers }}],
-          backgroundColor: [
-            '#3B82F6',
-            'rgba(34, 197, 94, 0.6)'
-          ],
-          borderColor: [
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 99, 132, 1)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'top' },
-          title: { display: true, text: 'Marital Status of Members' }
-        }
-      }
-    });
-
-    const ctx4 = document.getElementById('familyGrowth');
-    new Chart(ctx4, {
-      type: 'line',
-      data: {
-        labels: @json($labels),
-        datasets: [{
-          label: 'Cumulative Family Registrations',
-          data: @json($cumulativeData),
-          backgroundColor: 'rgba(54, 162, 235, 0.6)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 2,
-          fill: true,
-          tension: 0.4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          title: { display: true, text: 'Family Registration Growth Over Time' }
-        },
-        scales: {
-          x: { title: { display: true, text: 'Month' } },
-          y: { beginAtZero: true, title: { display: true, text: 'Cumulative Registrations' }, ticks: { stepSize: 1 } }
-        }
-      }
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const sidebar = document.querySelector('.sidebar');
-      const pageWrapper = document.querySelector('.page-wrapper');
-      const sidebarToggle = document.getElementById('sidebarToggle');
-
-      if (sidebar && pageWrapper && sidebarToggle) {
-        sidebarToggle.addEventListener('click', () => {
-          sidebar.classList.toggle('active');
-        });
-
-        const sidebarLinks = document.querySelectorAll('.sidebar-link');
-        sidebarLinks.forEach(link => {
-          link.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
-              sidebar.classList.remove('active');
-            }
-          });
-        });
-      }
-    });
+    window.dashboardData = {
+      marriedHeads: {{ $marriedHeads }},
+      unmarriedHeads: {{ $unmarriedHeads }},
+      marriedMembers: {{ $marriedMembers }},
+      unmarriedMembers: {{ $unmarriedMembers }},
+      familiesPerState: @json($familiesPerState),
+      labels: @json($labels),
+      cumulativeData: @json($cumulativeData)
+    };
   </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+
+  <script src="{{ asset('js/admin.js') }}"></script>
 </body>
 
 </html>
