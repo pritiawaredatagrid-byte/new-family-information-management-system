@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <title>Searched Families Report</title>
 <style>
-body {
+    body {
 font-family: sans-serif;
 margin: 20px;
 color: #333;
@@ -68,8 +68,7 @@ margin: 1px;
 <body>
 
 @php
-// Helper function to handle image encoding and existence check.
-// This prevents code repetition and improves maintainability.
+
 function getBase64PhotoSrc($photoPath) {
 $fullPath = storage_path('app/public/' . $photoPath);
 if ($photoPath && file_exists($fullPath)) {
@@ -120,7 +119,7 @@ $headPhotoSrc = getBase64PhotoSrc($head->photo);
 <td>{{ $head->status == 'married' ? ($head->wedding_date ?? '-') : '-' }}</td>
 <td>
 @php
-// Decode JSON string for hobbies for more robust parsing.
+
 $hobbies = json_decode($head->hobby, true);
 @endphp
 @if (is_array($hobbies) && !empty($hobbies))

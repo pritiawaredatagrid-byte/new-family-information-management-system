@@ -6,86 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Families</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #e5e7eb;
-        }
-
-
-        .sidebar {
-            width: 280px;
-            background-color: #1F2937;
-            color: #d1d5db;
-            padding: 1.5rem 1rem;
-            transition: width 0.3s ease;
-            position: fixed;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: 10;
-        }
-
-        .sidebar.collapsed {
-            width: 80px;
-        }
-
-        .sidebar.collapsed .sidebar-text,
-        .sidebar.collapsed .sidebar-header h1 {
-            display: none;
-        }
-
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s, color 0.2s;
-            text-decoration: none;
-            color: #d1d5db;
-        }
-
-        .sidebar-link:hover {
-            background-color: #374151;
-            color: #ffffff;
-        }
-
-        .sidebar-link.active {
-            background-color: #2563eb;
-            color: #ffffff;
-            font-weight: 600;
-        }
-
-
-        .page-wrapper {
-            margin-left: 280px;
-            transition: margin-left 0.3s ease;
-            min-height: 100vh;
-        }
-
-        .page-wrapper.collapsed {
-            margin-left: 80px;
-        }
-
-        .main-header {
-            display: flex;
-            /* justify-content: space-between; */
-            text-align: left;
-            align-items: center;
-            padding: 1.5rem;
-            background-color: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            gap: 2rem;
-        }
-
-        .header-text {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/view-family-details.css">
 </head>
 
 <body class="bg-gray-100 font-sans">
@@ -314,20 +235,6 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.querySelector('.sidebar');
-            const pageWrapper = document.querySelector('.page-wrapper');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-
-            if (sidebar && pageWrapper && sidebarToggle) {
-                sidebarToggle.addEventListener('click', () => {
-                    sidebar.classList.toggle('collapsed');
-                    pageWrapper.classList.toggle('collapsed');
-                });
-            }
-        });
-    </script>
 </body>
 
 </html>
